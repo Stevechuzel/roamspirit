@@ -787,6 +787,18 @@ function openCommunity(){
   });
   document.getElementById('community-panel').classList.add('open');
   document.getElementById('comm-city-label').textContent=city;
+  // Pre-fill pseudo if saved
+  var savedPseudo = localStorage.getItem('rs_pseudo') || myPseudo;
+  if(savedPseudo){
+    var pseudoInp = document.getElementById('comm-pseudo');
+    if(pseudoInp && !pseudoInp.value) pseudoInp.value = savedPseudo;
+  }
+  // Save pseudo when typed
+  var pseudoInp = document.getElementById('comm-pseudo');
+  if(pseudoInp) pseudoInp.oninput = function(){
+    localStorage.setItem('rs_pseudo', this.value);
+    myPseudo = this.value;
+  };
   loadFeed();
 }
 
@@ -1123,11 +1135,15 @@ function adminTap(){
 window.addEventListener('DOMContentLoaded',function(){
   var ta=document.getElementById('comm-msg');
   if(ta)ta.addEventListener('input',function(){document.getElementById('comm-count').textContent=this.value.length;});
+  // Restore avatar
   if(currentAvatar){
     var prev=document.getElementById('avatar-preview');
     if(prev) prev.innerHTML='<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
   }
+  // Restore pseudo
   myPseudo = localStorage.getItem('rs_pseudo') || '';
+  var pseudoInp = document.getElementById('comm-pseudo');
+  if(pseudoInp && myPseudo) pseudoInp.value = myPseudo;
   loadPreview();
   updateAds('Paris');
 });
