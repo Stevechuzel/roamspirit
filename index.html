@@ -227,6 +227,23 @@ html,body{height:100%;background:var(--sand);display:flex;justify-content:center
 .comm-preview-text{font-size:12px;color:var(--ink-light);line-height:1.55;font-family:'Playfair Display',serif;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .comm-preview-likes{font-size:10px;color:var(--muted);margin-top:5px}
 
+/* PRIVATE MESSAGES */
+.dm-messages{flex:1;overflow-y:auto;padding:14px 14px 14px 28px;display:flex;flex-direction:column;gap:8px}
+.dm-msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5}
+.dm-msg.sent{background:var(--carmine);color:#fff;border-radius:16px 16px 4px 16px;align-self:flex-end}
+.dm-msg.received{background:var(--cream);border:1px solid var(--sand);color:var(--ink);border-radius:16px 16px 16px 4px;align-self:flex-start}
+.dm-msg-time{font-size:9px;opacity:.6;margin-top:3px;text-align:right}
+.dm-input-row{flex-shrink:0;display:flex;gap:8px;padding:10px 14px 20px 28px;border-top:1px solid var(--sand);background:var(--white)}
+.dm-input{flex:1;border:1px solid var(--sand);border-radius:20px;padding:10px 16px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;background:var(--cream)}
+.dm-input:focus{border-color:var(--carmine)}
+.dm-send{background:var(--carmine);color:#fff;border:none;border-radius:50%;width:38px;height:38px;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.inbox-item{background:var(--white);border:1px solid var(--sand);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;gap:10px}
+.inbox-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);opacity:.5}
+.inbox-unread::before{opacity:1}
+.inbox-preview{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.inbox-badge{background:var(--carmine);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.msg-notif{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--carmine);border-radius:50%;display:none}
+
 /* AD CARDS */
 .ad-card{background:var(--cream);border:1px solid var(--sand);border-radius:14px;padding:14px;margin-top:14px;position:relative;overflow:hidden;text-decoration:none;display:block}
 .ad-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
@@ -520,10 +537,41 @@ html,body{height:100%;background:var(--sand);display:flex;justify-content:center
     </div>
   </div>
 
+  <!-- PRIVATE MESSAGES PANEL -->
+  <div class="panel" id="dm-panel">
+    <div class="p-head">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button onclick="closeDMPanel()" style="background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer">←</button>
+        <div>
+          <div class="p-title" id="dm-title">Private Message</div>
+          <div style="font-size:10px;color:var(--muted)" id="dm-subtitle"></div>
+        </div>
+      </div>
+      <button class="p-close" onclick="closeDMPanel()">✕</button>
+    </div>
+    <div class="dm-messages" id="dm-messages"></div>
+    <div class="dm-input-row">
+      <input class="dm-input" id="dm-inp" placeholder="Write a message…" maxlength="500" onkeydown="if(event.key==='Enter')sendDM()"/>
+      <button class="dm-send" onclick="sendDM()">→</button>
+    </div>
+  </div>
+
+  <!-- INBOX PANEL -->
+  <div class="panel" id="inbox-panel">
+    <div class="p-head">
+      <div class="p-title">Messages</div>
+      <button class="p-close" onclick="closePanel('inbox-panel')">✕</button>
+    </div>
+    <div class="p-body" id="inbox-list">
+      <div class="comm-empty">No messages yet.</div>
+    </div>
+  </div>
+
   <!-- NAV -->
   <div class="nav">
     <button class="community-nav" onclick="openCommunity()">Community</button>
     <button class="prem-nav" onclick="openPanel('prem-panel')">✦ Premium</button>
+    <button class="nav-btn" onclick="openInbox()" style="position:relative">Messages<span class="msg-notif" id="msg-notif"></span></button>
     <button class="nav-btn" onclick="openPanel('playlist-panel')">Playlist</button>
     <button class="nav-btn" onclick="openPanel('itin-panel')">Itinerary</button>
     <button class="nav-btn" onclick="openPanel('album-panel')">Album</button>
@@ -905,9 +953,139 @@ async function rejectPost(id){
 }
 
 
-function openDM(pseudo){
-  alert('Private messaging with '+pseudo+' — coming soon!');
+// ——— PRIVATE MESSAGES ———
+var currentDMPseudo = '';
+var myPseudo = localStorage.getItem('rs_pseudo') || '';
+var dmPolling = null;
+
+function openDM(toPseudo){
+  // Need a pseudo to message
+  if(!myPseudo){
+    var p = prompt('Enter your pseudo to send messages:');
+    if(!p || !p.trim()) return;
+    myPseudo = p.trim();
+    localStorage.setItem('rs_pseudo', myPseudo);
+  }
+  currentDMPseudo = toPseudo;
+  // Close other panels
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
+  document.getElementById('dm-panel').classList.add('open');
+  document.getElementById('dm-title').textContent = toPseudo;
+  document.getElementById('dm-subtitle').textContent = 'Private conversation';
+  document.getElementById('dm-messages').innerHTML = '<div class="comm-empty">Loading…</div>';
+  loadDMs();
+  // Poll every 5 seconds
+  clearInterval(dmPolling);
+  dmPolling = setInterval(loadDMs, 5000);
 }
+
+function closeDMPanel(){
+  clearInterval(dmPolling);
+  document.getElementById('dm-panel').classList.remove('open');
+}
+
+async function loadDMs(){
+  if(!myPseudo || !currentDMPseudo) return;
+  try {
+    var msgs = await supaFetch(
+      'private_messages?or=(and(from_pseudo.eq.'+encodeURIComponent(myPseudo)+',to_pseudo.eq.'+encodeURIComponent(currentDMPseudo)+'),and(from_pseudo.eq.'+encodeURIComponent(currentDMPseudo)+',to_pseudo.eq.'+encodeURIComponent(myPseudo)+'))&order=created_at.asc'
+    );
+    var container = document.getElementById('dm-messages');
+    if(msgs.length === 0){
+      container.innerHTML = '<div class="comm-empty" style="font-style:italic">Start the conversation…</div>';
+      return;
+    }
+    container.innerHTML = msgs.map(function(m){
+      var isSent = m.from_pseudo === myPseudo;
+      var time = new Date(m.created_at).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+      return '<div class="dm-msg '+(isSent?'sent':'received')+'">'
+        +m.content
+        +'<div class="dm-msg-time">'+time+'</div>'
+        +'</div>';
+    }).join('');
+    // Scroll to bottom
+    container.scrollTop = container.scrollHeight;
+    // Mark as read
+    supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&from_pseudo=eq.'+encodeURIComponent(currentDMPseudo)+'&read=eq.false',{
+      method:'PATCH', body:JSON.stringify({read:true})
+    }).catch(function(){});
+  } catch(e){ console.log('DM load error', e); }
+}
+
+async function sendDM(){
+  var inp = document.getElementById('dm-inp');
+  var content = inp.value.trim();
+  if(!content || !myPseudo || !currentDMPseudo) return;
+  inp.value = '';
+  try {
+    await supaFetch('private_messages', {
+      method: 'POST',
+      body: JSON.stringify({
+        from_pseudo: myPseudo,
+        to_pseudo: currentDMPseudo,
+        content: content,
+        read: false
+      })
+    });
+    loadDMs();
+  } catch(e){ console.log('DM send error', e); }
+}
+
+async function openInbox(){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
+  document.getElementById('inbox-panel').classList.add('open');
+  if(!myPseudo){
+    var p = prompt('Enter your pseudo to see your messages:');
+    if(!p || !p.trim()){ closePanel('inbox-panel'); return; }
+    myPseudo = p.trim();
+    localStorage.setItem('rs_pseudo', myPseudo);
+  }
+  loadInbox();
+}
+
+async function loadInbox(){
+  var list = document.getElementById('inbox-list');
+  list.innerHTML = '<div class="comm-empty">Loading…</div>';
+  try {
+    var msgs = await supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&order=created_at.desc');
+    if(msgs.length === 0){
+      list.innerHTML = '<div class="comm-empty">No messages yet.</div>';
+      return;
+    }
+    // Group by sender
+    var convs = {};
+    msgs.forEach(function(m){
+      if(!convs[m.from_pseudo]) convs[m.from_pseudo] = {last:m, unread:0};
+      if(!m.read) convs[m.from_pseudo].unread++;
+    });
+    list.innerHTML = Object.keys(convs).map(function(pseudo){
+      var c = convs[pseudo];
+      var avatar = makeAvatar(pseudo, '', 36);
+      return '<div class="inbox-item'+(c.unread?' inbox-unread':'')+'" onclick="openDM(\''+pseudo+'\')">'
+        +avatar
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:12px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:.04em">'+pseudo+'</div>'
+        +'<div class="inbox-preview">'+c.last.content+'</div>'
+        +'</div>'
+        +(c.unread ? '<div class="inbox-badge">'+c.unread+'</div>' : '')
+        +'</div>';
+    }).join('');
+    // Show notification dot if unread
+    var totalUnread = Object.values(convs).reduce(function(s,c){return s+c.unread;},0);
+    var notif = document.getElementById('msg-notif');
+    if(notif) notif.style.display = totalUnread > 0 ? 'flex' : 'none';
+  } catch(e){ list.innerHTML = '<div class="comm-empty">Error loading messages.</div>'; }
+}
+
+// Check for new messages every 30s
+setInterval(async function(){
+  if(!myPseudo) return;
+  try {
+    var msgs = await supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&read=eq.false&select=id');
+    var notif = document.getElementById('msg-notif');
+    if(notif) notif.style.display = msgs.length > 0 ? 'flex' : 'none';
+  } catch(e){}
+}, 30000);
 
 // ——— ADS ———
 function updateAds(c){
@@ -935,12 +1113,13 @@ function adminTap(){
 window.addEventListener('DOMContentLoaded',function(){
   var ta=document.getElementById('comm-msg');
   if(ta)ta.addEventListener('input',function(){document.getElementById('comm-count').textContent=this.value.length;});
-  // Restore avatar if saved
   if(currentAvatar){
     var prev=document.getElementById('avatar-preview');
     if(prev) prev.innerHTML='<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
   }
+  myPseudo = localStorage.getItem('rs_pseudo') || '';
   loadPreview();
+  updateAds('Paris');
 });
 
 async function loadPreview(){
