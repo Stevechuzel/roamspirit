@@ -527,13 +527,19 @@ html,body{height:100%;background:var(--sand);display:flex;justify-content:center
       <div class="comm-feed" id="comm-feed">
         <div class="comm-empty">Be the first to share an experience for this city.</div>
       </div>
-      <!-- AD CARD COMMUNITY -->
+      <!-- AD CARDS COMMUNITY -->
       <div class="ad-divider"></div>
       <a class="ad-card" id="ad-community" href="https://www.booking.com" target="_blank" rel="noopener">
         <div class="ad-label">✦ Partner</div>
         <div class="ad-title" id="ad-comm-title">Find your hotel in Paris</div>
         <div class="ad-desc">Best prices guaranteed. Free cancellation on most rooms.</div>
         <span class="ad-cta">Book now →</span>
+      </a>
+      <a class="ad-card" id="ad-gyg" href="https://www.getyourguide.com" target="_blank" rel="noopener" style="margin-top:8px">
+        <div class="ad-label">✦ Partner</div>
+        <div class="ad-title" id="ad-gyg-title">Discover experiences in Paris</div>
+        <div class="ad-desc">Tours, activities and hidden gems curated by locals.</div>
+        <span class="ad-cta">Explore →</span>
       </a>
     </div>
   </div>
@@ -1092,13 +1098,16 @@ setInterval(async function(){
 function updateAds(c){
   var commTitle = document.getElementById('ad-comm-title');
   var itinTitle = document.getElementById('ad-itin-title');
+  var gygTitle  = document.getElementById('ad-gyg-title');
   var commLink  = document.getElementById('ad-community');
   var itinLink  = document.getElementById('ad-itin');
+  var gygLink   = document.getElementById('ad-gyg');
   if(commTitle) commTitle.textContent = 'Find your hotel in '+c;
   if(itinTitle) itinTitle.textContent = 'Discover experiences in '+c;
-  // Update links with city — replace with your real affiliate links
+  if(gygTitle)  gygTitle.textContent  = 'Discover experiences in '+c;
   if(commLink) commLink.href = 'https://www.booking.com/search.html?ss='+encodeURIComponent(c);
   if(itinLink) itinLink.href = 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c);
+  if(gygLink)  gygLink.href  = 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c);
 }
 
 // ——— ADMIN SECRET ACCESS (triple tap logo) ———
