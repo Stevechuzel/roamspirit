@@ -824,7 +824,7 @@ function renderPosts(posts, isSeed){
       +'<div style="display:flex;align-items:center;gap:5px;margin-top:8px">'
       +'<button class="like-btn" onclick="likePost(\''+p.id+'\',' + (p.likes||0) + ','+liked+')">'+(liked?'❤️':'🤍')+'</button>'
       +'<span class="like-count" id="lc-'+p.id+'">'+(p.likes||0)+'</span>'
-      +'<button onclick="openDM(\''+p.pseudo+'\')" style="margin-left:auto;background:none;border:1px solid var(--sand);border-radius:12px;padding:4px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:\'DM Sans\',sans-serif">Message</button>'
+      +'<button onclick="openDM(\''+p.pseudo+'\')" style="margin-left:auto;background:none;border:1px solid var(--sand);border-radius:12px;padding:4px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:\'DM Sans\',sans-serif">Private message</button>'
       +'</div>'
       +'</div>';
   }).join('');
