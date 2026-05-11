@@ -227,6 +227,15 @@ html,body{height:100%;background:var(--sand);display:flex;justify-content:center
 .comm-preview-text{font-size:12px;color:var(--ink-light);line-height:1.55;font-family:'Playfair Display',serif;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .comm-preview-likes{font-size:10px;color:var(--muted);margin-top:5px}
 
+/* AD CARDS */
+.ad-card{background:var(--cream);border:1px solid var(--sand);border-radius:14px;padding:14px;margin-top:14px;position:relative;overflow:hidden;text-decoration:none;display:block}
+.ad-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.ad-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;padding-left:8px}
+.ad-title{font-family:'Playfair Display',serif;font-size:14px;color:var(--ink);margin-bottom:4px;padding-left:8px}
+.ad-desc{font-size:11px;color:var(--muted);line-height:1.5;padding-left:8px;margin-bottom:8px}
+.ad-cta{display:inline-block;margin-left:8px;background:var(--carmine);color:#fff;border:none;border-radius:10px;padding:6px 14px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;text-decoration:none}
+.ad-divider{height:1px;background:var(--sand);margin:14px 0}
+
 /* ADMIN */
 .admin-post{background:var(--white);border:1px solid var(--sand);border-radius:14px;padding:14px;margin-bottom:10px;position:relative;overflow:hidden}
 .admin-post::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
@@ -417,6 +426,15 @@ html,body{height:100%;background:var(--sand);display:flex;justify-content:center
       </div>
     </div>
     <div class="p-body" id="itin-body"><div class="empty-msg">Choose your style and let Roam Spirit plan your trip.</div></div>
+    <!-- AD CARD ITINERARY -->
+    <div style="padding:0 14px 14px 28px;flex-shrink:0">
+      <a class="ad-card" id="ad-itin" href="https://www.getyourguide.com" target="_blank" rel="noopener">
+        <div class="ad-label">✦ Partner</div>
+        <div class="ad-title" id="ad-itin-title">Discover experiences in Paris</div>
+        <div class="ad-desc">Tours, activities and hidden gems curated by locals.</div>
+        <span class="ad-cta">Explore →</span>
+      </a>
+    </div>
   </div>
 
   <div class="panel" id="playlist-panel">
@@ -491,6 +509,14 @@ html,body{height:100%;background:var(--sand);display:flex;justify-content:center
       <div class="comm-feed" id="comm-feed">
         <div class="comm-empty">Be the first to share an experience for this city.</div>
       </div>
+      <!-- AD CARD COMMUNITY -->
+      <div class="ad-divider"></div>
+      <a class="ad-card" id="ad-community" href="https://www.booking.com" target="_blank" rel="noopener">
+        <div class="ad-label">✦ Partner</div>
+        <div class="ad-title" id="ad-comm-title">Find your hotel in Paris</div>
+        <div class="ad-desc">Best prices guaranteed. Free cancellation on most rooms.</div>
+        <span class="ad-cta">Book now →</span>
+      </a>
     </div>
   </div>
 
@@ -540,7 +566,7 @@ function toggleCity(e){e.stopPropagation();var m=document.getElementById('city-m
 function toggleTab(e){e.stopPropagation();var m=document.getElementById('tab-menu'),a=document.getElementById('tab-arr');document.getElementById('city-menu').style.display='none';document.getElementById('city-arr').style.transform='';if(m.style.display==='block'){m.style.display='none';a.style.transform='';}else{m.style.display='block';a.style.transform='rotate(180deg)';}}
 document.addEventListener('click',function(){document.getElementById('city-menu').style.display='none';document.getElementById('tab-menu').style.display='none';document.getElementById('city-arr').style.transform='';document.getElementById('tab-arr').style.transform='';});
 
-function selectCity(btn,c){city=c;document.querySelectorAll('.c-opt').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');document.getElementById('city-lbl').textContent='📍 '+c;document.getElementById('city-menu').style.display='none';document.getElementById('city-arr').style.transform='';histories={};updateFavBtn();resetChat();var inp=document.getElementById('inp');if(inp)inp.placeholder='Explore '+c+'…';loadPreview();}
+function selectCity(btn,c){city=c;document.querySelectorAll('.c-opt').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');document.getElementById('city-lbl').textContent='📍 '+c;document.getElementById('city-menu').style.display='none';document.getElementById('city-arr').style.transform='';histories={};updateFavBtn();resetChat();var inp=document.getElementById('inp');if(inp)inp.placeholder='Explore '+c+'…';loadPreview();updateAds(c);}
 function selectTab(btn,t){tab=t;document.querySelectorAll('.t-opt').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');document.getElementById('tab-lbl').textContent=btn.textContent.trim();document.getElementById('tab-menu').style.display='none';document.getElementById('tab-arr').style.transform='';renderChips(t);if(histories[t])renderHistory(t);else resetChat();}
 
 function renderChips(t){var d=TABS[t];document.getElementById('chips').innerHTML=d.chips.map(function(c){return'<div class="chip" onclick="sendQuick(\''+c+'\')">'+c+'</div>';}).join('');}
@@ -881,6 +907,19 @@ async function rejectPost(id){
 
 function openDM(pseudo){
   alert('Private messaging with '+pseudo+' — coming soon!');
+}
+
+// ——— ADS ———
+function updateAds(c){
+  var commTitle = document.getElementById('ad-comm-title');
+  var itinTitle = document.getElementById('ad-itin-title');
+  var commLink  = document.getElementById('ad-community');
+  var itinLink  = document.getElementById('ad-itin');
+  if(commTitle) commTitle.textContent = 'Find your hotel in '+c;
+  if(itinTitle) itinTitle.textContent = 'Discover experiences in '+c;
+  // Update links with city — replace with your real affiliate links
+  if(commLink) commLink.href = 'https://www.booking.com/search.html?ss='+encodeURIComponent(c);
+  if(itinLink) itinLink.href = 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c);
 }
 
 // ——— ADMIN SECRET ACCESS (triple tap logo) ———
