@@ -191,14 +191,38 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
 .sh-dots{background:none;border:none;cursor:pointer;padding:4px;display:flex;flex-direction:column;gap:3.5px;align-items:center}
 .sh-dots span{width:4px;height:4px;background:var(--ink);border-radius:50%;display:block}
 
-/* DROPDOWN MENU */
-.dots-menu{display:none;position:absolute;top:52px;right:14px;background:var(--white);border:1px solid var(--sand);border-radius:14px;box-shadow:0 8px 24px rgba(30,26,20,.15);z-index:9999;min-width:180px;overflow:hidden}
-.dots-menu.open{display:block}
-.dots-item{display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;color:var(--ink-light);cursor:pointer;font-family:'DM Sans',sans-serif;border:none;background:transparent;width:100%;text-align:left;border-bottom:1px solid var(--sand)}
-.dots-item:last-child{border-bottom:none}
-.dots-item:hover{background:var(--cream)}
-.dots-item-icon{font-size:15px;width:20px;text-align:center}
-.dots-divider{height:1px;background:var(--sand)}
+/* AI PANEL PREMIUM HEADER */
+.ai-panel-head{flex-shrink:0;position:relative;overflow:hidden}
+.ai-panel-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1B5FA8,#0D3B6E);z-index:0}
+.ai-panel-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.4))}
+.ai-panel-content{position:relative;z-index:1;padding:44px 20px 12px;display:flex;flex-direction:column;align-items:flex-start}
+.ai-panel-icon{font-size:32px;margin-bottom:8px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+.ai-panel-title{font-family:'Playfair Display',serif;font-size:22px;color:#fff;font-weight:400;letter-spacing:.02em;line-height:1.2}
+.ai-panel-city{font-size:13px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+.ai-panel-tagline{font-size:12px;color:rgba(255,255,255,.65);font-style:italic;font-family:'Playfair Display',serif;margin-top:6px}
+.chip{flex-shrink:0;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:6px 13px;font-size:12px;color:rgba(255,255,255,.9);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;backdrop-filter:blur(4px)}
+.chip:hover{background:rgba(255,255,255,.25)}
+
+/* DOTS MENU — PREMIUM */
+.dots-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:998;backdrop-filter:blur(2px)}
+.dots-overlay.open{display:block}
+.dots-menu{display:none;position:fixed;top:0;right:0;bottom:0;width:80%;max-width:300px;background:var(--cream);z-index:999;flex-direction:column;overflow:hidden;transform:translateX(100%);transition:transform .3s ease;box-shadow:-4px 0 24px rgba(30,26,20,.15)}
+.dots-menu.open{display:flex;transform:translateX(0)}
+.dots-menu-header{padding:20px 20px 14px;border-bottom:1px solid var(--sand);flex-shrink:0;position:relative}
+.dots-menu-header::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine)}
+.dots-menu-logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--ink);letter-spacing:.04em}
+.dots-menu-tagline{font-size:9px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-top:3px}
+.dots-menu-close{position:absolute;top:16px;right:16px;background:var(--white);border:1px solid var(--sand);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--muted)}
+.dots-menu-body{flex:1;overflow-y:auto;padding:8px 0}
+.dots-section{padding:10px 20px 4px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.dots-item{display:flex;align-items:center;gap:14px;padding:13px 20px;font-size:14px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;border:none;background:transparent;width:100%;text-align:left;position:relative;transition:background .15s}
+.dots-item:active{background:var(--white)}
+.dots-item-icon{width:38px;height:38px;border-radius:12px;background:var(--white);border:1px solid var(--sand);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.dots-item-text{flex:1}
+.dots-item-label{font-size:13px;font-weight:500;color:var(--ink)}
+.dots-item-desc{font-size:11px;color:var(--muted);margin-top:1px}
+.dots-item-arrow{font-size:12px;color:var(--muted)}
+.dots-divider{height:1px;background:var(--sand);margin:6px 20px}
 
 /* STORIES BAR */
 .stories-bar{flex-shrink:0;padding:12px 0 8px;background:var(--white);border-bottom:1px solid var(--sand)}
@@ -416,20 +440,70 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
       <button class="c-opt" onclick="selectCity(this,'Buenos Aires')">Buenos Aires</button>
       <button class="c-opt" onclick="selectCity(this,'Mexico City')">Mexico City</button>
     </div>
-    <!-- 3 dots dropdown menu -->
+    <!-- 3 dots overlay + premium sidebar -->
+    <div class="dots-overlay" id="dots-overlay" onclick="toggleDotsMenu(event)"></div>
     <div class="dots-menu" id="dots-menu">
-      <button class="dots-item" onclick="switchTab('city_guide')"><span class="dots-item-icon">🗺</span> City Guide</button>
-      <button class="dots-item" onclick="switchTab('style')"><span class="dots-item-icon">👗</span> Style & Outfits</button>
-      <button class="dots-item" onclick="switchTab('food')"><span class="dots-item-icon">🍽</span> Food & Drinks</button>
-      <button class="dots-item" onclick="switchTab('nightlife')"><span class="dots-item-icon">🌙</span> Nightlife</button>
-      <button class="dots-item" onclick="switchTab('culture')"><span class="dots-item-icon">🎨</span> Art & Culture</button>
-      <div class="dots-divider"></div>
-      <button class="dots-item" onclick="openPanelFromMenu('itin-panel')"><span class="dots-item-icon">🗓</span> Itinerary</button>
-      <button class="dots-item" onclick="openPanelFromMenu('playlist-panel')"><span class="dots-item-icon">🎵</span> Playlist</button>
-      <button class="dots-item" onclick="openPanelFromMenu('album-panel')"><span class="dots-item-icon">📷</span> Album</button>
-      <button class="dots-item" onclick="openPanelFromMenu('saved-panel');renderSaved()"><span class="dots-item-icon">🔖</span> Saved</button>
-      <div class="dots-divider"></div>
-      <button class="dots-item" onclick="openPanelFromMenu('prem-panel')"><span class="dots-item-icon">✦</span> Premium</button>
+      <div class="dots-menu-header">
+        <div class="dots-menu-logo">Roam Spirit</div>
+        <div class="dots-menu-tagline">Your travel companion</div>
+        <button class="dots-menu-close" onclick="toggleDotsMenu(event)">✕</button>
+      </div>
+      <div class="dots-menu-body">
+        <div class="dots-section">AI Companion</div>
+        <button class="dots-item" onclick="switchTab('city_guide')">
+          <div class="dots-item-icon">🗺</div>
+          <div class="dots-item-text"><div class="dots-item-label">City Guide</div><div class="dots-item-desc">Explore the soul of the city</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="switchTab('style')">
+          <div class="dots-item-icon">👗</div>
+          <div class="dots-item-text"><div class="dots-item-label">Style & Outfits</div><div class="dots-item-desc">Dress like a local</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="switchTab('food')">
+          <div class="dots-item-icon">🍽</div>
+          <div class="dots-item-text"><div class="dots-item-label">Food & Drinks</div><div class="dots-item-desc">Eat where the locals eat</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="switchTab('nightlife')">
+          <div class="dots-item-icon">🌙</div>
+          <div class="dots-item-text"><div class="dots-item-label">Nightlife</div><div class="dots-item-desc">The night belongs to you</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="switchTab('culture')">
+          <div class="dots-item-icon">🎨</div>
+          <div class="dots-item-text"><div class="dots-item-label">Art & Culture</div><div class="dots-item-desc">Art lives in the streets</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <div class="dots-divider"></div>
+        <div class="dots-section">My Roam Spirit</div>
+        <button class="dots-item" onclick="openPanelFromMenu('itin-panel')">
+          <div class="dots-item-icon">🗓</div>
+          <div class="dots-item-text"><div class="dots-item-label">Itinerary</div><div class="dots-item-desc">Plan your perfect trip</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="openPanelFromMenu('playlist-panel')">
+          <div class="dots-item-icon">🎵</div>
+          <div class="dots-item-text"><div class="dots-item-label">Playlist</div><div class="dots-item-desc">The soundtrack of your journey</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="openPanelFromMenu('album-panel')">
+          <div class="dots-item-icon">📷</div>
+          <div class="dots-item-text"><div class="dots-item-label">Travel Album</div><div class="dots-item-desc">Your visual memories</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="openPanelFromMenu('saved-panel');renderSaved()">
+          <div class="dots-item-icon">🔖</div>
+          <div class="dots-item-text"><div class="dots-item-label">Saved Tips</div><div class="dots-item-desc">Your curated collection</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <div class="dots-divider"></div>
+        <button class="dots-item" onclick="openPanelFromMenu('prem-panel')">
+          <div class="dots-item-icon" style="background:linear-gradient(135deg,#8B1A1A,#C9A84C);border:none">✦</div>
+          <div class="dots-item-text"><div class="dots-item-label" style="color:var(--carmine)">Premium</div><div class="dots-item-desc">Unlock the full experience</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -448,15 +522,19 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
 
   <!-- AI CHAT PANEL -->
   <div class="panel" id="ai-panel">
-    <div class="p-head">
-      <div>
-        <div class="p-title" id="ai-panel-title">City Guide — Paris</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">Your Roam Spirit AI companion</div>
+    <div class="ai-panel-head" id="ai-panel-head">
+      <div class="ai-panel-bg" id="ai-panel-bg"></div>
+      <div class="ai-panel-content">
+        <button class="p-close" onclick="closePanel('ai-panel')" style="position:absolute;top:12px;right:14px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff">✕</button>
+        <div class="ai-panel-icon" id="ai-panel-icon">🗺</div>
+        <div class="ai-panel-title" id="ai-panel-title">City Guide</div>
+        <div class="ai-panel-city" id="ai-panel-city">Paris</div>
+        <div class="ai-panel-tagline" id="ai-panel-tagline">Every city has a soul. Let's find it.</div>
       </div>
-      <button class="p-close" onclick="closePanel('ai-panel')">✕</button>
-    </div>
-    <div style="padding:8px 14px 0;flex-shrink:0;background:var(--cream);border-bottom:1px solid var(--sand)">
-      <div class="chips" id="chips" style="padding:0 0 8px"></div>
+      <!-- chips -->
+      <div style="padding:10px 14px 12px;background:rgba(0,0,0,.15)">
+        <div class="chips" id="chips" style="padding:0"></div>
+      </div>
     </div>
     <div class="chat" id="chat"><div id="anchor"></div></div>
     <div class="input-area">
@@ -1065,20 +1143,47 @@ function switchView(view){
 }
 
 function toggleDotsMenu(e){
-  e.stopPropagation();
+  if(e) e.stopPropagation();
   var menu = document.getElementById('dots-menu');
-  menu.classList.toggle('open');
+  var overlay = document.getElementById('dots-overlay');
+  var isOpen = menu.classList.contains('open');
+  if(isOpen){
+    menu.classList.remove('open');
+    if(overlay) overlay.classList.remove('open');
+  } else {
+    menu.classList.add('open');
+    if(overlay) overlay.classList.add('open');
+  }
 }
+
+var TAB_META = {
+  city_guide: {icon:'🗺', tagline:'Every city has a soul. Let\'s find it.', color:'linear-gradient(135deg,#1B5FA8,#0D3B6E)'},
+  style:       {icon:'👗', tagline:'Dress like a local. Own the city.', color:'linear-gradient(135deg,#E91E8C,#9C1B6B)'},
+  food:        {icon:'🍽', tagline:'Eat where the locals eat.', color:'linear-gradient(135deg,#E8A020,#B5600A)'},
+  nightlife:   {icon:'🌙', tagline:'The night belongs to you.', color:'linear-gradient(135deg,#6B3FA0,#3A1E6E)'},
+  culture:     {icon:'🎨', tagline:'Art lives in the streets.', color:'linear-gradient(135deg,#1A9E6A,#0D5C3A)'},
+};
 
 function switchTab(t){
   tab = t;
   var menu = document.getElementById('dots-menu');
+  var overlay = document.getElementById('dots-overlay');
   if(menu) menu.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
   histories = {};
   resetChat();
   renderChips(t);
+  var meta = TAB_META[t] || TAB_META.city_guide;
+  var iconEl = document.getElementById('ai-panel-icon');
   var titleEl = document.getElementById('ai-panel-title');
-  if(titleEl) titleEl.textContent = TABS[t].label + ' — ' + city;
+  var cityEl = document.getElementById('ai-panel-city');
+  var taglineEl = document.getElementById('ai-panel-tagline');
+  var bgEl = document.getElementById('ai-panel-bg');
+  if(iconEl) iconEl.textContent = meta.icon;
+  if(titleEl) titleEl.textContent = TABS[t] ? TABS[t].label : t;
+  if(cityEl) cityEl.textContent = city;
+  if(taglineEl) taglineEl.textContent = meta.tagline;
+  if(bgEl) bgEl.style.background = meta.color;
   document.getElementById('ai-panel').classList.add('open');
 }
 
