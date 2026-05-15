@@ -498,6 +498,12 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
           <span class="dots-item-arrow">›</span>
         </button>
         <div class="dots-divider"></div>
+        <button class="dots-item" onclick="openShop()">
+          <div class="dots-item-icon" style="background:linear-gradient(135deg,#C9A84C,#8B6914);border:none;color:#fff;font-size:16px">🛍</div>
+          <div class="dots-item-text"><div class="dots-item-label" style="color:var(--gold)">Shop</div><div class="dots-item-desc">Roam Spirit collection</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <div class="dots-divider"></div>
         <button class="dots-item" onclick="openPanelFromMenu('prem-panel')">
           <div class="dots-item-icon" style="background:linear-gradient(135deg,#8B1A1A,#C9A84C);border:none">✦</div>
           <div class="dots-item-text"><div class="dots-item-label" style="color:var(--carmine)">Premium</div><div class="dots-item-desc">Unlock the full experience</div></div>
@@ -1445,6 +1451,15 @@ document.addEventListener('DOMContentLoaded', function(){
     if(c)c.textContent=this.value.length;
   });
 });
+
+// ——— SHOP ———
+function openShop(){
+  var menu = document.getElementById('dots-menu');
+  var overlay = document.getElementById('dots-overlay');
+  if(menu) menu.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+  window.open('https://roamspirit.fr/shop', '_blank');
+}
 
 var ADMIN_PWD = 'roamspirit2026';
 var adminUnlocked = false;
