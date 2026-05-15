@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="icon" type="image/png" href="icon-512.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--cream:#FDFAF4;--sand:#F0EAD6;--carmine:#8B1A1A;--gold:#C9A84C;--terracotta:#C17A45;--sage:#7A8C6E;--ink:#2C1F0E;--ink-light:#5C4A35;--muted:#B5A898;--white:#FFFFFF}
@@ -29,6 +30,7 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
 .s-sub{font-size:13px;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;margin-top:8px}
 .s-tag{font-family:'Playfair Display',serif;font-style:italic;font-size:17px;color:var(--ink-light);margin-top:32px}
 .s-btn{margin-top:44px;background:var(--carmine);border:none;border-radius:30px;padding:13px 40px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 4px 16px rgba(139,26,26,.3)}
+.s-google-btn{margin-top:14px;background:#fff;border:1.5px solid var(--sand);border-radius:30px;padding:11px 28px;color:var(--ink);font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 
 /* HEADER */
 .header{background:#FDFAF4;padding:14px 20px 10px;flex-shrink:0;text-align:center;border-bottom:1px solid var(--sand)}
@@ -416,6 +418,14 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
     <div class="s-cord"></div>
     <div class="s-tag">"This is your culture."</div>
     <button class="s-btn" onclick="enterApp()">Enter ↓</button>
+    <button class="s-google-btn" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.7 2.3 30.2 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.9 6.1C12.3 13.1 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.1z"/><path fill="#FBBC05" d="M10.4 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.1.9-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.2-7.6 2.2-6.3 0-11.7-3.6-13.6-9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
+      Se connecter avec Google
+    </button>
+    <div id="google-user-info" style="display:none;margin-top:16px;text-align:center">
+      <div id="google-user-name" style="font-size:13px;color:var(--ink-light)"></div>
+      <button style="margin-top:8px;background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="signOut()">Déconnexion</button>
+    </div>
   </div>
 
   <!-- NEW SOCIAL HEADER -->
@@ -1145,6 +1155,37 @@ function makeAvatar(pseudo, avatarUrl, size){
 // ——— SUPABASE CONFIG ———
 var SUPA_URL = 'https://qalexzaiyenhwhecppqp.supabase.co';
 var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhbGV4emFpeWVuaHdoZWNwcHFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NTE5NTAsImV4cCI6MjA5NDAyNzk1MH0.eVXn537iB8ZoyP5K13m6st5vrWjreRaFdM6gvOMrW5U';
+
+// ——— SUPABASE AUTH CLIENT ———
+var supabaseClient = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+async function signInWithGoogle() {
+  var { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: 'https://www.roamspirit.fr/' }
+  });
+  if (error) alert('Erreur Google Sign-In : ' + error.message);
+}
+
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  document.getElementById('google-user-info').style.display = 'none';
+}
+
+// Check if user is already logged in (after redirect)
+supabaseClient.auth.getSession().then(function(res) {
+  var session = res.data && res.data.session;
+  if (session && session.user) {
+    var name = (session.user.user_metadata && session.user.user_metadata.full_name) || session.user.email;
+    document.getElementById('google-user-info').style.display = 'block';
+    document.getElementById('google-user-name').textContent = '✓ Connecté : ' + name;
+    if (!localStorage.getItem('rs_pseudo') && name) {
+      var pseudo = name.split(' ')[0];
+      localStorage.setItem('rs_pseudo', pseudo);
+      myPseudo = pseudo;
+    }
+  }
+});
 
 async function supaFetch(path, opts){
   var res = await fetch(SUPA_URL+'/rest/v1/'+path, Object.assign({
