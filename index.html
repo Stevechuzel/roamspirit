@@ -854,7 +854,26 @@ function toggleCity(e){e.stopPropagation();var m=document.getElementById('city-m
 function toggleTab(e){e.stopPropagation();var m=document.getElementById('tab-menu'),a=document.getElementById('tab-arr');document.getElementById('city-menu').style.display='none';document.getElementById('city-arr').style.transform='';if(m.style.display==='block'){m.style.display='none';a.style.transform='';}else{m.style.display='block';a.style.transform='rotate(180deg)';}}
 document.addEventListener('click',function(){document.getElementById('city-menu').style.display='none';document.getElementById('tab-menu').style.display='none';document.getElementById('city-arr').style.transform='';document.getElementById('tab-arr').style.transform='';});
 
-function selectCity(btn,c){city=c;document.querySelectorAll('.c-opt').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');document.getElementById('city-lbl').textContent='📍 '+c;document.getElementById('city-menu').style.display='none';document.getElementById('city-arr').style.transform='';histories={};updateFavBtn();resetChat();var inp=document.getElementById('inp');if(inp)inp.placeholder='Explore '+c+'…';loadPreview();updateAds(c);}
+function selectCity(btn,c){
+  city=c;
+  document.querySelectorAll('.c-opt').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  document.getElementById('city-lbl').textContent=c;
+  document.getElementById('city-menu').style.display='none';
+  histories={};
+  resetChat();
+  // Update input placeholder
+  var inp=document.getElementById('inp');
+  if(inp) inp.placeholder='Explore '+c+'…';
+  // Update AI panel city
+  var cityEl=document.getElementById('ai-panel-city');
+  if(cityEl) cityEl.textContent=c;
+  // Update AI panel title
+  var titleEl=document.getElementById('ai-panel-title');
+  if(titleEl && window.TABS && window.TABS[tab]) titleEl.textContent=TABS[tab].label;
+  loadPreview();
+  updateAds(c);
+}
 function selectTab(btn,t){tab=t;document.querySelectorAll('.t-opt').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');document.getElementById('tab-lbl').textContent=btn.textContent.trim();document.getElementById('tab-menu').style.display='none';document.getElementById('tab-arr').style.transform='';renderChips(t);if(histories[t])renderHistory(t);else resetChat();}
 
 function renderChips(t){var d=TABS[t];document.getElementById('chips').innerHTML=d.chips.map(function(c){return'<div class="chip" onclick="sendQuick(\''+c+'\')">'+c+'</div>';}).join('');}
