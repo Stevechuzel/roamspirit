@@ -507,6 +507,11 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
           <span class="dots-item-arrow">›</span>
         </button>
         <div class="dots-divider"></div>
+        <button class="dots-item" onclick="openLegal()">
+          <div class="dots-item-icon">📄</div>
+          <div class="dots-item-text"><div class="dots-item-label">Mentions légales & CGU</div><div class="dots-item-desc">Confidentialité & conditions d'utilisation</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
         <button class="dots-item" onclick="openShop()">
           <div class="dots-item-icon" style="background:linear-gradient(135deg,#C9A84C,#8B6914);border:none;color:#fff;font-size:16px">🛍</div>
           <div class="dots-item-text"><div class="dots-item-label" style="color:var(--gold)">Shop</div><div class="dots-item-desc">Roam Spirit collection</div></div>
@@ -637,6 +642,83 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
       <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
       <div class="bn-label">Profile</div>
     </button>
+  </div>
+
+  <!-- LEGAL PANEL -->
+  <div class="panel" id="legal-panel">
+    <div class="p-head">
+      <div class="p-title">Mentions légales & CGU</div>
+      <button class="p-close" onclick="closePanel('legal-panel')">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:20px">
+
+      <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--carmine);margin-bottom:4px">Mentions Légales</div>
+      <div style="height:2px;background:var(--carmine);margin-bottom:14px"></div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Éditeur</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Steve CHUZEL-MARMOT — Auto-entrepreneur<br/>
+        SIRET : 800 668 535 00<br/>
+        323 route du Mont Blanc, 73800 Villard d'Héry, Savoie, France<br/>
+        Email : s.chuzel@roamspirit.com
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Hébergement</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        GitHub Pages — GitHub, Inc. — San Francisco, USA<br/>
+        Supabase Inc. — Base de données
+      </div>
+
+      <div style="height:1px;background:var(--sand);margin:16px 0"></div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--carmine);margin-bottom:4px">Conditions Générales d'Utilisation</div>
+      <div style="height:2px;background:var(--carmine);margin-bottom:14px"></div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Objet</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        En accédant à Roam Spirit, vous acceptez les présentes CGU. La plateforme est un réseau social dédié aux voyageurs, accessible via QR code ou roamspirit.fr.
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Contenu utilisateur</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Les publications sont soumises à modération. Sont interdits les contenus illicites, offensants, portant atteinte aux droits de tiers ou incitant à la haine.
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Intelligence Artificielle</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        L'assistant IA (City Guide, Food, Nightlife…) est fourni à titre informatif. Les réponses ne constituent pas des conseils professionnels.
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Premium</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Abonnement optionnel à 5€/mois, sans engagement, résiliable à tout moment.
+      </div>
+
+      <div style="height:1px;background:var(--sand);margin:16px 0"></div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--carmine);margin-bottom:4px">Politique de Confidentialité</div>
+      <div style="height:2px;background:var(--carmine);margin-bottom:14px"></div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Données collectées</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Pseudo, photo de profil, contenus publiés, ville sélectionnée. Aucune donnée bancaire ni email obligatoire collectés.
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Vos droits (RGPD)</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Accès, rectification, effacement, portabilité, opposition.<br/>
+        Contact : s.chuzel@roamspirit.com<br/>
+        Réclamation : cnil.fr
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Partage des données</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Roam Spirit ne vend jamais vos données personnelles. Les données agrégées et anonymisées peuvent être partagées avec des partenaires à des fins d'études de tendances uniquement.
+      </div>
+
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:20px;font-style:italic">
+        Documents en vigueur au 15 mai 2026<br/>
+        Roam Spirit™ — Steve CHUZEL-MARMOT — SIRET 800 668 535 00
+      </div>
+    </div>
   </div>
 
   <!-- ADMIN PANEL -->
@@ -897,7 +979,15 @@ function renderFavs(){var el=document.getElementById('favs');if(favs.length===0)
 function removeFav(c){favs=favs.filter(function(x){return x!==c;});localStorage.setItem('rs_favs',JSON.stringify(favs));renderFavs();updateFavBtn();}
 function quickCity(c){var o=Array.from(document.querySelectorAll('.c-opt')).find(function(x){return x.textContent.trim()===c;});if(o)selectCity(o,c);}
 
-function openPanel(id){['saved-panel','album-panel','itin-panel','playlist-panel','prem-panel','community-panel','ai-panel','profile-panel','inbox-panel'].forEach(function(p){var el=document.getElementById(p);if(el)el.classList.remove('open');});var el=document.getElementById(id);if(el)el.classList.add('open');}
+function openLegal(){
+  var menu = document.getElementById('dots-menu');
+  var overlay = document.getElementById('dots-overlay');
+  if(menu) menu.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+  openPanel('legal-panel');
+}
+
+function openPanel(id){['saved-panel','album-panel','itin-panel','playlist-panel','prem-panel','community-panel','ai-panel','profile-panel','inbox-panel','legal-panel'].forEach(function(p){var el=document.getElementById(p);if(el)el.classList.remove('open');});var el=document.getElementById(id);if(el)el.classList.add('open');}
 function closePanel(id){document.getElementById(id).classList.remove('open');}
 
 function saveTip(text){saved.unshift({text:text,city:city,tab:TABS[tab].label,date:new Date().toLocaleDateString('fr-FR')});localStorage.setItem('rs_saved',JSON.stringify(saved));document.getElementById('saved-nav').textContent='🔖 Saved ('+saved.length+')';}
