@@ -287,6 +287,16 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
 .pub-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:590}
 .pub-overlay.open{display:block}
 
+/* EXPLORE */
+.explore-city-chip{background:var(--white);border:1px solid var(--sand);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all .15s}
+.explore-city-chip.active{background:var(--carmine);border-color:var(--carmine);color:#fff}
+.explore-post{border-bottom:1px solid var(--sand);padding:12px 0}
+.explore-post-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.explore-post-name{font-size:12px;font-weight:600;color:var(--ink)}
+.explore-post-city{font-size:10px;color:var(--gold)}
+.explore-post-img{width:100%;border-radius:10px;margin-bottom:8px;max-height:200px;object-fit:cover}
+.explore-post-text{font-size:12px;color:var(--ink-light);font-family:'Playfair Display',serif;font-style:italic;line-height:1.5}
+
 /* PROFILE PANEL */
 .profile-header-bg{width:100%;height:120px;background:linear-gradient(135deg,var(--carmine),var(--gold));position:relative;flex-shrink:0}
 .profile-avatar-wrap{position:absolute;bottom:-30px;left:20px;width:64px;height:64px;border-radius:50%;border:3px solid var(--white);overflow:hidden;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff}
@@ -628,9 +638,9 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
       <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div class="bn-label">Home</div>
     </button>
-    <button class="bn-item" id="bn-community" onclick="switchView('community')">
-      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
-      <div class="bn-label">Community</div>
+    <button class="bn-item" id="bn-explore" onclick="switchView('explore')">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+      <div class="bn-label">Explore</div>
     </button>
     <button class="bn-plus" onclick="openPublish()">+</button>
     <button class="bn-item" id="bn-messages" onclick="openInbox()" style="position:relative">
@@ -642,6 +652,33 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
       <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
       <div class="bn-label">Profile</div>
     </button>
+  </div>
+
+  <!-- EXPLORE PANEL -->
+  <div class="panel" id="explore-panel">
+    <div class="p-head">
+      <div class="p-title">Explore</div>
+      <button class="p-close" onclick="closePanel('explore-panel')">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto">
+      <!-- Search bar -->
+      <div style="padding:12px 16px;background:var(--cream);border-bottom:1px solid var(--sand)">
+        <div style="display:flex;align-items:center;gap:10px;background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:8px 14px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="explore-search" type="text" placeholder="Search a city…" style="border:none;outline:none;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;flex:1" oninput="filterExplore(this.value)"/>
+        </div>
+      </div>
+      <!-- City grid -->
+      <div style="padding:14px 16px">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Popular cities</div>
+        <div id="explore-cities" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div>
+      </div>
+      <!-- Filtered feed -->
+      <div style="padding:0 16px 14px">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px" id="explore-feed-title">All posts</div>
+        <div id="explore-feed"></div>
+      </div>
+    </div>
   </div>
 
   <!-- LEGAL PANEL -->
@@ -987,7 +1024,7 @@ function openLegal(){
   openPanel('legal-panel');
 }
 
-function openPanel(id){['saved-panel','album-panel','itin-panel','playlist-panel','prem-panel','community-panel','ai-panel','profile-panel','inbox-panel','legal-panel'].forEach(function(p){var el=document.getElementById(p);if(el)el.classList.remove('open');});var el=document.getElementById(id);if(el)el.classList.add('open');}
+function openPanel(id){['saved-panel','album-panel','itin-panel','playlist-panel','prem-panel','community-panel','ai-panel','profile-panel','inbox-panel','legal-panel','explore-panel'].forEach(function(p){var el=document.getElementById(p);if(el)el.classList.remove('open');});var el=document.getElementById(id);if(el)el.classList.add('open');}
 function closePanel(id){document.getElementById(id).classList.remove('open');}
 
 function saveTip(text){saved.unshift({text:text,city:city,tab:TABS[tab].label,date:new Date().toLocaleDateString('fr-FR')});localStorage.setItem('rs_saved',JSON.stringify(saved));document.getElementById('saved-nav').textContent='🔖 Saved ('+saved.length+')';}
@@ -1253,28 +1290,82 @@ async function submitPost(){
 // ——— SOCIAL NETWORK ———
 var currentView = 'home';
 var pubPhoto = '';
+var exploreFilter = '';
 
 function switchView(view){
   currentView = view;
-  // Update nav active states
-  ['home','community','messages','profile'].forEach(function(v){
+  ['home','explore','messages','profile'].forEach(function(v){
     var btn = document.getElementById('bn-'+v);
     if(btn) btn.classList.toggle('active', v===view);
   });
-  // Close all panels first
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
-  // Show appropriate view
   var feed = document.getElementById('social-feed');
   var stories = document.getElementById('stories-bar');
   if(view === 'home'){
     if(feed) feed.style.display='block';
     if(stories) stories.style.display='block';
     loadSocialFeed();
-  } else if(view === 'community'){
+  } else if(view === 'explore'){
     if(feed) feed.style.display='none';
     if(stories) stories.style.display='none';
-    openCommunity();
+    document.getElementById('explore-panel').classList.add('open');
+    loadExplore();
   }
+}
+
+function loadExplore(){
+  renderExploreCities();
+  renderExploreFeed('');
+}
+
+function renderExploreCities(){
+  var cities = {};
+  feedPosts.forEach(function(p){ cities[p.city] = (cities[p.city]||0)+1; });
+  var sorted = Object.keys(cities).sort(function(a,b){return cities[b]-cities[a];});
+  var container = document.getElementById('explore-cities');
+  if(!container) return;
+  container.innerHTML = sorted.map(function(c){
+    return '<button class="explore-city-chip'+(exploreFilter===c?' active':'')+'" onclick="filterExplore(\''+c+'\')">📍 '+c+' <span style="font-size:10px;opacity:.6">('+cities[c]+')</span></button>';
+  }).join('') + '<button class="explore-city-chip'+(exploreFilter===''?' active':'')+'" onclick="filterExplore(\'\')">🌍 All</button>';
+}
+
+function filterExplore(val){
+  exploreFilter = val;
+  var searchInp = document.getElementById('explore-search');
+  if(searchInp && val) searchInp.value = val;
+  renderExploreCities();
+  renderExploreFeed(val);
+}
+
+function renderExploreFeed(filter){
+  var posts = filter
+    ? feedPosts.filter(function(p){ return p.city.toLowerCase().indexOf(filter.toLowerCase()) > -1 || p.message.toLowerCase().indexOf(filter.toLowerCase()) > -1; })
+    : feedPosts;
+  var title = document.getElementById('explore-feed-title');
+  var feed = document.getElementById('explore-feed');
+  if(title) title.textContent = filter ? 'Posts in ' + filter : 'All posts';
+  if(!feed) return;
+  if(posts.length === 0){
+    feed.innerHTML = '<div class="comm-empty">No posts found.</div>';
+    return;
+  }
+  feed.innerHTML = posts.map(function(p){
+    var color = getAvatarColor(p.pseudo);
+    var initials = getInitials(p.pseudo);
+    var liked = likedPosts.indexOf(String(p.id)) > -1;
+    return '<div class="explore-post">'
+      +'<div class="explore-post-header">'
+      +'<div style="width:32px;height:32px;border-radius:50%;background:'+color+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0">'+initials+'</div>'
+      +'<div><div class="explore-post-name">'+p.pseudo+'</div><div class="explore-post-city">📍 '+p.city+'</div></div>'
+      +'</div>'
+      +(p.photo_url?'<img class="explore-post-img" src="'+p.photo_url+'" loading="lazy"/>':'')
+      +'<div class="explore-post-text">'+p.message+'</div>'
+      +'<div style="display:flex;gap:10px;margin-top:8px">'
+      +'<button onclick="feedLike(\''+p.id+'\','+(p.likes||0)+','+liked+')" style="background:none;border:none;cursor:pointer;font-size:16px">'+(liked?'❤️':'🤍')+'</button>'
+      +'<span style="font-size:11px;color:var(--muted);line-height:1.8">'+(p.likes||0)+' likes</span>'
+      +'</div>'
+      +'</div>';
+  }).join('');
 }
 
 function toggleDotsMenu(e){
