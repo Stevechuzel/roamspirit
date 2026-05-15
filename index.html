@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Roam Spirit</title>
 <meta name="description" content="Your travel companion — Guide and be guided.">
 <meta name="theme-color" content="#8B1A1A">
@@ -262,11 +262,11 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
 .feed-post-time{font-size:10px;color:var(--muted);padding:0 16px 12px;letter-spacing:.05em;text-transform:uppercase}
 
 /* NEW BOTTOM NAV */
-.bottom-nav{flex-shrink:0;background:var(--white);border-top:1px solid var(--sand);display:flex;align-items:center;justify-content:space-around;padding:8px 0 16px;position:relative}
+.bottom-nav{flex-shrink:0;background:var(--white);border-top:1px solid var(--sand);display:flex;align-items:center;justify-content:space-around;padding:8px 0 20px;padding-bottom:max(20px, env(safe-area-inset-bottom));position:relative}
 .bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 12px;border:none;background:transparent;position:relative}
 .bn-icon{font-size:22px;line-height:1}
 .bn-icon svg{width:24px;height:24px}
-.bn-label{font-size:9px;color:var(--muted);font-family:'DM Sans',sans-serif;letter-spacing:.05em;text-transform:uppercase}
+.bn-label{font-size:10px;color:var(--muted);font-family:'DM Sans',sans-serif;letter-spacing:.03em;text-transform:uppercase;margin-top:2px}
 .bn-item.active .bn-label{color:var(--carmine)}
 .bn-item.active .bn-icon{filter:none}
 .bn-plus{width:46px;height:46px;border-radius:50%;background:var(--carmine);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;border:none;cursor:pointer;box-shadow:0 3px 12px rgba(139,26,26,.35);margin-top:-10px}
