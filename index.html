@@ -846,13 +846,24 @@ var COORDS=[
 
 function enterApp(){
   document.getElementById('splash').style.display='none';
-  renderChips(tab);renderFavs();updateFavBtn();
+  renderChips(tab);
+  loadSocialFeed();
+  // Make sure ai-panel is closed on home screen
+  var aiPanel = document.getElementById('ai-panel');
+  if(aiPanel) aiPanel.classList.remove('open');
   if(!apiKey) showSetup(); else {resetChat();detectGPS();}
 }
 
 function toggleCity(e){e.stopPropagation();var m=document.getElementById('city-menu');var dotsMenu=document.getElementById('dots-menu');if(dotsMenu)dotsMenu.classList.remove('open');if(m.style.display==='block'){m.style.display='none';}else{m.style.display='block';}}
 function toggleTab(e){e.stopPropagation();var m=document.getElementById('tab-menu'),a=document.getElementById('tab-arr');document.getElementById('city-menu').style.display='none';document.getElementById('city-arr').style.transform='';if(m.style.display==='block'){m.style.display='none';a.style.transform='';}else{m.style.display='block';a.style.transform='rotate(180deg)';}}
-document.addEventListener('click',function(){document.getElementById('city-menu').style.display='none';document.getElementById('tab-menu').style.display='none';document.getElementById('city-arr').style.transform='';document.getElementById('tab-arr').style.transform='';});
+document.addEventListener('click',function(){
+  var cm=document.getElementById('city-menu');
+  if(cm) cm.style.display='none';
+  var dm=document.getElementById('dots-menu');
+  if(dm) dm.classList.remove('open');
+  var dov=document.getElementById('dots-overlay');
+  if(dov) dov.classList.remove('open');
+});
 
 function selectCity(btn,c){
   city=c;
