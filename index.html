@@ -1169,20 +1169,48 @@ async function signInWithGoogle() {
 
 async function signOut() {
   await supabaseClient.auth.signOut();
+  googleUser = null;
   document.getElementById('google-user-info').style.display = 'none';
+}
+
+// ——— AUTH GATE ———
+var googleUser = null;
+
+function requireLogin(action) {
+  if (googleUser) { action(); return; }
+  // Show login prompt overlay
+  var overlay = document.createElement('div');
+  overlay.id = 'login-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(44,31,14,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML = '<div style="background:var(--cream);border-radius:20px;padding:28px;max-width:320px;width:100%;text-align:center;position:relative">'
+    +'<div style="font-family:\'Playfair Display\',serif;font-size:20px;color:var(--ink);margin-bottom:8px">Rejoins Roam Spirit</div>'
+    +'<div style="font-size:13px;color:var(--ink-light);line-height:1.6;margin-bottom:20px">Connecte-toi pour poster, envoyer des messages et interagir avec la communauté.</div>'
+    +'<button onclick="signInWithGoogle();document.getElementById(\'login-overlay\').remove();" style="width:100%;background:#fff;border:1.5px solid var(--sand);border-radius:30px;padding:12px 20px;font-size:14px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:10px">'
+    +'<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.7 2.3 30.2 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.9 6.1C12.3 13.1 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.1z"/><path fill="#FBBC05" d="M10.4 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.1.9-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.2-7.6 2.2-6.3 0-11.7-3.6-13.6-9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>'
+    +'Se connecter avec Google</button>'
+    +'<button onclick="document.getElementById(\'login-overlay\').remove()" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;font-family:\'DM Sans\',sans-serif">Annuler</button>'
+    +'</div>';
+  document.body.appendChild(overlay);
 }
 
 // Check if user is already logged in (after redirect)
 supabaseClient.auth.getSession().then(function(res) {
   var session = res.data && res.data.session;
   if (session && session.user) {
+    googleUser = session.user;
     var name = (session.user.user_metadata && session.user.user_metadata.full_name) || session.user.email;
+    var avatar = session.user.user_metadata && session.user.user_metadata.avatar_url;
     document.getElementById('google-user-info').style.display = 'block';
     document.getElementById('google-user-name').textContent = '✓ Connecté : ' + name;
     if (!localStorage.getItem('rs_pseudo') && name) {
       var pseudo = name.split(' ')[0];
       localStorage.setItem('rs_pseudo', pseudo);
       myPseudo = pseudo;
+    }
+    if (avatar && !currentAvatar) {
+      currentAvatar = avatar;
+      var prev = document.getElementById('avatar-preview');
+      if (prev) prev.innerHTML = '<img src="'+avatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
     }
   }
 });
@@ -1301,6 +1329,7 @@ async function submitPost(){
   var fb=document.getElementById('comm-feedback');
   if(!pseudo){fb.innerHTML='<div class="comm-pending">Enter a name or pseudo.</div>';return;}
   if(msg.length<10){fb.innerHTML='<div class="comm-pending">Write at least 10 characters.</div>';return;}
+  requireLogin(async function(){
   fb.innerHTML='<div class="comm-pending">Sending...</div>';
   try {
     var payload = {pseudo:pseudo, city:city, message:msg, approved:false, likes:0};
@@ -1326,6 +1355,7 @@ async function submitPost(){
   } catch(e){
     fb.innerHTML='<div class="comm-pending">Error: '+e.message+'</div>';
   }
+  }); // end requireLogin
 }
 
 // ——— SOCIAL NETWORK ———
@@ -1856,7 +1886,9 @@ async function loadDMs(){
 async function sendDM(){
   var inp = document.getElementById('dm-inp');
   var content = inp.value.trim();
-  if(!content || !myPseudo || !currentDMPseudo) return;
+  if(!content || !currentDMPseudo) return;
+  requireLogin(async function(){
+  if(!myPseudo) return;
   inp.value = '';
   try {
     await supaFetch('private_messages', {
@@ -1870,6 +1902,7 @@ async function sendDM(){
     });
     loadDMs();
   } catch(e){ console.log('DM send error', e); }
+  }); // end requireLogin
 }
 
 async function openInbox(){
