@@ -1289,7 +1289,7 @@ async function signInWithGoogle() {
 async function signOut() {
   await supabaseClient.auth.signOut();
   googleUser = null;
-    var uiEl=document.getElementById('google-user-info'); if(uiEl) uiEl.style.display='block';
+  var uiEl=document.getElementById('google-user-info'); if(uiEl) uiEl.style.display='none';
 }
 
 // ——— AUTH GATE ———
@@ -2285,7 +2285,6 @@ window.addEventListener('DOMContentLoaded',function(){
   loadPreview();
   updateAds('Paris');
   loadSocialFeed();
-  resetChat();
 });
 
 async function loadPreview(){
