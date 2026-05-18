@@ -453,13 +453,23 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
       <button class="c-opt" onclick="selectCity(this,'Rome')">Rome</button>
       <button class="c-opt" onclick="selectCity(this,'Istanbul')">Istanbul</button>
       <div class="r-div"></div>
+      <span class="r-title">🌍 Middle East</span>
+      <button class="c-opt" onclick="selectCity(this,'Dubai')">Dubai</button>
+      <button class="c-opt" onclick="selectCity(this,'Abu Dhabi')">Abu Dhabi</button>
+      <button class="c-opt" onclick="selectCity(this,'Doha')">Doha</button>
+      <button class="c-opt" onclick="selectCity(this,'Marrakech')">Marrakech</button>
+      <div class="r-div"></div>
       <span class="r-title">🌏 Asia</span>
       <button class="c-opt" onclick="selectCity(this,'Tokyo')">Tokyo</button>
+      <button class="c-opt" onclick="selectCity(this,'Kyoto')">Kyoto</button>
       <button class="c-opt" onclick="selectCity(this,'Seoul')">Seoul</button>
       <button class="c-opt" onclick="selectCity(this,'Bangkok')">Bangkok</button>
       <button class="c-opt" onclick="selectCity(this,'Bali')">Bali</button>
+      <button class="c-opt" onclick="selectCity(this,'Hoi An')">Hoi An</button>
+      <button class="c-opt" onclick="selectCity(this,'Hanoi')">Hanoi</button>
       <button class="c-opt" onclick="selectCity(this,'Singapore')">Singapore</button>
       <button class="c-opt" onclick="selectCity(this,'Hong Kong')">Hong Kong</button>
+      <button class="c-opt" onclick="selectCity(this,'Jakarta')">Jakarta</button>
       <div class="r-div"></div>
       <span class="r-title">🌎 Americas</span>
       <button class="c-opt" onclick="selectCity(this,'New York')">New York</button>
@@ -467,6 +477,8 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
       <button class="c-opt" onclick="selectCity(this,'Los Angeles')">Los Angeles</button>
       <button class="c-opt" onclick="selectCity(this,'Miami')">Miami</button>
       <button class="c-opt" onclick="selectCity(this,'Buenos Aires')">Buenos Aires</button>
+      <button class="c-opt" onclick="selectCity(this,'Rio de Janeiro')">Rio de Janeiro</button>
+      <button class="c-opt" onclick="selectCity(this,'Medellín')">Medellín</button>
       <button class="c-opt" onclick="selectCity(this,'Mexico City')">Mexico City</button>
     </div>
     <!-- 3 dots overlay + premium sidebar -->
@@ -936,11 +948,14 @@ var TABS={
 var COORDS=[
   {city:'Paris',lat:48.85,lon:2.35},{city:'Barcelona',lat:41.38,lon:2.17},{city:'Lisbon',lat:38.72,lon:-9.14},
   {city:'London',lat:51.51,lon:-.13},{city:'Amsterdam',lat:52.37,lon:4.90},{city:'Berlin',lat:52.52,lon:13.40},
-  {city:'Rome',lat:41.90,lon:12.50},{city:'Istanbul',lat:41.01,lon:28.96},{city:'Tokyo',lat:35.68,lon:139.69},
-  {city:'Seoul',lat:37.57,lon:126.98},{city:'Bangkok',lat:13.75,lon:100.50},{city:'Bali',lat:-8.34,lon:115.09},
-  {city:'Singapore',lat:1.35,lon:103.82},{city:'Hong Kong',lat:22.32,lon:114.17},{city:'New York',lat:40.71,lon:-74.01},
-  {city:'Montreal',lat:45.50,lon:-73.57},{city:'Los Angeles',lat:34.05,lon:-118.24},{city:'Miami',lat:25.77,lon:-80.19},
-  {city:'Buenos Aires',lat:-34.60,lon:-58.38},{city:'Mexico City',lat:19.43,lon:-99.13}
+  {city:'Rome',lat:41.90,lon:12.50},{city:'Istanbul',lat:41.01,lon:28.96},
+  {city:'Dubai',lat:25.20,lon:55.27},{city:'Abu Dhabi',lat:24.47,lon:54.37},{city:'Doha',lat:25.28,lon:51.53},{city:'Marrakech',lat:31.63,lon:-8.00},
+  {city:'Tokyo',lat:35.68,lon:139.69},{city:'Kyoto',lat:35.01,lon:135.77},{city:'Seoul',lat:37.57,lon:126.98},{city:'Bangkok',lat:13.75,lon:100.50},
+  {city:'Bali',lat:-8.34,lon:115.09},{city:'Hoi An',lat:15.88,lon:108.33},{city:'Hanoi',lat:21.03,lon:105.85},
+  {city:'Singapore',lat:1.35,lon:103.82},{city:'Hong Kong',lat:22.32,lon:114.17},{city:'Jakarta',lat:-6.21,lon:106.85},
+  {city:'New York',lat:40.71,lon:-74.01},{city:'Montréal',lat:45.50,lon:-73.57},{city:'Los Angeles',lat:34.05,lon:-118.24},
+  {city:'Miami',lat:25.77,lon:-80.19},{city:'Buenos Aires',lat:-34.60,lon:-58.38},{city:'Rio de Janeiro',lat:-22.91,lon:-43.17},
+  {city:'Medellín',lat:6.25,lon:-75.56},{city:'Mexico City',lat:19.43,lon:-99.13}
 ];
 
 function enterApp(){
