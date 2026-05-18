@@ -819,7 +819,7 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
     <div class="p-body" id="itin-body"><div class="empty-msg">Choose your style and let Roam Spirit plan your trip.</div></div>
     <!-- AD CARD ITINERARY -->
     <div style="padding:0 14px 14px 28px;flex-shrink:0">
-      <a class="ad-card" id="ad-itin" href="https://www.getyourguide.com" target="_blank" rel="noopener">
+      <a class="ad-card" id="ad-itin" href="https://www.getyourguide.com/s/?q=Paris&partner_id=LTGDR0L" target="_blank" rel="noopener">
         <div class="ad-label">✦ Partner</div>
         <div class="ad-title" id="ad-itin-title">Discover experiences in Paris</div>
         <div class="ad-desc">Tours, activities and hidden gems curated by locals.</div>
@@ -875,7 +875,7 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
         <div class="ad-desc">Best prices guaranteed. Free cancellation on most rooms.</div>
         <span class="ad-cta">Book now →</span>
       </a>
-      <a class="ad-card" id="ad-gyg" href="https://www.getyourguide.com" target="_blank" rel="noopener" style="margin-top:8px">
+      <a class="ad-card" id="ad-gyg" href="https://www.getyourguide.com/s/?q=Paris&partner_id=LTGDR0L" target="_blank" rel="noopener" style="margin-top:8px">
         <div class="ad-label">✦ Partner</div>
         <div class="ad-title" id="ad-gyg-title">Discover experiences in Paris</div>
         <div class="ad-desc">Tours, activities and hidden gems curated by locals.</div>
@@ -2023,8 +2023,8 @@ function updateAds(c){
   if(itinTitle) itinTitle.textContent = 'Discover experiences in '+c;
   if(gygTitle)  gygTitle.textContent  = 'Discover experiences in '+c;
   if(commLink) commLink.href = 'https://www.booking.com/search.html?ss='+encodeURIComponent(c);
-  if(itinLink) itinLink.href = 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c);
-  if(gygLink)  gygLink.href  = 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c);
+  if(itinLink) itinLink.href = 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c)+'&partner_id=LTGDR0L';
+  if(gygLink)  gygLink.href  = 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c)+'&partner_id=LTGDR0L';
 }
 
 // ——— ADMIN SECRET ACCESS (triple tap logo) ———
