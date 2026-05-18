@@ -538,11 +538,6 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
           <span class="dots-item-arrow">›</span>
         </button>
         <div class="dots-divider"></div>
-        <button class="dots-item" onclick="openPanelFromMenu('prem-panel')">
-          <div class="dots-item-icon" style="background:linear-gradient(135deg,#8B1A1A,#C9A84C);border:none">✦</div>
-          <div class="dots-item-text"><div class="dots-item-label" style="color:var(--carmine)">Premium</div><div class="dots-item-desc">Unlock the full experience</div></div>
-          <span class="dots-item-arrow">›</span>
-        </button>
       </div>
     </div>
   </div>
@@ -738,11 +733,6 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
         L'assistant IA (City Guide, Food, Nightlife…) est fourni à titre informatif. Les réponses ne constituent pas des conseils professionnels.
       </div>
 
-      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Premium</div>
-      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
-        Abonnement optionnel à 5€/mois, sans engagement, résiliable à tout moment.
-      </div>
-
       <div style="height:1px;background:var(--sand);margin:16px 0"></div>
       <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--carmine);margin-bottom:4px">Politique de Confidentialité</div>
       <div style="height:2px;background:var(--carmine);margin-bottom:14px"></div>
@@ -848,30 +838,6 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
       </div>
     </div>
     <div class="p-body" id="pl-body"><div class="empty-msg">Choose your mood and let Roam Spirit set the tone.</div></div>
-  </div>
-
-  <div class="panel" id="prem-panel">
-    <div class="p-head"><div class="p-title">✦ Roam Spirit Premium</div><button class="p-close" onclick="closePanel('prem-panel')">✕</button></div>
-    <div class="p-body">
-      <div class="prem-badge">
-        <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:4px">Roam Spirit Member</div>
-        <div class="prem-title">Unlock the full experience</div>
-        <div class="prem-price">5€ <span>/ month</span></div>
-        <div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:3px">Cancel anytime</div>
-      </div>
-      <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">✦ What's included</div>
-      <div class="prem-feat">🌍 <span><strong>20 cities</strong> — full access worldwide</span></div>
-      <div class="prem-feat">💬 <span><strong>Unlimited AI conversations</strong></span></div>
-      <div class="prem-feat">🗓 <span><strong>Unlimited itineraries</strong></span></div>
-      <div class="prem-feat">🎵 <span><strong>Roam Spirit playlists</strong></span></div>
-      <div class="prem-feat">📷 <span><strong>Travel album IA</strong></span></div>
-      <div class="prem-feat">🔖 <span><strong>Unlimited saved tips</strong></span></div>
-      <div class="prem-feat">⭐ <span><strong>Favorite cities</strong> + secret spots</span></div>
-      <div class="prem-feat">🏅 <span><strong>Roam Spirit People badge</strong></span></div>
-      <button class="stripe-btn" onclick="goStripe()">💳 Subscribe with Stripe</button>
-      <button class="paypal-btn" onclick="goPaypal()">🅿 Subscribe with PayPal</button>
-      <div class="beta-note">Beta — Full access unlocked during testing.<br><em>This is your culture.™</em></div>
-    </div>
   </div>
 
   <!-- COMMUNITY PANEL -->
