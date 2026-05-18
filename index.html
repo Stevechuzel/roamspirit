@@ -495,6 +495,11 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
           <div class="dots-item-text"><div class="dots-item-label" style="color:var(--gold)">Shop</div><div class="dots-item-desc">Roam Spirit collection</div></div>
           <span class="dots-item-arrow">›</span>
         </button>
+        <button class="dots-item" onclick="openPanelFromMenu('plan-panel');initPlanPanel()">
+          <div class="dots-item-icon" style="background:linear-gradient(135deg,#8B1A1A,#C17A45);border:none;color:#fff;font-size:16px">⚡</div>
+          <div class="dots-item-text"><div class="dots-item-label" style="color:var(--carmine)">Plan my 2 hours</div><div class="dots-item-desc">IA recommandations en temps réel</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
         <div class="dots-divider"></div>
         <div class="dots-section">AI Companion</div>
         <button class="dots-item" onclick="switchTab('city_guide')">
@@ -650,6 +655,52 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
         <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">My posts</div>
         <div class="profile-posts-grid" id="profile-posts-grid"><div class="comm-empty" style="grid-column:1/-1">No posts yet.</div></div>
       </div>
+    </div>
+  </div>
+
+  <!-- REALTIME PLAN PANEL -->
+  <div class="panel" id="plan-panel">
+    <div class="p-head">
+      <div class="p-title">⚡ Plan my next 2 hours</div>
+      <button class="p-close" onclick="closePanel('plan-panel')">✕</button>
+    </div>
+    <div class="p-body">
+      <div style="background:var(--white);border:1px solid var(--sand);border-radius:14px;padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Personnalise ton plan</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <select id="plan-duration" style="flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream)">
+            <option value="1">1 heure</option>
+            <option value="2" selected>2 heures</option>
+            <option value="3">3 heures</option>
+            <option value="4">Demi-journée</option>
+          </select>
+          <select id="plan-budget" style="flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream)">
+            <option value="gratuit">Gratuit</option>
+            <option value="petit budget (moins de 20€)" selected>Petit budget</option>
+            <option value="budget moyen (20-50€)">Budget moyen</option>
+            <option value="sans limite">Sans limite</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="plan-vibe" style="flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream)">
+            <option value="explorer la ville">Explorer</option>
+            <option value="manger et boire">Manger & boire</option>
+            <option value="culture et art">Culture & art</option>
+            <option value="shopping local">Shopping</option>
+            <option value="me détendre">Me détendre</option>
+            <option value="vie nocturne">Vie nocturne</option>
+          </select>
+          <select id="plan-with" style="flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream)">
+            <option value="seul">Seul(e)</option>
+            <option value="en couple">En couple</option>
+            <option value="entre amis">Entre amis</option>
+            <option value="en famille">En famille</option>
+          </select>
+        </div>
+      </div>
+      <div id="plan-location-info" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:10px"></div>
+      <button id="plan-go-btn" onclick="generateRealtimePlan()" style="width:100%;background:var(--carmine);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;margin-bottom:14px">⚡ Génère mon plan maintenant</button>
+      <div id="plan-output"></div>
     </div>
   </div>
 
@@ -1816,6 +1867,80 @@ function openShop(){
   if(menu) menu.classList.remove('open');
   if(overlay) overlay.classList.remove('open');
   window.open('https://roamspirit.fr/shop', '_blank');
+}
+
+// ——— REALTIME PLAN ———
+var userLat = null, userLon = null;
+
+function initPlanPanel(){
+  var info = document.getElementById('plan-location-info');
+  if(navigator.geolocation){
+    info.textContent = '📍 Récupération de ta position...';
+    navigator.geolocation.getCurrentPosition(function(pos){
+      userLat = pos.coords.latitude;
+      userLon = pos.coords.longitude;
+      info.textContent = '📍 Position détectée — prêt à planifier !';
+      info.style.color = 'var(--sage)';
+    }, function(){
+      info.textContent = '📍 Position non disponible — plan basé sur ' + city;
+      info.style.color = 'var(--muted)';
+    });
+  } else {
+    info.textContent = '📍 Plan basé sur ' + city;
+  }
+}
+
+async function generateRealtimePlan(){
+  if(!apiKey){ showSetup(); closePanel('plan-panel'); return; }
+  var duration = document.getElementById('plan-duration').value;
+  var budget = document.getElementById('plan-budget').value;
+  var vibe = document.getElementById('plan-vibe').value;
+  var withWho = document.getElementById('plan-with').value;
+  var btn = document.getElementById('plan-go-btn');
+  var output = document.getElementById('plan-output');
+
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  var dayStr = now.toLocaleDateString('fr-FR', {weekday:'long'});
+
+  btn.disabled = true;
+  btn.textContent = '⚡ Génération en cours...';
+  output.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-style:italic">L\'IA prépare ton plan personnalisé...</div>';
+
+  var locationInfo = userLat ? 'Position GPS disponible (lat:'+userLat.toFixed(2)+', lon:'+userLon.toFixed(2)+')' : 'Ville : '+city;
+  var prompt = 'Tu es le guide local ultime de '+city+'. Il est '+timeStr+' ('+dayStr+'). '+locationInfo+'. '
+    +'Crée un plan hyper précis et local pour '+duration+' heure(s), '+withWho+', vibe : '+vibe+', budget : '+budget+'. '
+    +'Donne 3-5 étapes avec : nom du lieu, adresse précise, pourquoi c\'est parfait maintenant, durée suggérée. '
+    +'Sois spécifique, local, évite les pièges à touristes. Format : étapes numérotées avec émojis. '
+    +'Termine par un conseil secret de local. Réponds en français.';
+
+  try {
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-5', max_tokens:1200, messages:[{role:'user', content:prompt}]})
+    });
+    var d = await r.json();
+    var text = d.content && d.content[0] ? d.content[0].text : 'Erreur';
+    output.innerHTML = '<div style="background:var(--cream);border:1px solid var(--sand);border-radius:14px;padding:16px;font-size:14px;line-height:1.7;color:var(--ink);position:relative">'
+      +'<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);border-radius:3px 0 0 3px"></div>'
+      +'<div style="padding-left:10px">'+fmt(text)+'</div>'
+      +'<button onclick="sharePlan(this)" data-text="'+text.replace(/"/g,\'\')+'" style="margin-top:12px;width:100%;background:none;border:1px solid var(--sand);border-radius:10px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;font-family:\'DM Sans\',sans-serif">🔖 Sauvegarder ce plan</button>'
+      +'</div>';
+  } catch(e){
+    output.innerHTML = '<div style="color:var(--carmine);text-align:center;padding:20px">Erreur : '+e.message+'</div>';
+  }
+  btn.disabled = false;
+  btn.textContent = '⚡ Nouveau plan';
+}
+
+function sharePlan(btn){
+  var text = btn.dataset.text;
+  var saved = JSON.parse(localStorage.getItem('rs_saved')||'[]');
+  saved.unshift({text:'⚡ Plan '+city+' : '+text, city:city, date:new Date().toISOString()});
+  localStorage.setItem('rs_saved', JSON.stringify(saved));
+  btn.textContent = '✓ Plan sauvegardé !';
+  btn.style.color = 'var(--sage)';
 }
 
 var ADMIN_PWD = 'roamspirit2026';
