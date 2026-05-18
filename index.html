@@ -1056,7 +1056,8 @@ function enterApp(){
   // Make sure ai-panel is closed on home screen
   var aiPanel = document.getElementById('ai-panel');
   if(aiPanel) aiPanel.classList.remove('open');
-  if(!apiKey) showSetup(); else {resetChat();detectGPS();}
+  resetChat();
+  detectGPS();
 }
 
 function toggleCity(e){e.stopPropagation();var m=document.getElementById('city-menu');var dotsMenu=document.getElementById('dots-menu');if(dotsMenu)dotsMenu.classList.remove('open');if(m.style.display==='block'){m.style.display='none';}else{m.style.display='block';}}
