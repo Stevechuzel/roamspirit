@@ -402,6 +402,22 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
 .action-btn:disabled{opacity:.5;cursor:not-allowed}
 .gen-btn{width:100%;background:var(--carmine);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;margin-bottom:10px}
 .gen-btn:disabled{opacity:.5}
+
+/* AI GUIDE CARD */
+.ai-guide-card{position:relative;margin:12px 14px 4px 14px;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(139,26,26,.25)}
+.ai-guide-bg{position:absolute;inset:0;background:linear-gradient(135deg,#8B1A1A 0%,#C17A45 60%,#C9A84C 100%);z-index:0}
+.ai-guide-content{position:relative;z-index:1;padding:18px 16px 14px}
+.ai-guide-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ai-guide-icon{width:38px;height:38px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
+.ai-guide-title{font-family:'Playfair Display',serif;font-size:17px;color:#fff;font-weight:500;letter-spacing:.02em}
+.ai-guide-sub{font-size:12px;color:rgba(255,255,255,.75);margin-top:2px;letter-spacing:.04em}
+.ai-guide-chips{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;padding-bottom:2px}
+.ai-guide-chips::-webkit-scrollbar{display:none}
+.ai-guide-chip{flex-shrink:0;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:6px 13px;font-size:12px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.ai-guide-input-row{display:flex;gap:8px;align-items:center}
+.ai-guide-input{flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:10px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:#fff;outline:none}
+.ai-guide-input::placeholder{color:rgba(255,255,255,.6)}
+.ai-guide-send{width:38px;height:38px;background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.4);border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -566,6 +582,30 @@ html,body{height:100%;background:var(--white);display:flex;justify-content:cente
       <div class="story-item" onclick="openPublish()">
         <div class="story-add">+</div>
         <div class="story-name">Your story</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI CITY GUIDE CARD -->
+  <div class="ai-guide-card" id="ai-guide-card">
+    <div class="ai-guide-bg"></div>
+    <div class="ai-guide-content">
+      <div class="ai-guide-header">
+        <div class="ai-guide-icon">✦</div>
+        <div>
+          <div class="ai-guide-title">Your AI City Guide</div>
+          <div class="ai-guide-sub">Ask anything about <span id="ai-guide-city">Paris</span></div>
+        </div>
+      </div>
+      <div class="ai-guide-chips">
+        <button class="ai-guide-chip" onclick="quickAskGuide('Hidden gems & secret spots')">🌀 Hidden gems</button>
+        <button class="ai-guide-chip" onclick="quickAskGuide('Best local food and restaurants right now')">🍽 Best food</button>
+        <button class="ai-guide-chip" onclick="quickAskGuide('What to do tonight, local nightlife')">🌙 Tonight</button>
+        <button class="ai-guide-chip" onclick="quickAskGuide('Top local tips most tourists don\'t know')">💡 Local tips</button>
+      </div>
+      <div class="ai-guide-input-row">
+        <input class="ai-guide-input" id="ai-guide-inp" placeholder="Ask me anything about the city…" onkeydown="if(event.key==='Enter')quickAskGuide(this.value)"/>
+        <button class="ai-guide-send" onclick="quickAskGuide(document.getElementById('ai-guide-inp').value)">→</button>
       </div>
     </div>
   </div>
@@ -1044,6 +1084,9 @@ function selectCity(btn,c){
   // Update AI panel city
   var cityEl=document.getElementById('ai-panel-city');
   if(cityEl) cityEl.textContent=c;
+  // Update AI guide card city
+  var guideCity=document.getElementById('ai-guide-city');
+  if(guideCity) guideCity.textContent=c;
   // Update AI panel title
   var titleEl=document.getElementById('ai-panel-title');
   if(titleEl && window.TABS && window.TABS[tab]) titleEl.textContent=TABS[tab].label;
@@ -1053,6 +1096,45 @@ function selectCity(btn,c){
 function selectTab(btn,t){tab=t;document.querySelectorAll('.t-opt').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');document.getElementById('tab-lbl').textContent=btn.textContent.trim();document.getElementById('tab-menu').style.display='none';document.getElementById('tab-arr').style.transform='';renderChips(t);if(histories[t])renderHistory(t);else resetChat();}
 
 function renderChips(t){var d=TABS[t];document.getElementById('chips').innerHTML=d.chips.map(function(c){return'<div class="chip" onclick="sendQuick(\''+c+'\')">'+c+'</div>';}).join('');}
+
+// ——— AI GUIDE CARD ———
+async function quickAskGuide(question){
+  if(!question || !question.trim()) return;
+  if(!apiKey){ showSetup(); return; }
+  var inp = document.getElementById('ai-guide-inp');
+  if(inp) inp.value = '';
+  // Open AI panel with this question
+  tab = 'city_guide';
+  document.getElementById('ai-panel').classList.add('open');
+  var bgEl = document.getElementById('ai-panel-bg');
+  if(bgEl) bgEl.style.background = 'linear-gradient(135deg,#8B1A1A,#C9A84C)';
+  var iconEl = document.getElementById('ai-panel-icon');
+  if(iconEl) iconEl.textContent = '🗺';
+  var titleEl = document.getElementById('ai-panel-title');
+  if(titleEl) titleEl.textContent = 'City Guide';
+  var cityEl = document.getElementById('ai-panel-city');
+  if(cityEl) cityEl.textContent = city;
+  resetChat();
+  // Auto-send the question
+  if(!histories[tab]) histories[tab] = [];
+  histories[tab].push({role:'user', content:question});
+  addMsg('user', question);
+  typing = true;
+  showTyping();
+  try {
+    var r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,system:TABS['city_guide'].sys.replace('{city}',city),messages:histories[tab]})
+    });
+    var d = await r.json();
+    hideTyping();
+    var rep = d.content && d.content[0] ? d.content[0].text : 'Error';
+    histories[tab].push({role:'assistant', content:rep});
+    addMsg('assistant', rep);
+  } catch(e){ hideTyping(); addMsg('assistant','Error: '+e.message); }
+  typing = false;
+}
 
 function detectGPS(){if(!navigator.geolocation)return;var btn=document.getElementById('fav-btn');navigator.geolocation.getCurrentPosition(function(p){var n=COORDS[0],m=Infinity;COORDS.forEach(function(c){var d=Math.sqrt(Math.pow(p.coords.latitude-c.lat,2)+Math.pow(p.coords.longitude-c.lon,2));if(d<m){m=d;n=c;}});var opt=Array.from(document.querySelectorAll('.c-opt')).find(function(o){return o.textContent.trim()===n.city;});if(opt)selectCity(opt,n.city);},function(){},{timeout:6000});}
 
