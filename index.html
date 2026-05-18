@@ -1621,15 +1621,17 @@ var pubPhotoData = '';
 var pubAvatarData = '';
 
 function openPublish(){
-  document.getElementById('pub-overlay').classList.add('open');
-  document.getElementById('publish-panel').classList.add('open');
-  // Pre-fill pseudo if saved
-  var pseudo = localStorage.getItem('rs_pseudo') || myPseudo;
-  if(pseudo) document.getElementById('pub-pseudo').value = pseudo;
-  if(currentAvatar){
-    var prev = document.getElementById('pub-avatar-preview');
-    if(prev) prev.innerHTML='<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
-  }
+  requireLogin(function(){
+    document.getElementById('pub-overlay').classList.add('open');
+    document.getElementById('publish-panel').classList.add('open');
+    // Pre-fill pseudo if saved
+    var pseudo = localStorage.getItem('rs_pseudo') || myPseudo;
+    if(pseudo) document.getElementById('pub-pseudo').value = pseudo;
+    if(currentAvatar){
+      var prev = document.getElementById('pub-avatar-preview');
+      if(prev) prev.innerHTML='<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+    }
+  });
 }
 
 function closePublish(){
