@@ -1144,8 +1144,8 @@ function handleAvatar(input){
 
 function makeAvatar(pseudo, avatarUrl, size){
   size=size||32;
-  if(avatarUrl && avatarUrl.startsWith('data:')){
-    return '<img src="'+avatarUrl+'" style="width:'+size+'px;height:'+size+'px;border-radius:50%;object-fit:cover;border:1.5px solid var(--sand);flex-shrink:0"/>';
+  if(avatarUrl && (avatarUrl.startsWith('data:') || avatarUrl.startsWith('http'))){
+    return '<img src="'+avatarUrl+'" style="width:'+size+'px;height:'+size+'px;border-radius:50%;object-fit:cover;border:1.5px solid var(--sand);flex-shrink:0" referrerpolicy="no-referrer"/>';
   }
   var initials=getInitials(pseudo);
   var color=getAvatarColor(pseudo);
@@ -1209,8 +1209,9 @@ supabaseClient.auth.getSession().then(function(res) {
     }
     if (avatar && !currentAvatar) {
       currentAvatar = avatar;
+      localStorage.setItem('rs_avatar', avatar);
       var prev = document.getElementById('avatar-preview');
-      if (prev) prev.innerHTML = '<img src="'+avatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+      if (prev) prev.innerHTML = '<img src="'+avatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%" referrerpolicy="no-referrer"/>';
     }
   }
 });
