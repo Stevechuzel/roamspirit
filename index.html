@@ -19,7 +19,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--cream:#FDFAF4;--sand:#F0EAD6;--carmine:#8B1A1A;--gold:#C9A84C;--terracotta:#C17A45;--sage:#7A8C6E;--ink:#2C1F0E;--ink-light:#5C4A35;--muted:#B5A898;--white:#FFFFFF}
 html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-family:'DM Sans',sans-serif;margin:0;padding:0;overflow:hidden;box-sizing:border-box}
-.wrap{width:100%;max-width:100vw;height:100vh;height:100dvh;background:var(--cream);display:flex;flex-direction:column;overflow:hidden;position:relative;box-sizing:border-box}
+.wrap{width:100%;max-width:430px;margin:0 auto;height:100vh;height:100dvh;background:var(--cream);display:flex;flex-direction:column;overflow:hidden;position:relative;box-sizing:border-box}
+@media(max-width:430px){.wrap{max-width:100vw}}
 .cord{display:none}
 
 /* SPLASH */
@@ -1144,7 +1145,7 @@ function detectGPS(){if(!navigator.geolocation)return;var btn=document.getElemen
 
 function toggleFav(){var b=document.getElementById('fav-btn'),i=favs.indexOf(city);if(i===-1){favs.push(city);b.textContent='★';b.style.color='#C9A84C';}else{favs.splice(i,1);b.textContent='☆';b.style.color='';}localStorage.setItem('rs_favs',JSON.stringify(favs));renderFavs();}
 function updateFavBtn(){var b=document.getElementById('fav-btn');if(favs.indexOf(city)!==-1){b.textContent='★';b.style.color='#C9A84C';}else{b.textContent='☆';b.style.color='';}}
-function renderFavs(){var el=document.getElementById('favs');if(favs.length===0){el.style.display='none';return;}el.style.display='flex';el.innerHTML=favs.map(function(c){return'<div class="fav-chip" onclick="quickCity(\''+c+'\')">★ '+c+' <span onclick="event.stopPropagation();removeFav(\''+c+'\')" style="font-size:10px;color:var(--muted)">✕</span></div>';}).join('');}
+function renderFavs(){var el=document.getElementById('favs');if(!el)return;if(favs.length===0){el.style.display='none';return;}el.style.display='flex';el.innerHTML=favs.map(function(c){return'<div class="fav-chip" onclick="quickCity(\''+c+'\')">★ '+c+' <span onclick="event.stopPropagation();removeFav(\''+c+'\')" style="font-size:10px;color:var(--muted)">✕</span></div>';}).join('');}
 function removeFav(c){favs=favs.filter(function(x){return x!==c;});localStorage.setItem('rs_favs',JSON.stringify(favs));renderFavs();updateFavBtn();}
 function quickCity(c){var o=Array.from(document.querySelectorAll('.c-opt')).find(function(x){return x.textContent.trim()===c;});if(o)selectCity(o,c);}
 
@@ -2292,6 +2293,7 @@ window.addEventListener('DOMContentLoaded',function(){
 
 async function loadPreview(){
   var feed=document.getElementById('comm-preview-feed');
+  if(!feed) return;
   try {
     var posts = await supaFetch('community_posts?select=*&approved=eq.true&order=created_at.desc&limit=2');
     var display = posts.length > 0 ? posts : seedPosts.slice(0,2);
