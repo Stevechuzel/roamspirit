@@ -1439,7 +1439,7 @@ supabaseClient.auth.getSession().then(function(res) {
     var uiEl=document.getElementById('google-user-info'); if(uiEl) uiEl.style.display='block';
     var unEl=document.getElementById('google-user-name'); if(unEl) unEl.textContent='✓ Connecté : '+name;
     if (!localStorage.getItem('rs_pseudo') && name) {
-      var pseudo = name.split(' ')[0];
+      var pseudo = name.split(' ')[0]; pseudo = pseudo.charAt(0).toUpperCase() + pseudo.slice(1);
       localStorage.setItem('rs_pseudo', pseudo);
       myPseudo = pseudo;
     }
@@ -2277,7 +2277,7 @@ async function loadDMs(){
   if(!myPseudo || !currentDMPseudo) return;
   try {
     var msgs = await supaFetch(
-      'private_messages?or=(and(from_pseudo.eq.'+encodeURIComponent(myPseudo)+',to_pseudo.eq.'+encodeURIComponent(currentDMPseudo)+'),and(from_pseudo.eq.'+encodeURIComponent(currentDMPseudo)+',to_pseudo.eq.'+encodeURIComponent(myPseudo)+'))&order=created_at.asc'
+      'private_messages?or=(and(from_pseudo.ilike.'+encodeURIComponent(myPseudo)+',to_pseudo.ilike.'+encodeURIComponent(currentDMPseudo)+'),and(from_pseudo.ilike.'+encodeURIComponent(currentDMPseudo)+',to_pseudo.ilike.'+encodeURIComponent(myPseudo)+'))&order=created_at.asc'
     );
     var container = document.getElementById('dm-messages');
     if(msgs.length === 0){
@@ -2295,7 +2295,7 @@ async function loadDMs(){
     // Scroll to bottom
     container.scrollTop = container.scrollHeight;
     // Mark as read
-    supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&from_pseudo=eq.'+encodeURIComponent(currentDMPseudo)+'&read=eq.false',{
+    supaFetch('private_messages?to_pseudo=ilike.'+encodeURIComponent(myPseudo)+'&from_pseudo=ilike.'+encodeURIComponent(currentDMPseudo)+'&read=eq.false',{
       method:'PATCH', body:JSON.stringify({read:true})
     }).catch(function(){});
   } catch(e){ console.log('DM load error', e); }
@@ -2339,7 +2339,7 @@ async function loadInbox(){
   var list = document.getElementById('inbox-list');
   list.innerHTML = '<div class="comm-empty">Loading…</div>';
   try {
-    var msgs = await supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&order=created_at.desc');
+    var msgs = await supaFetch('private_messages?to_pseudo=ilike.'+encodeURIComponent(myPseudo)+'&order=created_at.desc');
     if(msgs.length === 0){
       list.innerHTML = '<div class="comm-empty">No messages yet.</div>';
       return;
@@ -2373,7 +2373,7 @@ async function loadInbox(){
 setInterval(async function(){
   if(!myPseudo) return;
   try {
-    var msgs = await supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&read=eq.false&select=id');
+    var msgs = await supaFetch('private_messages?to_pseudo=ilike.'+encodeURIComponent(myPseudo)+'&read=eq.false&select=id');
     var notif = document.getElementById('msg-notif');
     if(notif) notif.style.display = msgs.length > 0 ? 'flex' : 'none';
   } catch(e){}
