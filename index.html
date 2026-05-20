@@ -1461,7 +1461,7 @@ supabaseClient.auth.getSession().then(function(res) {
       var pseudo = name.split(' ')[0]; pseudo = pseudo.charAt(0).toUpperCase() + pseudo.slice(1);
       localStorage.setItem('rs_pseudo', pseudo);
       myPseudo = pseudo;
-      setTimeout(registerPushSubscription, 1000);
+      setTimeout(showPushBanner, 2000);
     }
     if (avatar && !currentAvatar) {
       // Fetch Google avatar and convert to base64 to avoid CORS issues
@@ -2159,6 +2159,26 @@ async function sendPushNotification(to_pseudo, from_pseudo, content) {
       body: JSON.stringify({ to_pseudo, from_pseudo, content })
     });
   } catch(e) { console.log('Push send error', e); }
+}
+
+
+// ——— ASK PUSH PERMISSION ———
+function showPushBanner() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted' || Notification.permission === 'denied') return;
+  var existing = document.getElementById('push-banner');
+  if (existing) return;
+  var banner = document.createElement('div');
+  banner.id = 'push-banner';
+  banner.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#8B1A1A;color:#FDFAF4;padding:12px 20px;border-radius:14px;font-size:13px;z-index:9999;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.2);max-width:320px;width:90%';
+  banner.innerHTML = '<span>🔔 Activer les notifications messages ?</span><button onclick="askPushPermission()" style="background:#FDFAF4;color:#8B1A1A;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap">Activer</button><button onclick="document.getElementById('push-banner').remove()" style="background:transparent;border:none;color:#FDFAF4;font-size:16px;cursor:pointer;padding:0 4px">✕</button>';
+  document.body.appendChild(banner);
+}
+
+async function askPushPermission() {
+  var banner = document.getElementById('push-banner');
+  if (banner) banner.remove();
+  await registerPushSubscription();
 }
 
 // ——— REALTIME PLAN ———
