@@ -1461,6 +1461,7 @@ supabaseClient.auth.getSession().then(function(res) {
       var pseudo = name.split(' ')[0]; pseudo = pseudo.charAt(0).toUpperCase() + pseudo.slice(1);
       localStorage.setItem('rs_pseudo', pseudo);
       myPseudo = pseudo;
+      setTimeout(registerPushSubscription, 1000);
     }
     if (avatar && !currentAvatar) {
       // Fetch Google avatar and convert to base64 to avoid CORS issues
@@ -2104,6 +2105,62 @@ function shopPreorder(productName){
   window.location.href = 'mailto:s.chuzel@roamspirit.com?subject=' + subject + '&body=' + body;
 }
 
+
+// ——— PUSH NOTIFICATIONS ———
+const VAPID_PUBLIC_KEY = 'BB-QYtM-srB2NDvFV-iP7b53AS7KpMvEGaudmnIZelnnVFqUyTAnYFUDtMKuXowCpd3_rf1ouo-nCWLztku-7ZQ';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+async function registerPushSubscription() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if (!myPseudo) return;
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) { await savePushSub(existing); return; }
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+    await savePushSub(sub);
+  } catch(e) { console.log('Push reg error', e); }
+}
+
+async function savePushSub(sub) {
+  const key = sub.getKey('p256dh');
+  const auth = sub.getKey('auth');
+  const p256dh = btoa(String.fromCharCode(...new Uint8Array(key)));
+  const authStr = btoa(String.fromCharCode(...new Uint8Array(auth)));
+  await supaFetch('push_subscriptions', {
+    method: 'POST',
+    body: JSON.stringify({
+      user_pseudo: myPseudo,
+      endpoint: sub.endpoint,
+      p256dh: p256dh,
+      auth: authStr
+    })
+  });
+}
+
+async function sendPushNotification(to_pseudo, from_pseudo, content) {
+  try {
+    await fetch(SUPA_URL + '/functions/v1/send-push-notification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPA_KEY },
+      body: JSON.stringify({ to_pseudo, from_pseudo, content })
+    });
+  } catch(e) { console.log('Push send error', e); }
+}
+
 // ——— REALTIME PLAN ———
 var userLat = null, userLon = null;
 
@@ -2338,6 +2395,7 @@ async function sendDM(){
       })
     });
     loadDMs();
+    sendPushNotification(currentDMPseudo, myPseudo, content);
   } catch(e){ console.log('DM send error', e); }
   }); // end requireLogin
 }
