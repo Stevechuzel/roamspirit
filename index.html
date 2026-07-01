@@ -898,10 +898,12 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
       <div id="admin-login">
         <div style="text-align:center;padding:20px 0 14px">
           <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--ink);margin-bottom:6px">Admin Access</div>
-          <div style="font-size:12px;color:var(--muted)">Enter your admin password</div>
+          <div style="font-size:12px;color:var(--muted)">Sign in with the Google account authorized as admin</div>
         </div>
-        <input type="password" id="admin-pwd" class="comm-pseudo-inp" placeholder="Password" style="margin-bottom:8px"/>
-        <button class="comm-submit" onclick="adminLogin()" style="background:var(--carmine)">Enter</button>
+        <button class="s-google-btn" onclick="adminSignIn()" style="width:100%;justify-content:center">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.7 2.3 30.2 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.9 6.1C12.3 13.1 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.1z"/><path fill="#FBBC05" d="M10.4 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.1.9-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.2-7.6 2.2-6.3 0-11.7-3.6-13.6-9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
+          Sign in with Google
+        </button>
         <div id="admin-login-err" style="font-size:12px;color:var(--carmine);text-align:center;margin-top:8px"></div>
       </div>
       <div id="admin-content" style="display:none">
@@ -1462,6 +1464,26 @@ async function supaFetch(path, opts){
     headers:{
       'apikey': SUPA_KEY,
       'Authorization': 'Bearer '+SUPA_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    }
+  }, opts));
+  if(!res.ok){ var e=await res.text(); throw new Error(e); }
+  var txt=await res.text();
+  return txt ? JSON.parse(txt) : [];
+}
+
+// Like supaFetch, but sends the signed-in user's own access token instead of
+// the shared anon key, so Supabase RLS policies can check auth.uid() and
+// know WHO is making the request (needed for anything admin-only).
+async function supaFetchAuth(path, opts){
+  var sessionRes = await supabaseClient.auth.getSession();
+  var session = sessionRes.data && sessionRes.data.session;
+  var token = session ? session.access_token : SUPA_KEY;
+  var res = await fetch(SUPA_URL+'/rest/v1/'+path, Object.assign({
+    headers:{
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer '+token,
       'Content-Type': 'application/json',
       'Prefer': 'return=representation'
     }
@@ -2224,23 +2246,57 @@ function sharePlan(btn){
   btn.style.color = 'var(--sage)';
 }
 
-var ADMIN_PWD = 'roamspirit2026';
+// ——— ADMIN ACCESS ———
+// SECURITY NOTE: this client-side check is only a UX convenience.
+// The real gate is Supabase Row Level Security on `community_posts` and the
+// `admins` table (see migration.sql) — anyone hitting the REST API directly
+// still gets rejected server-side unless their auth.uid() is in `admins`.
 var adminUnlocked = false;
 
-function openAdmin(){
+async function openAdmin(){
   document.getElementById('admin-panel').classList.add('open');
-  if(adminUnlocked) loadAdminPosts();
+  await refreshAdminAccess();
 }
 
-function adminLogin(){
-  var pwd = document.getElementById('admin-pwd').value;
-  if(pwd === ADMIN_PWD){
-    adminUnlocked = true;
-    document.getElementById('admin-login').style.display = 'none';
-    document.getElementById('admin-content').style.display = 'block';
-    loadAdminPosts();
-  } else {
-    document.getElementById('admin-login-err').textContent = 'Wrong password.';
+function adminSignIn(){
+  // reuses the same Google OAuth flow as the rest of the app
+  signInWithGoogle();
+}
+
+async function refreshAdminAccess(){
+  var loginEl = document.getElementById('admin-login');
+  var contentEl = document.getElementById('admin-content');
+  var errEl = document.getElementById('admin-login-err');
+  errEl.textContent = '';
+  var sessionRes = await supabaseClient.auth.getSession();
+  var session = sessionRes.data && sessionRes.data.session;
+  if(!session){
+    adminUnlocked = false;
+    loginEl.style.display = 'block';
+    contentEl.style.display = 'none';
+    return;
+  }
+  try {
+    // Reading the admins table only ever returns YOUR OWN row (enforced by
+    // RLS policy "read own admin row"), so this can't be used to enumerate
+    // other admins.
+    var rows = await supaFetchAuth('admins?select=user_id&user_id=eq.' + session.user.id);
+    if(rows.length > 0){
+      adminUnlocked = true;
+      loginEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      loadAdminPosts();
+    } else {
+      adminUnlocked = false;
+      loginEl.style.display = 'block';
+      contentEl.style.display = 'none';
+      errEl.textContent = 'This Google account is not authorized as admin.';
+    }
+  } catch(e){
+    adminUnlocked = false;
+    loginEl.style.display = 'block';
+    contentEl.style.display = 'none';
+    errEl.textContent = 'Could not verify admin access.';
   }
 }
 
@@ -2248,7 +2304,7 @@ async function loadAdminPosts(){
   var feed = document.getElementById('admin-feed');
   feed.innerHTML = '<div class="admin-empty">Loading...</div>';
   try {
-    var posts = await supaFetch('community_posts?select=*&approved=eq.false&order=created_at.desc');
+    var posts = await supaFetchAuth('community_posts?select=*&approved=eq.false&order=created_at.desc');
     if(posts.length === 0){
       feed.innerHTML = '<div class="admin-empty">✓ No posts awaiting moderation.</div>';
       return;
@@ -2275,24 +2331,24 @@ async function loadAdminPosts(){
 
 async function approvePost(id){
   try {
-    await supaFetch('community_posts?id=eq.'+id, {
+    await supaFetchAuth('community_posts?id=eq.'+id, {
       method:'PATCH',
       body: JSON.stringify({approved: true})
     });
     document.getElementById('ap-'+id).remove();
     var feed = document.getElementById('admin-feed');
     if(!feed.querySelector('.admin-post')) feed.innerHTML='<div class="admin-empty">✓ No posts awaiting moderation.</div>';
-  } catch(e){ alert('Error approving post'); }
+  } catch(e){ alert('Error approving post — check that this account is in the admins table'); }
 }
 
 async function rejectPost(id){
   if(!confirm('Delete this post?')) return;
   try {
-    await supaFetch('community_posts?id=eq.'+id, { method:'DELETE' });
+    await supaFetchAuth('community_posts?id=eq.'+id, { method:'DELETE' });
     document.getElementById('ap-'+id).remove();
     var feed = document.getElementById('admin-feed');
     if(!feed.querySelector('.admin-post')) feed.innerHTML='<div class="admin-empty">✓ No posts awaiting moderation.</div>';
-  } catch(e){ alert('Error deleting post'); }
+  } catch(e){ alert('Error deleting post — check that this account is in the admins table'); }
 }
 
 
