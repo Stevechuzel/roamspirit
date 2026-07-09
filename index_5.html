@@ -464,7 +464,7 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 .gen-btn:disabled{opacity:.5}
 
 /* AI GUIDE CARD */
-.ai-guide-card{position:relative;margin:10px 12px 6px 12px;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(139,26,26,.2);flex-shrink:0;cursor:pointer;transition:transform .15s ease}
+.ai-guide-card{position:relative;margin:8px 12px 6px 12px;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(139,26,26,.2);flex-shrink:0;cursor:pointer;transition:transform .15s ease}
 .ai-guide-card:active{transform:scale(.985)}
 .ai-guide-arrow{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ai-guide-bg{position:absolute;inset:0;background:linear-gradient(135deg,#8B1A1A 0%,#C17A45 60%,#C9A84C 100%);z-index:0}
@@ -667,9 +667,7 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
     </div>
   </div>
 
-  <!-- AI CITY GUIDE CARD + FEED WRAPPER -->
-  <div class="home-scroll" id="home-scroll">
-  <!-- AI CITY GUIDE CARD -->
+  <!-- AI CITY GUIDE CARD (toujours visible, ne défile pas) -->
   <div class="ai-guide-card" id="ai-guide-card" onclick="quickAskGuide('')" role="button">
     <div class="ai-guide-bg"></div>
     <div class="ai-guide-content">
@@ -689,6 +687,10 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
       </div>
     </div>
   </div>
+
+  <!-- FEED WRAPPER -->
+  <div class="home-scroll" id="home-scroll">
+
 
   <!-- SOCIAL FEED -->
   <div class="feed" id="social-feed"></div>
@@ -842,9 +844,9 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
       <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div class="bn-label">Home</div>
     </button>
-    <button class="bn-item" id="bn-explore" onclick="switchView('explore')">
-      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-      <div class="bn-label">Explore</div>
+    <button class="bn-item" id="bn-shop" onclick="openShop()">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+      <div class="bn-label">Shop</div>
     </button>
     <button class="bn-plus" aria-label="Create a post" onclick="openPublish()">+</button>
     <button class="bn-item" id="bn-messages" onclick="openInbox()" style="position:relative">
@@ -1329,7 +1331,7 @@ function openLegal(){
 }
 
 function openPanel(id){document.querySelectorAll('.panel').forEach(function(el){el.classList.remove('open');});var el=document.getElementById(id);if(el)el.classList.add('open');}
-function closePanel(id){document.getElementById(id).classList.remove('open');if(id==='inbox-panel'||id==='profile-panel'){setNav(currentView==='explore'?'explore':'home');}}
+function closePanel(id){document.getElementById(id).classList.remove('open');if(id==='inbox-panel'||id==='profile-panel'||id==='shop-panel'){setNav('home');}}
 
 function saveTip(text){saved.unshift({text:text,city:city,tab:TABS[tab].label,date:new Date().toLocaleDateString()});localStorage.setItem('rs_saved',JSON.stringify(saved));document.getElementById('saved-nav').textContent='🔖 Saved ('+saved.length+')';}
 function delTip(i){saved.splice(i,1);localStorage.setItem('rs_saved',JSON.stringify(saved));renderSaved();}
@@ -1477,15 +1479,30 @@ function trackEvent(name){
 }
 
 // ——— PARTENAIRES (affiliation) ———
-// ⚠️ BOOKING_AID : mets ici ton ID d'affilié Booking (Partner Centre → aid).
-//    Tant qu'il est vide, les clics Booking ne te rapportent RIEN.
-var BOOKING_AID = '';
 var GYG_PARTNER_ID = 'LTGDR0L';
+
+// ⚠️ STAY22_AID : ton identifiant affilié Stay22 (Booking/Expedia/Hotels.com...).
+var STAY22_AID = 'roamspirit';
+
+// Liens "Allez" générés un par un dans le dashboard Stay22 (Allez Generator).
+// Pour ajouter une ville : génère son lien sur stay22.com (Allez Generator,
+// Provider URL = https://www.booking.com/searchresults.html?ss=NomVille),
+// puis ajoute une ligne ici : 'NomVille': 'https://booking.stay22.com/roamspirit/XXXXX'
+var STAY22_LINKS = {
+  'Paris': 'https://booking.stay22.com/roamspirit/asQ2jzCkmt',
+  'Singapore': 'https://booking.stay22.com/roamspirit/CH-9qzg3jn',
+  'Bangkok': 'https://booking.stay22.com/roamspirit/qJoQfIpans',
+  'Bali': 'https://booking.stay22.com/roamspirit/qY07JLGZkN',
+  'Berlin': 'https://booking.stay22.com/roamspirit/EkGOSEKp8_',
+  'Prague': 'https://booking.stay22.com/roamspirit/XMkkUGQPPE'
+};
+// Ville par défaut si la ville courante n'a pas encore de lien généré
+var STAY22_FALLBACK_CITY = 'Paris';
 
 var PARTNERS = {
   booking: {
     brand: 'Booking.com',
-    link: function(c){ return 'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(c)+(BOOKING_AID?'&aid='+BOOKING_AID:''); },
+    link: function(c){ return STAY22_LINKS[c] || STAY22_LINKS[STAY22_FALLBACK_CITY]; },
     title: function(c){ return 'Stay in the heart of '+c; },
     desc: 'Handpicked hotels and stays. Free cancellation on most rooms.',
     cta: 'Find your stay →'
@@ -1757,7 +1774,7 @@ var pubPhoto = '';
 var exploreFilter = '';
 
 function setNav(view){
-  ['home','explore','messages','profile'].forEach(function(v){
+  ['home','shop','messages','profile'].forEach(function(v){
     var btn = document.getElementById('bn-'+v);
     if(btn) btn.classList.toggle('active', v===view);
   });
@@ -1773,11 +1790,6 @@ function switchView(view){
     if(home) home.style.display='block';
     if(stories) stories.style.display='block';
     loadSocialFeed();
-  } else if(view === 'explore'){
-    if(home) home.style.display='none';
-    if(stories) stories.style.display='none';
-    document.getElementById('explore-panel').classList.add('open');
-    loadExplore();
   }
 }
 
@@ -2265,6 +2277,8 @@ function openShop() {trackEvent('shop_view');
   var overlay = document.getElementById('dots-overlay');
   if (menu) menu.classList.remove('open');
   if (overlay) overlay.classList.remove('open');
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
+  setNav('shop');
   openPanel('shop-panel');
 }
 
