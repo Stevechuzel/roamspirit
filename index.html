@@ -1283,6 +1283,7 @@ function selectCity(btn,c){
   if(titleEl && window.TABS && window.TABS[tab]) titleEl.textContent=TABS[tab].label;
   loadPreview();
   updateAds(c);
+  renderFeedPosts(); // rafraîchit aussi les encarts partenaires (titres/liens dépendent de la ville)
 }
 function selectTab(btn,t){tab=t;document.querySelectorAll('.t-opt').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');document.getElementById('tab-lbl').textContent=btn.textContent.trim();document.getElementById('tab-menu').style.display='none';document.getElementById('tab-arr').style.transform='';renderChips(t);if(histories[t])renderHistory(t);else resetChat();}
 
@@ -1987,7 +1988,7 @@ function renderFeedPosts(){
   feed.innerHTML = feedPosts.map(function(p, idx){
     // Encart partenaire après le 3e post, puis tous les 6 (rotation Booking/GYG)
     var adHtml = '';
-    if(idx > 0 && (idx === 1 || (idx > 1 && (idx - 1) % 4 === 0))){
+    if(idx > 0 && idx % 2 === 1){
       var rotation = ['gyg', 'booking', 'airalo', 'rentacar'];
       adHtml = partnerCardHTML(rotation[adCount % rotation.length]);
       adCount++;
