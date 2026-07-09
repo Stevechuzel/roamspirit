@@ -1,0 +1,2837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Roam Spirit</title>
+<meta name="description" content="Your travel companion — Guide and be guided.">
+<meta name="theme-color" content="#8B1A1A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Roam Spirit">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--cream:#FDFAF4;--sand:#F0EAD6;--carmine:#8B1A1A;--gold:#C9A84C;--terracotta:#C17A45;--sage:#7A8C6E;--ink:#2C1F0E;--ink-light:#5C4A35;--muted:#B5A898;--white:#FFFFFF}
+html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-family:'DM Sans',sans-serif;margin:0;padding:0;overflow:hidden;box-sizing:border-box}
+.wrap{width:100%;max-width:430px;margin:0 auto;height:100vh;height:100dvh;background:var(--cream);display:flex;flex-direction:column;overflow:hidden;position:relative;box-sizing:border-box}
+@media(max-width:430px){.wrap{max-width:100vw}}
+.cord{display:none}
+
+/* SPLASH */
+.splash{position:fixed;top:0;left:0;width:100%;height:100%;background:#FDFAF4;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;opacity:1;transform:scale(1);transition:opacity .45s ease, transform .45s cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s}
+.splash.hide{opacity:0;transform:scale(1.03);visibility:hidden;pointer-events:none;transition:opacity .4s ease, transform .4s cubic-bezier(.22,.61,.36,1), visibility 0s linear .4s}
+.s-cord{width:3px;height:70px;background:var(--carmine);position:relative}
+.s-cord::after{content:'';position:absolute;right:-1px;top:0;bottom:0;width:1px;background:var(--gold);opacity:.85}
+.s-logo{font-family:'Playfair Display',serif;font-size:52px;color:var(--carmine);letter-spacing:.1em;margin:20px 0 0}
+.s-sub{font-size:13px;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;margin-top:8px}
+.s-tag{font-family:'Playfair Display',serif;font-style:italic;font-size:17px;color:var(--ink-light);margin-top:32px}
+.s-btn{margin-top:44px;background:var(--carmine);border:none;border-radius:30px;padding:13px 40px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 4px 16px rgba(139,26,26,.3);transition:transform .15s ease}
+.s-btn:active{transform:scale(.96)}
+.s-google-btn{margin-top:14px;background:#fff;border:1.5px solid var(--sand);border-radius:30px;padding:11px 28px;color:var(--ink);font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+/* HEADER */
+.header{background:#FDFAF4;padding:14px 20px 10px;flex-shrink:0;text-align:center;border-bottom:1px solid var(--sand);transition:padding .3s ease}
+.brand{font-family:'Playfair Display',serif;font-size:22px;color:var(--ink);letter-spacing:.04em;transition:font-size .3s ease}
+.tagline{font-size:10px;color:var(--terracotta);letter-spacing:.18em;text-transform:uppercase;margin-top:3px;max-height:16px;opacity:1;overflow:hidden;transition:max-height .3s ease, opacity .25s ease, margin .3s ease}
+.h-cord{width:3px;height:16px;background:var(--carmine);margin:6px auto 0;position:relative;transition:height .3s ease, margin .3s ease, opacity .25s ease}
+.wrap.scrolled .header{padding:8px 20px 7px}
+.wrap.scrolled .brand{font-size:17px}
+.wrap.scrolled .tagline{max-height:0;opacity:0;margin-top:0}
+.wrap.scrolled .h-cord{height:0;margin:0 auto;opacity:0}
+.h-cord::after{content:'';position:absolute;right:-1px;top:0;bottom:0;width:1px;background:var(--gold);opacity:.8}
+
+/* CITY */
+.city-bar{flex-shrink:0;background:var(--cream);border-bottom:1px solid var(--sand);padding:10px 20px 10px 28px;position:relative;z-index:150}
+.city-btn{width:100%;background:var(--white);border:1px solid var(--sand);border-radius:10px;padding:8px 14px;font-size:13px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;justify-content:space-between;align-items:center;font-weight:500}
+.city-arrow{font-size:10px;color:var(--carmine);transition:transform .2s}
+.city-menu{display:block;position:absolute;top:100%;left:28px;right:20px;background:var(--white);border:1px solid var(--sand);border-radius:10px;overflow-y:auto;max-height:0;z-index:9999;box-shadow:0 8px 24px rgba(30,26,20,.12);opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .2s ease, transform .2s ease, max-height .25s ease}
+.city-menu.show{max-height:260px;opacity:1;transform:translateY(0);pointer-events:auto}
+.r-title{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);padding:8px 14px 4px;display:block}
+.c-opt{padding:8px 14px 8px 20px;font-size:13px;color:var(--ink-light);cursor:pointer;font-family:'DM Sans',sans-serif;display:block;width:100%;text-align:left;background:transparent;border:none;border-bottom:1px solid var(--sand)}
+.c-opt:last-child{border-bottom:none}
+.c-opt:hover{background:var(--cream);color:var(--ink)}
+.c-opt.active{color:var(--carmine);font-weight:500}
+.r-div{height:1px;background:var(--sand)}
+.fav-btn-top{background:var(--cream);border:1px solid var(--sand);border-radius:50%;width:36px;height:36px;font-size:14px;cursor:pointer;color:var(--gold);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.city-row{display:flex;gap:8px;align-items:center}
+
+/* TABS */
+.tabs-bar{flex-shrink:0;background:var(--white);border-bottom:1px solid var(--sand);padding:10px 16px 10px 28px;position:relative;z-index:100}
+.tab-btn{width:100%;background:var(--cream);border:1px solid var(--sand);border-radius:10px;padding:8px 14px;font-size:13px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;justify-content:space-between;align-items:center;font-weight:500}
+.tab-arrow{font-size:10px;color:var(--carmine);transition:transform .2s}
+.tab-menu{display:none;position:absolute;top:100%;left:16px;right:16px;background:var(--white);border:1px solid var(--sand);border-radius:10px;overflow:hidden;z-index:9999;box-shadow:0 8px 24px rgba(30,26,20,.15)}
+.t-opt{padding:10px 16px;font-size:13px;color:var(--ink-light);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:10px;border:none;background:transparent;width:100%;text-align:left;border-bottom:1px solid var(--sand)}
+.t-opt:last-child{border-bottom:none}
+.t-opt:hover{background:var(--cream)}
+.t-opt.active{color:var(--carmine);font-weight:500;background:var(--cream)}
+
+/* CHIPS */
+.chips-wrap{padding:10px 0 0;flex-shrink:0;background:var(--cream)}
+.chips{display:flex;gap:7px;overflow-x:scroll;scrollbar-width:none;padding:0 16px 4px 28px;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;background:var(--white);border:1px solid var(--sand);border-radius:20px;padding:6px 13px;font-size:12px;color:var(--ink-light);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:transform .15s ease, background .15s ease, color .15s ease}
+.chip:hover{background:var(--ink);color:#fff}
+.chip:active{transform:scale(.94)}
+
+/* FAVS */
+.favs{display:none;gap:6px;overflow-x:auto;scrollbar-width:none;padding:6px 16px 6px 28px;flex-shrink:0;background:var(--cream);border-bottom:1px solid var(--sand)}
+.fav-chip{flex-shrink:0;background:var(--white);border:1px solid var(--sand);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--ink-light);cursor:pointer;display:flex;align-items:center;gap:5px}
+
+/* DIVIDER */
+.div{height:1px;background:var(--sand);margin:8px 16px 0 28px;flex-shrink:0;position:relative}
+.div::before{content:'';position:absolute;left:0;top:-.5px;width:32px;height:2px;background:var(--carmine)}
+
+/* CHAT */
+.chat{flex:1;overflow-y:auto;padding:14px 14px 14px 28px;display:flex;flex-direction:column;gap:12px;background:var(--white)}
+.welcome{background:var(--cream);border:1px solid var(--sand);border-radius:16px;padding:18px;position:relative;overflow:hidden}
+.welcome::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine)}
+.w-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--ink);margin-bottom:5px;padding-left:8px}
+.w-text{font-size:13px;color:var(--ink-light);line-height:1.6;padding-left:8px}
+.w-text em{color:var(--carmine);font-style:italic}
+.msg{display:flex;flex-direction:column;gap:3px;animation:fadeUp .3s ease forwards;opacity:0}
+.msg.no-anim{opacity:1;animation:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-items:flex-end}
+.msg.bot{align-items:flex-start}
+.bubble{max-width:84%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.6}
+.msg.user .bubble{background:var(--carmine);color:#fff;border-radius:16px 16px 4px 16px}
+.msg.bot .bubble{background:var(--cream);color:var(--ink);border:1px solid var(--sand);border-radius:16px 16px 16px 4px;position:relative}
+.msg.bot .bubble::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--carmine);border-radius:2px 0 0 2px;opacity:.7}
+.sender{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 4px}
+.msg.user .sender{color:var(--terracotta)}
+.typing-b{background:var(--cream);border:1px solid var(--sand);border-radius:16px 16px 16px 4px;padding:10px 14px;display:inline-flex;gap:5px;align-items:center}
+.dot{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:bounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
+
+/* SETUP */
+.setup::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine)}
+.setup-hint strong{color:var(--terracotta)}
+
+/* PANELS */
+.panel{display:flex;position:absolute;top:0;left:0;right:0;bottom:0;background:var(--cream);z-index:500;flex-direction:column;overflow:hidden;transform:translateX(24px);opacity:0;visibility:hidden;pointer-events:none;transition:transform .32s cubic-bezier(.22,.61,.36,1), opacity .28s ease, visibility 0s linear .32s}
+.panel.open{transform:translateX(0);opacity:1;visibility:visible;pointer-events:auto;transition:transform .32s cubic-bezier(.22,.61,.36,1), opacity .28s ease}
+.p-head{background:var(--cream);border-bottom:1px solid var(--sand);padding:14px 20px 12px 28px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;position:relative}
+.p-head::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine)}
+.p-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--ink)}
+.p-close{background:var(--white);border:1px solid var(--sand);border-radius:50%;width:30px;height:30px;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s ease}
+.p-close:active{transform:scale(.85)}
+.p-body{flex:1;overflow-y:auto;padding:14px 14px 14px 28px}
+
+/* PREMIUM */
+.prem-badge{background:linear-gradient(135deg,#8B1A1A,#C9A84C);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden}
+.prem-badge::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#fff;opacity:.2}
+.prem-title{font-family:'Playfair Display',serif;font-size:20px;color:#fff;margin-bottom:4px}
+.prem-price{font-size:32px;font-weight:700;color:#fff;margin:10px 0 4px;font-family:'DM Sans',sans-serif}
+.prem-price span{font-size:13px;font-weight:300;opacity:.8}
+.prem-feat{background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink)}
+.stripe-btn{width:100%;background:#635BFF;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;margin-bottom:8px;transition:transform .15s ease}
+.stripe-btn:active{transform:scale(.97)}
+.paypal-btn{width:100%;background:#003087;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;margin-bottom:14px;transition:transform .15s ease}
+.paypal-btn:active{transform:scale(.97)}
+.beta-note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+
+/* SAVED */
+.saved-item{background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:12px;margin-bottom:8px;position:relative;overflow:hidden}
+.saved-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);opacity:.7}
+.saved-meta{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.saved-text{font-size:13px;color:var(--ink);line-height:1.5}
+.del-btn{cursor:pointer;color:var(--muted)}
+.del-btn:hover{color:var(--carmine)}
+.empty-msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;font-family:'Playfair Display',serif;font-style:italic}
+
+/* ALBUM */
+.upload-zone{border:2px dashed var(--sand);border-radius:14px;padding:20px;text-align:center;cursor:pointer;margin-bottom:14px}
+.upload-icon{font-size:28px;margin-bottom:6px}
+.upload-text{font-size:13px;color:var(--muted);line-height:1.5}
+.upload-text strong{color:var(--terracotta)}
+.album-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.a-photo{aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--sand);position:relative}
+.a-photo img{width:100%;height:100%;object-fit:cover}
+.a-cap{position:absolute;bottom:0;left:0;right:0;background:rgba(30,20,10,.7);padding:5px 7px;font-size:11px;color:#fff;font-style:italic;line-height:1.3}
+.a-story{background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:14px;font-size:13px;color:var(--ink);line-height:1.7;font-family:'Playfair Display',serif;font-style:italic;position:relative}
+.a-story::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);border-radius:2px 0 0 2px}
+.a-city{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-family:'DM Sans',sans-serif;font-style:normal}
+
+/* ITINERARY */
+.itin-row{display:flex;gap:8px;margin-bottom:10px}
+.itin-sel{flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none}
+.itin-day{margin-bottom:18px}
+.itin-day-t{font-family:'Playfair Display',serif;font-size:14px;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.day-num{background:var(--carmine);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.itin-slot{background:var(--white);border:1px solid var(--sand);border-radius:10px;padding:10px 12px;margin-bottom:6px;position:relative;overflow:hidden}
+.itin-slot::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.slot-time{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.slot-name{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.slot-desc{font-size:12px;color:var(--ink-light);line-height:1.4}
+
+/* PLAYLIST */
+.pl-row{display:flex;gap:8px;margin-bottom:10px}
+.pl-sel{flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none}
+.pl-intro{background:var(--cream);border:1px solid var(--sand);border-radius:12px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden}
+.pl-intro::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine)}
+.pl-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-left:6px;margin-bottom:5px}
+.pl-intro-text{font-size:13px;color:var(--ink-light);line-height:1.6;font-style:italic;padding-left:6px;font-family:'Playfair Display',serif}
+.track{background:var(--white);border:1px solid var(--sand);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;position:relative;overflow:hidden}
+.track::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.track-num{font-size:12px;color:var(--muted);font-weight:500;min-width:18px;text-align:center}
+.track-info{flex:1}
+.track-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:1px}
+.track-artist{font-size:12px;color:var(--muted)}
+.track-vibe{font-size:11px;color:var(--terracotta);font-style:italic;margin-top:2px}
+.spotify-btn{width:100%;background:#1DB954;color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;margin-top:12px}
+
+/* INPUT */
+.input-area{flex-shrink:0;padding:10px 14px 16px 28px;background:var(--white);border-top:1px solid var(--sand)}
+.inp-row{display:flex;gap:8px;align-items:flex-end;background:var(--cream);border:1px solid var(--sand);border-radius:22px;padding:7px 7px 7px 14px}
+.inp-row:focus-within{border-color:var(--terracotta)}
+.inp{flex:1;border:none;background:transparent;font-size:14px;color:var(--ink);font-family:'DM Sans',sans-serif;outline:none;resize:none;max-height:80px;line-height:1.5;padding:2px 0}
+.inp::placeholder{color:var(--muted)}
+.send-btn{width:34px;height:34px;border-radius:50%;background:var(--carmine);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+.send-btn:active{transform:scale(.85)}
+.send-btn svg{width:15px;height:15px;fill:#fff}
+
+/* NEW SOCIAL HEADER */
+.social-header{flex-shrink:0;background:var(--white);border-bottom:1px solid var(--sand);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:200}
+.sh-logo{font-family:'Playfair Display',serif;font-size:20px;color:var(--ink);letter-spacing:.04em;cursor:default}
+.sh-city{display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--sand);border-radius:20px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:500}
+.sh-city-dot{width:7px;height:7px;border-radius:50%;background:var(--carmine);flex-shrink:0}
+.sh-right{display:flex;align-items:center;gap:8px}
+.sh-dots{background:none;border:none;cursor:pointer;padding:4px;display:flex;flex-direction:column;gap:3.5px;align-items:center}
+.sh-dots span{width:4px;height:4px;background:var(--ink);border-radius:50%;display:block}
+
+/* AI PANEL PREMIUM HEADER */
+.ai-panel-head{flex-shrink:0;position:relative;overflow:hidden}
+.ai-panel-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1B5FA8,#0D3B6E);z-index:0}
+.ai-panel-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.4))}
+.ai-panel-content{position:relative;z-index:1;padding:44px 20px 12px;display:flex;flex-direction:column;align-items:flex-start}
+.ai-panel-icon{font-size:32px;margin-bottom:8px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+.ai-panel-title{font-family:'Playfair Display',serif;font-size:22px;color:#fff;font-weight:400;letter-spacing:.02em;line-height:1.2}
+.ai-panel-city{font-size:13px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+.ai-panel-tagline{font-size:12px;color:rgba(255,255,255,.65);font-style:italic;font-family:'Playfair Display',serif;margin-top:6px}
+.chip{flex-shrink:0;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:6px 13px;font-size:12px;color:rgba(255,255,255,.9);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;backdrop-filter:blur(4px)}
+.chip:hover{background:rgba(255,255,255,.25)}
+
+/* DOTS MENU — PREMIUM */
+.dots-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:998;backdrop-filter:blur(2px)}
+.dots-overlay.open{display:block}
+.dots-menu{display:none;position:fixed;top:0;right:0;bottom:0;width:80%;max-width:300px;background:var(--cream);z-index:999;flex-direction:column;overflow:hidden;transform:translateX(100%);transition:transform .3s ease;box-shadow:-4px 0 24px rgba(30,26,20,.15)}
+.dots-menu.open{display:flex;transform:translateX(0)}
+.dots-menu-header{padding:20px 20px 14px;border-bottom:1px solid var(--sand);flex-shrink:0;position:relative}
+.dots-menu-header::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine)}
+.dots-menu-logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--ink);letter-spacing:.04em}
+.dots-menu-tagline{font-size:9px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-top:3px}
+.dots-menu-close{position:absolute;top:16px;right:16px;background:var(--white);border:1px solid var(--sand);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--muted)}
+.dots-menu-body{flex:1;overflow-y:auto;padding:8px 0}
+.dots-section{padding:10px 20px 4px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.dots-item{display:flex;align-items:center;gap:14px;padding:13px 20px;font-size:14px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;border:none;background:transparent;width:100%;text-align:left;position:relative;transition:background .15s, transform .15s}
+.dots-item:active{background:var(--white);transform:scale(.98)}
+.dots-item-icon{width:38px;height:38px;border-radius:12px;background:var(--white);border:1px solid var(--sand);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.dots-item-text{flex:1}
+.dots-item-label{font-size:13px;font-weight:500;color:var(--ink)}
+.dots-item-desc{font-size:11px;color:var(--muted);margin-top:1px}
+.dots-item-arrow{font-size:12px;color:var(--muted)}
+.dots-divider{height:1px;background:var(--sand);margin:6px 20px}
+
+/* STORIES BAR */
+.stories-bar{flex-shrink:0;padding:12px 0 8px;background:var(--white);border-bottom:1px solid var(--sand)}
+.stories-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.stories-scroll::-webkit-scrollbar{display:none}
+.story-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;cursor:pointer;transition:transform .15s ease}
+.story-item:active{transform:scale(.92)}
+.story-ring{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--carmine),var(--gold));padding:2px;flex-shrink:0}
+.story-ring.seen{background:var(--sand)}
+.story-avatar{width:100%;height:100%;border-radius:50%;border:2px solid var(--white);overflow:hidden;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+.story-name{font-size:10px;color:var(--ink-light);font-family:'DM Sans',sans-serif;max-width:54px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.story-add{width:54px;height:54px;border-radius:50%;background:var(--cream);border:2px dashed var(--sand);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--carmine);cursor:pointer;flex-shrink:0}
+
+/* SOCIAL FEED */
+.home-scroll{flex:1;overflow-y:auto;background:var(--white);-webkit-overflow-scrolling:touch;position:relative}
+.feed{background:var(--white)}
+.ptr-indicator{position:absolute;top:8px;left:50%;transform:translateX(-50%) translateY(-40px);width:32px;height:32px;border-radius:50%;background:var(--white);border:1px solid var(--sand);box-shadow:0 2px 10px rgba(30,26,20,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--carmine);z-index:20;transition:transform .2s ease, opacity .2s ease;opacity:0;pointer-events:none}
+.ptr-indicator.pulling{opacity:1}
+.ptr-indicator.spinning{opacity:1;transform:translateX(-50%) translateY(8px)}
+.ptr-indicator.spinning span{display:inline-block;animation:ptrSpin .8s linear infinite}
+@keyframes ptrSpin{to{transform:rotate(360deg)}}
+.feed-post{min-height:calc(100vh - 120px);min-height:calc(100dvh - 120px);border-bottom:1px solid var(--sand);display:flex;flex-direction:column;position:relative;background:var(--white);opacity:0;animation:feedIn .45s ease forwards}
+@keyframes feedIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.feed-post-header{display:flex;align-items:center;gap:10px;padding:13px 16px 9px}
+.feed-post-avatar-ring{border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--carmine),var(--gold));flex-shrink:0;display:flex}
+.feed-post-info{flex:1;display:flex;align-items:baseline;gap:6px;min-width:0}
+.feed-post-name{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-post-city{font-size:11px;color:var(--gold);white-space:nowrap;flex-shrink:0}
+.feed-post-dot{color:var(--muted);font-size:9px;flex-shrink:0}
+.feed-post-time-inline{font-size:10px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.feed-post-img-wrap{position:relative;flex:1;min-height:200px;display:flex}
+.feed-post-img{width:100%;flex:1;object-fit:cover;min-height:200px;max-height:60vh;background:var(--sand);cursor:pointer}
+.feed-post-quote{width:100%;flex:1;min-height:200px;background:linear-gradient(135deg,#8B1A1A 0%,#C17A45 55%,#C9A84C 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:30px 34px;cursor:pointer}
+.feed-post-quote::before{content:'"';position:absolute;top:-38px;left:12px;font-family:'Playfair Display',serif;font-size:220px;color:rgba(255,255,255,.12);line-height:1;pointer-events:none}
+.feed-post-quote-text{position:relative;z-index:1;font-family:'Playfair Display',serif;font-style:italic;font-size:19px;line-height:1.5;color:#fff;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.15)}
+.heart-burst{position:absolute;top:50%;left:50%;font-size:70px;transform:translate(-50%,-50%) scale(0);pointer-events:none;z-index:5;filter:drop-shadow(0 4px 14px rgba(0,0,0,.25))}
+.heart-burst.go{animation:heartBurst .7s ease forwards}
+@keyframes heartBurst{0%{transform:translate(-50%,-50%) scale(0);opacity:0}25%{transform:translate(-50%,-50%) scale(1.15);opacity:1}45%{transform:translate(-50%,-50%) scale(.95);opacity:1}100%{transform:translate(-50%,-50%) scale(1.05);opacity:0}}
+.feed-post-actions{display:flex;align-items:center;gap:16px;padding:11px 16px 4px}
+.feed-action-btn{background:none;border:none;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.feed-action-btn svg{width:23px;height:23px}
+.feed-action-btn:active{transform:scale(1.25)}
+.feed-post-likes{font-size:12px;font-weight:600;color:var(--ink);padding:0 16px 4px}
+.feed-post-caption{padding:0 16px 3px}
+.feed-post-caption-name{font-size:12px;font-weight:600;color:var(--ink);margin-right:6px}
+.feed-post-caption-text{font-size:12px;color:var(--ink-light);font-family:'Playfair Display',serif;font-style:italic;line-height:1.5}
+.feed-post-time{font-size:10px;color:var(--muted);padding:0 16px 12px;letter-spacing:.05em;text-transform:uppercase}
+.feed-empty{margin:16px;border:1.5px dashed var(--sand);border-radius:18px;padding:44px 24px;text-align:center}
+.feed-empty-icon{font-size:26px;margin-bottom:10px}
+.feed-empty-text{font-size:13px;color:var(--ink-light);font-family:'Playfair Display',serif;font-style:italic;line-height:1.6;margin-bottom:16px}
+.feed-empty-btn{background:var(--carmine);color:#fff;border:none;border-radius:12px;padding:11px 22px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;transition:transform .15s ease}
+.feed-empty-btn:active{transform:scale(.95)}
+
+/* SKELETON LOADING */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skel{background:linear-gradient(90deg,var(--sand) 25%,#F7F2E4 50%,var(--sand) 75%);background-size:800px 100%;animation:shimmer 1.4s ease infinite;border-radius:8px}
+.skel-post{border-bottom:1px solid var(--sand);padding:13px 16px 16px}
+.skel-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.skel-avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0}
+.skel-line{height:11px}
+.skel-media{width:calc(100% + 32px);margin:0 -16px 12px;height:260px;border-radius:0}
+
+/* NEW BOTTOM NAV */
+.bottom-nav{flex-shrink:0;background:var(--white);border-top:1px solid var(--sand);display:flex;align-items:center;justify-content:space-around;padding:8px 0 20px;padding-bottom:max(20px, env(safe-area-inset-bottom));position:relative}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 12px;border:none;background:transparent;position:relative;transition:transform .15s ease}
+.bn-item:active{transform:scale(.88)}
+.bn-icon{transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.bn-item.active .bn-icon{transform:translateY(-1px)}
+.bn-icon{font-size:22px;line-height:1}
+.bn-icon svg{width:24px;height:24px}
+.bn-label{font-size:10px;color:var(--muted);font-family:'DM Sans',sans-serif;letter-spacing:.03em;text-transform:uppercase;margin-top:2px}
+.bn-item.active .bn-label{color:var(--carmine)}
+.bn-item.active .bn-icon{filter:none}
+.bn-plus{width:46px;height:46px;border-radius:50%;background:var(--carmine);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;border:none;cursor:pointer;box-shadow:0 3px 12px rgba(139,26,26,.35);margin-top:-10px;transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+.bn-plus:active{transform:scale(.85)}
+.bn-badge{position:absolute;top:2px;right:8px;width:8px;height:8px;background:var(--carmine);border-radius:50%;border:2px solid var(--white)}
+
+/* PUBLISH PANEL */
+.publish-panel{position:absolute;bottom:0;left:0;right:0;background:var(--white);border-radius:24px 24px 0 0;box-shadow:0 -4px 24px rgba(30,26,20,.15);z-index:600;padding:0 0 20px;max-height:85vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease}
+.publish-panel.open{transform:translateY(0)}
+.pub-handle{width:36px;height:4px;background:var(--sand);border-radius:2px;margin:12px auto 16px}
+.pub-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--ink);padding:0 20px 14px;border-bottom:1px solid var(--sand)}
+.pub-body{padding:14px 20px}
+.pub-photo-zone{width:100%;aspect-ratio:16/9;background:var(--cream);border:2px dashed var(--sand);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin-bottom:14px;overflow:hidden;position:relative}
+.pub-photo-zone img{width:100%;height:100%;object-fit:cover}
+.pub-photo-label{font-size:13px;color:var(--muted);margin-top:8px}
+.pub-inp{width:100%;border:1px solid var(--sand);border-radius:12px;padding:11px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);outline:none;resize:none;height:80px;margin-bottom:10px}
+.pub-inp:focus{border-color:var(--carmine)}
+.pub-submit{width:100%;background:var(--carmine);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;letter-spacing:.05em}
+.pub-overlay{display:block;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:590;opacity:0;visibility:hidden;transition:opacity .3s ease, visibility 0s linear .3s}
+.pub-overlay.open{opacity:1;visibility:visible;transition:opacity .3s ease}
+
+/* EXPLORE */
+.explore-city-chip{background:var(--white);border:1px solid var(--sand);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all .15s}
+.explore-city-chip.active{background:var(--carmine);border-color:var(--carmine);color:#fff}
+.explore-city-chip:active{transform:scale(.95)}
+.explore-post{background:var(--white);border:1px solid var(--sand);border-radius:16px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden}
+.explore-post::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);opacity:.6}
+.explore-post-header{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.explore-post-name{font-size:12px;font-weight:600;color:var(--ink)}
+.explore-post-city{font-size:10px;color:var(--gold)}
+.explore-post-img{width:100%;border-radius:12px;margin-bottom:10px;max-height:220px;object-fit:cover}
+.explore-post-text{font-size:12.5px;color:var(--ink-light);font-family:'Playfair Display',serif;font-style:italic;line-height:1.6}
+.explore-post-actions{display:flex;align-items:center;gap:8px;margin-top:10px}
+.explore-post-actions .feed-action-btn svg{width:18px;height:18px}
+.explore-post-likes{font-size:11px;color:var(--muted)}
+
+/* PROFILE PANEL */
+.profile-header-bg{width:100%;height:120px;background:linear-gradient(135deg,var(--carmine),var(--gold));position:relative;flex-shrink:0}
+.profile-avatar-wrap{position:absolute;bottom:-30px;left:20px;width:64px;height:64px;border-radius:50%;border:3px solid var(--white);overflow:hidden;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff}
+.profile-stats{display:flex;gap:0;border-bottom:1px solid var(--sand);flex-shrink:0}
+.profile-stat{flex:1;text-align:center;padding:12px 0;border-right:1px solid var(--sand)}
+.profile-stat:last-child{border-right:none}
+.profile-stat-num{font-size:16px;font-weight:700;color:var(--ink);font-family:'DM Sans',sans-serif}
+.profile-stat-lbl{font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.profile-posts-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;padding:2px}
+.profile-post-thumb{aspect-ratio:1;background:var(--sand);overflow:hidden;cursor:pointer}
+.profile-post-thumb img{width:100%;height:100%;object-fit:cover}
+.profile-post-thumb-placeholder{width:100%;height:100%;background:linear-gradient(135deg,var(--cream),var(--sand));display:flex;align-items:center;justify-content:center;font-size:24px}
+/* COMMUNITY PANEL */
+.comm-feed{display:flex;flex-direction:column;gap:10px}
+.comm-post{background:var(--white);border:1px solid var(--sand);border-radius:14px;padding:14px;position:relative;overflow:hidden}
+.comm-post::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);opacity:.7}
+.comm-post-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.comm-pseudo{font-size:11px;font-weight:600;color:var(--ink);letter-spacing:.05em;text-transform:uppercase}
+.comm-city-tag{font-size:10px;color:var(--gold);letter-spacing:.08em}
+.comm-date{font-size:10px;color:var(--muted)}
+.comm-text{font-size:13px;color:var(--ink-light);line-height:1.65;font-family:'Playfair Display',serif;font-style:italic}
+.like-btn{background:none;border:none;font-size:15px;cursor:pointer;padding:0;margin-top:8px}
+.like-count{font-size:12px;color:var(--muted);margin-left:4px}
+.comm-input-box{background:var(--cream);border:1px solid var(--sand);border-radius:14px;padding:14px;margin-bottom:14px}
+.comm-input-title{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.comm-pseudo-inp{width:100%;border:1px solid var(--sand);border-radius:10px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none;margin-bottom:8px}
+.comm-text-inp{width:100%;border:1px solid var(--sand);border-radius:10px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none;resize:none;height:80px;line-height:1.5}
+.comm-pseudo-inp:focus,.comm-text-inp:focus{border-color:var(--terracotta)}
+.comm-submit{width:100%;background:var(--carmine);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;margin-top:8px;letter-spacing:.05em}
+.comm-pending{background:var(--cream);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--muted);text-align:center;font-style:italic;margin-top:10px}
+.comm-empty{text-align:center;padding:30px 20px;color:var(--muted);font-size:14px;font-family:'Playfair Display',serif;font-style:italic}
+
+/* COMMUNITY PREVIEW */
+.comm-preview{padding:10px 14px 4px 28px;flex-shrink:0;max-height:260px;overflow:hidden}
+.comm-preview-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.comm-preview-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.comm-preview-cta{background:none;border:1px solid var(--sand);border-radius:12px;padding:4px 10px;font-size:11px;color:var(--terracotta);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
+.comm-preview-feed{display:flex;flex-direction:column;gap:8px}
+.comm-preview-post{background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:10px 12px;position:relative;overflow:hidden;cursor:pointer}
+.comm-preview-post::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);opacity:.6}
+.comm-preview-post:active{opacity:.8}
+.comm-preview-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.comm-preview-pseudo{font-size:10px;font-weight:600;color:var(--ink);letter-spacing:.05em;text-transform:uppercase}
+.comm-preview-city{font-size:10px;color:var(--gold)}
+.comm-preview-text{font-size:12px;color:var(--ink-light);line-height:1.55;font-family:'Playfair Display',serif;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.comm-preview-likes{font-size:10px;color:var(--muted);margin-top:5px}
+
+/* PRIVATE MESSAGES */
+.dm-messages{flex:1;overflow-y:auto;padding:14px 14px 14px 28px;display:flex;flex-direction:column;gap:8px}
+.dm-msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5}
+.dm-msg.sent{background:var(--carmine);color:#fff;border-radius:16px 16px 4px 16px;align-self:flex-end}
+.dm-msg.received{background:var(--cream);border:1px solid var(--sand);color:var(--ink);border-radius:16px 16px 16px 4px;align-self:flex-start}
+.dm-msg-time{font-size:9px;opacity:.6;margin-top:3px;text-align:right}
+.dm-input-row{flex-shrink:0;display:flex;gap:8px;padding:10px 14px 20px 28px;border-top:1px solid var(--sand);background:var(--white)}
+.dm-input{flex:1;border:1px solid var(--sand);border-radius:20px;padding:10px 16px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;background:var(--cream)}
+.dm-input:focus{border-color:var(--carmine)}
+.dm-send{background:var(--carmine);color:#fff;border:none;border-radius:50%;width:38px;height:38px;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.inbox-item{background:var(--white);border:1px solid var(--sand);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;gap:10px}
+.inbox-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);opacity:.5}
+.inbox-unread::before{opacity:1}
+.inbox-preview{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.inbox-badge{background:var(--carmine);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.msg-notif{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--carmine);border-radius:50%;display:none}
+
+/* AD CARDS */
+.ad-card{background:var(--cream);border:1px solid var(--sand);border-radius:14px;padding:14px;margin-top:14px;position:relative;overflow:hidden;text-decoration:none;display:block}
+.ad-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.ad-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;padding-left:8px}
+.ad-title{font-family:'Playfair Display',serif;font-size:14px;color:var(--ink);margin-bottom:4px;padding-left:8px}
+.ad-desc{font-size:11px;color:var(--muted);line-height:1.5;padding-left:8px;margin-bottom:8px}
+.ad-cta{display:inline-block;margin-left:8px;background:var(--carmine);color:#fff;border:none;border-radius:10px;padding:6px 14px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;text-decoration:none}
+.ad-divider{height:1px;background:var(--sand);margin:14px 0}
+
+/* PARTNER CARD — version feed (native) */
+.feed-partner{border-bottom:1px solid var(--sand);background:var(--white);padding:18px 16px;opacity:0;animation:feedIn .45s ease forwards}
+.feed-partner-inner{display:block;background:linear-gradient(135deg,#FDF9F0 0%,#F7EEDC 100%);border:1px solid var(--gold);border-radius:16px;padding:16px;text-decoration:none;position:relative;overflow:hidden;transition:transform .15s ease}
+.feed-partner-inner:active{transform:scale(.985)}
+.feed-partner-inner::after{content:'✦';position:absolute;right:-8px;bottom:-18px;font-size:80px;color:var(--gold);opacity:.1;pointer-events:none}
+.feed-partner-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.feed-partner-label::after{content:'';flex:1;height:1px;background:var(--gold);opacity:.3}
+.feed-partner-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--ink);margin-bottom:5px;line-height:1.3}
+.feed-partner-desc{font-size:12px;color:var(--ink-light);line-height:1.55;margin-bottom:12px}
+.feed-partner-cta{display:inline-flex;align-items:center;gap:6px;background:var(--carmine);color:#fff;border-radius:11px;padding:9px 16px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:.03em}
+.feed-partner-brand{font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:.05em}
+
+/* ADMIN */
+.admin-post{background:var(--white);border:1px solid var(--sand);border-radius:14px;padding:14px;margin-bottom:10px;position:relative;overflow:hidden}
+.admin-post::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.admin-post-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.admin-post-text{font-size:13px;color:var(--ink-light);line-height:1.6;font-family:'Playfair Display',serif;font-style:italic;margin-bottom:10px}
+.admin-actions{display:flex;gap:8px}
+.admin-approve{flex:1;background:var(--carmine);color:#fff;border:none;border-radius:10px;padding:8px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer}
+.admin-reject{flex:1;background:var(--cream);color:var(--muted);border:1px solid var(--sand);border-radius:10px;padding:8px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.admin-empty{text-align:center;padding:30px 20px;color:var(--muted);font-size:14px;font-family:'Playfair Display',serif;font-style:italic}
+
+/* AVATAR */
+.avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid var(--sand)}
+.avatar-init{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;letter-spacing:.02em;border:1.5px solid transparent}
+.avatar-upload{width:60px;height:60px;border-radius:50%;border:2px dashed var(--sand);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;overflow:hidden;position:relative;background:var(--cream)}
+.avatar-upload img{width:100%;height:100%;object-fit:cover}
+.avatar-upload-lbl{font-size:9px;color:var(--muted);text-align:center;line-height:1.3}
+.profile-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:12px;background:var(--white);border:1px solid var(--sand);border-radius:14px;position:relative;overflow:hidden}
+.profile-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);opacity:.7}
+
+/* MARKDOWN */
+.bubble strong{font-weight:500}
+.bubble ul{padding-left:14px;margin:5px 0}
+.bubble li{margin:2px 0;font-size:13px}
+.bubble p{margin:3px 0}
+
+/* ACTION BTN */
+.action-btn{background:var(--carmine);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;white-space:nowrap;transition:transform .15s ease}
+.action-btn:active:not(:disabled){transform:scale(.96)}
+.action-btn:disabled{opacity:.5;cursor:not-allowed}
+.gen-btn{width:100%;background:var(--carmine);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;margin-bottom:10px;transition:transform .15s ease}
+.gen-btn:active:not(:disabled){transform:scale(.98)}
+.gen-btn:disabled{opacity:.5}
+
+/* AI GUIDE CARD */
+.ai-guide-card{position:relative;margin:8px 12px 6px 12px;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(139,26,26,.2);flex-shrink:0;cursor:pointer;transition:transform .15s ease}
+.ai-guide-card:active{transform:scale(.985)}
+.ai-guide-arrow{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-guide-bg{position:absolute;inset:0;background:linear-gradient(135deg,#8B1A1A 0%,#C17A45 60%,#C9A84C 100%);z-index:0}
+.ai-guide-content{position:relative;z-index:1;padding:16px 14px 12px}
+.ai-guide-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ai-guide-icon{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0}
+.ai-guide-title{font-family:'Playfair Display',serif;font-size:16px;color:#fff;font-weight:500;letter-spacing:.02em}
+.ai-guide-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px;letter-spacing:.04em}
+.ai-guide-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px;padding-bottom:2px}
+.ai-guide-chips::-webkit-scrollbar{display:none}
+.ai-guide-chip{flex-shrink:0;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 11px;font-size:11px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+
+.shop-hero{background:#8B1A1A;padding:40px 28px 36px;text-align:center;position:relative;flex-shrink:0}
+.shop-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 14px 80px 28px}
+.shop-section-label{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.shop-section-label::after{content:'';flex:1;height:1px;background:var(--sand)}
+.shop-card{background:var(--white);border:1px solid var(--sand);border-radius:18px;overflow:hidden;margin-bottom:20px}
+.shop-card-img{position:relative;overflow:hidden}
+.shop-card-soon{position:absolute;top:12px;right:12px;background:rgba(44,31,14,.65);color:rgba(255,255,255,.85);font-size:9px;letter-spacing:.18em;text-transform:uppercase;padding:4px 10px;border-radius:20px;z-index:2}
+.shop-card-body{padding:16px 18px 18px}
+.shop-card-meta{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.shop-card-name{font-family:'Playfair Display',serif;font-size:20px;color:var(--ink);margin-bottom:6px}
+.shop-card-desc{font-size:12px;color:var(--ink-light);line-height:1.65;margin-bottom:14px}
+.shop-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.shop-price{font-family:'Playfair Display',serif;font-size:17px;color:var(--carmine)}
+.shop-price-note{font-size:10px;color:var(--muted);margin-top:2px}
+.shop-btn{background:var(--carmine);color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;transition:transform .15s ease}
+.shop-btn:active{transform:scale(.95)}
+.shop-btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--sand);border-radius:12px;padding:12px 20px;font-size:12px;cursor:not-allowed;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+</style>
+</head>
+<body style="overflow-x:hidden">
+<div class="wrap">
+  <div class="cord"></div>
+
+  <!-- SPLASH -->
+  <div class="splash" id="splash">
+    <div class="s-cord"></div>
+    <div style="text-align:center;padding:20px 0">
+      <div class="s-logo">ROAM<sup style="font-size:18px;vertical-align:super">™</sup></div>
+      <div class="s-sub">S P I R I T</div>
+    </div>
+    <div class="s-cord"></div>
+    <div class="s-tag">"This is your culture."</div>
+    <button class="s-btn" onclick="enterApp()">Enter ↓</button>
+    <button class="s-google-btn" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.7 2.3 30.2 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.9 6.1C12.3 13.1 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.1z"/><path fill="#FBBC05" d="M10.4 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.1.9-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.2-7.6 2.2-6.3 0-11.7-3.6-13.6-9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
+      Se connecter avec Google
+    </button>
+    <div id="google-user-info" style="display:none;margin-top:16px;text-align:center">
+      <div id="google-user-name" style="font-size:13px;color:var(--ink-light)"></div>
+      <button style="margin-top:8px;background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="signOut()">Déconnexion</button>
+    </div>
+  </div>
+
+  <!-- NEW SOCIAL HEADER -->
+  <div class="social-header" id="social-header">
+    <div class="sh-logo" onclick="adminTap()">Roam Spirit</div>
+    <button class="sh-city" onclick="toggleCity(event)">
+      <span class="sh-city-dot"></span>
+      <span id="city-lbl">Paris</span>
+      <span style="font-size:9px;color:var(--muted)">▼</span>
+    </button>
+    <div class="sh-right">
+      <button class="sh-dots" onclick="toggleDotsMenu(event)">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <!-- City menu -->
+    <div class="city-menu" id="city-menu">
+      <span class="r-title">🌍 Europe</span>
+      <button class="c-opt active" onclick="selectCity(this,'Paris')">Paris</button>
+      <button class="c-opt" onclick="selectCity(this,'Barcelona')">Barcelona</button>
+      <button class="c-opt" onclick="selectCity(this,'Lisbon')">Lisbon</button>
+      <button class="c-opt" onclick="selectCity(this,'London')">London</button>
+      <button class="c-opt" onclick="selectCity(this,'Amsterdam')">Amsterdam</button>
+      <button class="c-opt" onclick="selectCity(this,'Berlin')">Berlin</button>
+      <button class="c-opt" onclick="selectCity(this,'Rome')">Rome</button>
+      <button class="c-opt" onclick="selectCity(this,'Istanbul')">Istanbul</button>
+      <button class="c-opt" onclick="selectCity(this,'Vienna')">Vienna</button>
+      <button class="c-opt" onclick="selectCity(this,'Prague')">Prague</button>
+      <button class="c-opt" onclick="selectCity(this,'Athens')">Athens</button>
+      <button class="c-opt" onclick="selectCity(this,'Budapest')">Budapest</button>
+      <div class="r-div"></div>
+      <span class="r-title">🌍 Middle East</span>
+      <button class="c-opt" onclick="selectCity(this,'Dubai')">Dubai</button>
+      <button class="c-opt" onclick="selectCity(this,'Abu Dhabi')">Abu Dhabi</button>
+      <button class="c-opt" onclick="selectCity(this,'Doha')">Doha</button>
+      <button class="c-opt" onclick="selectCity(this,'Marrakech')">Marrakech</button>
+      <div class="r-div"></div>
+      <span class="r-title">🌏 Asia</span>
+      <button class="c-opt" onclick="selectCity(this,'Tokyo')">Tokyo</button>
+      <button class="c-opt" onclick="selectCity(this,'Kyoto')">Kyoto</button>
+      <button class="c-opt" onclick="selectCity(this,'Seoul')">Seoul</button>
+      <button class="c-opt" onclick="selectCity(this,'Bangkok')">Bangkok</button>
+      <button class="c-opt" onclick="selectCity(this,'Bali')">Bali</button>
+      <button class="c-opt" onclick="selectCity(this,'Hoi An')">Hoi An</button>
+      <button class="c-opt" onclick="selectCity(this,'Hanoi')">Hanoi</button>
+      <button class="c-opt" onclick="selectCity(this,'Singapore')">Singapore</button>
+      <button class="c-opt" onclick="selectCity(this,'Hong Kong')">Hong Kong</button>
+      <button class="c-opt" onclick="selectCity(this,'Jakarta')">Jakarta</button>
+      <div class="r-div"></div>
+      <span class="r-title">🌎 Americas</span>
+      <button class="c-opt" onclick="selectCity(this,'New York')">New York</button>
+      <button class="c-opt" onclick="selectCity(this,'Montréal')">Montréal</button>
+      <button class="c-opt" onclick="selectCity(this,'Los Angeles')">Los Angeles</button>
+      <button class="c-opt" onclick="selectCity(this,'Miami')">Miami</button>
+      <button class="c-opt" onclick="selectCity(this,'Buenos Aires')">Buenos Aires</button>
+      <button class="c-opt" onclick="selectCity(this,'Rio de Janeiro')">Rio de Janeiro</button>
+      <button class="c-opt" onclick="selectCity(this,'Medellín')">Medellín</button>
+      <button class="c-opt" onclick="selectCity(this,'Mexico City')">Mexico City</button>
+    </div>
+    <!-- 3 dots overlay + premium sidebar -->
+    <div class="dots-overlay" id="dots-overlay" onclick="toggleDotsMenu(event)"></div>
+    <div class="dots-menu" id="dots-menu">
+      <div class="dots-menu-header">
+        <div class="dots-menu-logo">Roam Spirit</div>
+        <div class="dots-menu-tagline">Your travel companion</div>
+        <button class="dots-menu-close" onclick="toggleDotsMenu(event)">✕</button>
+      </div>
+      <div class="dots-menu-body">
+        <div class="dots-section">Collection</div>
+        <button class="dots-item" onclick="openShop()">
+          <div class="dots-item-icon" style="background:linear-gradient(135deg,#C9A84C,#8B6914);border:none;color:#fff;font-size:16px">🛍</div>
+          <div class="dots-item-text"><div class="dots-item-label" style="color:var(--gold)">Shop</div><div class="dots-item-desc">Roam Spirit collection</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <div class="dots-divider"></div>
+        <div class="dots-section">AI Companion</div>
+        <button class="dots-item" onclick="openPanelFromMenu('plan-panel');initPlanPanel()">
+          <div class="dots-item-icon" style="background:linear-gradient(135deg,#8B1A1A,#C17A45);border:none;color:#fff;font-size:16px">⚡</div>
+          <div class="dots-item-text"><div class="dots-item-label" style="color:var(--carmine)">Plan my 2 hours</div><div class="dots-item-desc">IA recommandations en temps réel</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="switchTab('city_guide')">
+          <div class="dots-item-icon">🗺</div>
+          <div class="dots-item-text"><div class="dots-item-label">City Guide</div><div class="dots-item-desc">Explore the soul of the city</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="switchTab('style')">
+          <div class="dots-item-icon">👗</div>
+          <div class="dots-item-text"><div class="dots-item-label">Style & Outfits</div><div class="dots-item-desc">Dress like a local</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="switchTab('food')">
+          <div class="dots-item-icon">🍽</div>
+          <div class="dots-item-text"><div class="dots-item-label">Food & Drinks</div><div class="dots-item-desc">Eat where the locals eat</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="switchTab('nightlife')">
+          <div class="dots-item-icon">🌙</div>
+          <div class="dots-item-text"><div class="dots-item-label">Nightlife</div><div class="dots-item-desc">The night belongs to you</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="switchTab('culture')">
+          <div class="dots-item-icon">🎨</div>
+          <div class="dots-item-text"><div class="dots-item-label">Art & Culture</div><div class="dots-item-desc">Art lives in the streets</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <div class="dots-divider"></div>
+        <div class="dots-section">My Roam Spirit</div>
+        <button class="dots-item" onclick="openPanelFromMenu('itin-panel')">
+          <div class="dots-item-icon">🗓</div>
+          <div class="dots-item-text"><div class="dots-item-label">Itinerary</div><div class="dots-item-desc">Plan your perfect trip</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="openPanelFromMenu('playlist-panel')">
+          <div class="dots-item-icon">🎵</div>
+          <div class="dots-item-text"><div class="dots-item-label">Playlist</div><div class="dots-item-desc">The soundtrack of your journey</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="openPanelFromMenu('album-panel')">
+          <div class="dots-item-icon">📷</div>
+          <div class="dots-item-text"><div class="dots-item-label">Travel Album</div><div class="dots-item-desc">Your visual memories</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <button class="dots-item" onclick="openPanelFromMenu('saved-panel');renderSaved()">
+          <div class="dots-item-icon">🔖</div>
+          <div class="dots-item-text"><div class="dots-item-label">Saved Tips</div><div class="dots-item-desc">Your curated collection</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <div class="dots-divider"></div>
+        <button class="dots-item" onclick="openLegal()">
+          <div class="dots-item-icon">📄</div>
+          <div class="dots-item-text"><div class="dots-item-label">Mentions légales & CGU</div><div class="dots-item-desc">Confidentialité & conditions d'utilisation</div></div>
+          <span class="dots-item-arrow">›</span>
+        </button>
+        <div class="dots-divider"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORIES BAR -->
+  <div class="stories-bar" id="stories-bar">
+    <div class="stories-scroll" id="stories-scroll">
+      <div class="story-item" onclick="openPublish()">
+        <div class="story-add">+</div>
+        <div class="story-name">Your story</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI CITY GUIDE CARD (toujours visible, ne défile pas) -->
+  <div class="ai-guide-card" id="ai-guide-card" onclick="quickAskGuide('')" role="button">
+    <div class="ai-guide-bg"></div>
+    <div class="ai-guide-content">
+      <div class="ai-guide-header">
+        <div class="ai-guide-icon">✦</div>
+        <div style="flex:1">
+          <div class="ai-guide-title">Your AI City Guide</div>
+          <div class="ai-guide-sub">Ask anything about <span id="ai-guide-city">Paris</span></div>
+        </div>
+        <div class="ai-guide-arrow">→</div>
+      </div>
+      <div class="ai-guide-chips">
+        <button class="ai-guide-chip" onclick="event.stopPropagation();quickAskGuide('Hidden gems & secret spots')">🌀 Hidden gems</button>
+        <button class="ai-guide-chip" onclick="event.stopPropagation();quickAskGuide('Best local food and restaurants right now')">🍽 Best food</button>
+        <button class="ai-guide-chip" onclick="event.stopPropagation();quickAskGuide('What to do tonight, local nightlife')">🌙 Tonight</button>
+        <button class="ai-guide-chip" onclick="event.stopPropagation();quickAskGuide('Top local tips most tourists don\'t know')">💡 Local tips</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEED WRAPPER -->
+  <div class="home-scroll" id="home-scroll">
+
+
+  <!-- SOCIAL FEED -->
+  <div class="feed" id="social-feed"></div>
+  </div>
+
+  <!-- AI CHAT PANEL -->
+  <div class="panel" id="ai-panel">
+    <div class="ai-panel-head" id="ai-panel-head">
+      <div class="ai-panel-bg" id="ai-panel-bg"></div>
+      <div class="ai-panel-content">
+        <button class="p-close" aria-label="Close" onclick="closePanel('ai-panel')" style="position:absolute;top:12px;right:14px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff">✕</button>
+        <div class="ai-panel-icon" id="ai-panel-icon">🗺</div>
+        <div class="ai-panel-title" id="ai-panel-title">City Guide</div>
+        <div class="ai-panel-city" id="ai-panel-city">Paris</div>
+        <div class="ai-panel-tagline" id="ai-panel-tagline">Every city has a soul. Let's find it.</div>
+      </div>
+      <!-- chips -->
+      <div style="padding:10px 14px 12px;background:rgba(0,0,0,.15)">
+        <div class="chips" id="chips" style="padding:0"></div>
+      </div>
+    </div>
+    <div class="chat" id="chat"><div id="anchor"></div></div>
+    <div class="input-area">
+      <div class="inp-row">
+        <textarea class="inp" id="inp" rows="1" placeholder="Explore Paris…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" onclick="send()"><svg viewBox="0 0 24 24"><path d="M2 21L23 12 2 3v7l15 2-15 2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUBLISH BOTTOM SHEET -->
+  <div class="pub-overlay" id="pub-overlay" onclick="closePublish()"></div>
+  <div class="publish-panel" id="publish-panel">
+    <div class="pub-handle"></div>
+    <div class="pub-title">Share your experience</div>
+    <div class="pub-body">
+      <div class="profile-row" style="margin-bottom:12px">
+        <div class="avatar-upload" id="pub-avatar-preview" onclick="document.getElementById('pub-avatar-file').click()">
+          <div style="font-size:9px;color:var(--muted);text-align:center;line-height:1.3">+ Photo</div>
+        </div>
+        <input type="file" id="pub-avatar-file" accept="image/*" style="display:none" onchange="handlePubAvatar(this)"/>
+        <input class="comm-pseudo-inp" id="pub-pseudo" placeholder="Your name or pseudo" maxlength="30" style="flex:1"/>
+      </div>
+      <div class="pub-photo-zone" id="pub-photo-zone" onclick="document.getElementById('pub-photo-file').click()">
+        <div style="font-size:32px">📸</div>
+        <div class="pub-photo-label">Add a photo (optional)</div>
+      </div>
+      <input type="file" id="pub-photo-file" accept="image/*" style="display:none" onchange="handlePubPhoto(this)"/>
+      <textarea class="pub-inp" id="pub-msg" placeholder="A hidden gem, a neighbourhood, a moment…" maxlength="300" style="margin-top:10px"></textarea>
+      <div style="font-size:10px;color:var(--muted);text-align:right;margin-bottom:8px"><span id="pub-count">0</span>/300</div>
+      <button class="pub-submit" onclick="submitPubPost()">✦ Share with the community</button>
+      <div id="pub-feedback" style="margin-top:8px;font-size:12px;color:var(--muted);text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- PSEUDO SHEET -->
+  <div class="pub-overlay" id="pseudo-overlay" onclick="closePseudoSheet()"></div>
+  <div class="publish-panel" id="pseudo-sheet" style="z-index:610">
+    <div class="pub-handle"></div>
+    <div class="pub-title">✦ Choose your traveler name</div>
+    <div class="pub-body">
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;font-family:'Playfair Display',serif;font-style:italic">This is how other travelers will see you in messages and posts.</div>
+      <input class="dm-input" id="pseudo-inp" placeholder="Your name or pseudo…" maxlength="30" style="width:100%;border-radius:12px;margin-bottom:12px" onkeydown="if(event.key==='Enter')confirmPseudo()"/>
+      <button class="pub-submit" onclick="confirmPseudo()">Continue</button>
+    </div>
+  </div>
+
+  <!-- PROFILE PANEL -->
+  <div class="panel" id="profile-panel">
+    <div class="p-head">
+      <div class="p-title">My Profile</div>
+      <button class="p-close" aria-label="Close" onclick="closePanel('profile-panel')">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto">
+      <div class="profile-header-bg">
+        <div class="profile-avatar-wrap" id="profile-avatar-big" onclick="document.getElementById('profile-photo-inp').click()" style="cursor:pointer;position:relative">
+          <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--carmine);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;border:2px solid #fff">✎</div>
+        </div>
+        <input type="file" id="profile-photo-inp" accept="image/*" style="display:none" onchange="handleProfilePhoto(this)"/>
+      </div>
+      <div style="padding:40px 20px 14px">
+        <div style="font-size:16px;font-weight:600;color:var(--ink)" id="profile-name-big">—</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Roam Spirit member</div>
+      </div>
+      <div class="profile-stats">
+        <div class="profile-stat"><div class="profile-stat-num" id="profile-posts-count">0</div><div class="profile-stat-lbl">Posts</div></div>
+        <div class="profile-stat"><div class="profile-stat-num" id="profile-likes-count">0</div><div class="profile-stat-lbl">Likes</div></div>
+        <div class="profile-stat"><div class="profile-stat-num">—</div><div class="profile-stat-lbl">Cities</div></div>
+      </div>
+      <div style="padding:14px 16px;border-bottom:1px solid var(--sand)">
+        <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Edit profile</div>
+        <input class="comm-pseudo-inp" id="profile-edit-pseudo" placeholder="Your name or pseudo" style="margin-bottom:8px"/>
+        <button class="comm-submit" onclick="saveProfile()" style="width:auto;padding:8px 20px">Save</button>
+      </div>
+      <div style="padding:14px 16px">
+        <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">My posts</div>
+        <div class="profile-posts-grid" id="profile-posts-grid"><div class="comm-empty" style="grid-column:1/-1">No posts yet.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REALTIME PLAN PANEL -->
+  <div class="panel" id="plan-panel">
+    <div class="p-head">
+      <div class="p-title">⚡ Plan my next 2 hours</div>
+      <button class="p-close" aria-label="Close" onclick="closePanel('plan-panel')">✕</button>
+    </div>
+    <div class="p-body">
+      <div style="background:var(--white);border:1px solid var(--sand);border-radius:14px;padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Customize your plan</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <select id="plan-duration" style="flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream)">
+            <option value="1">1 hour</option>
+            <option value="2" selected>2 hours</option>
+            <option value="3">3 hours</option>
+            <option value="4">Half-day</option>
+          </select>
+          <select id="plan-budget" style="flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream)">
+            <option value="free">Free</option>
+            <option value="low budget (under 20€)" selected>Low budget</option>
+            <option value="mid budget (20-50€)">Mid budget</option>
+            <option value="no limit">No limit</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="plan-vibe" style="flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream)">
+            <option value="explore the city">Explore</option>
+            <option value="food and drinks">Food & drinks</option>
+            <option value="culture and art">Culture & art</option>
+            <option value="local shopping">Shopping</option>
+            <option value="relax">Relax</option>
+            <option value="nightlife">Nightlife</option>
+          </select>
+          <select id="plan-with" style="flex:1;border:1px solid var(--sand);border-radius:10px;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream)">
+            <option value="solo">Solo</option>
+            <option value="as a couple">Couple</option>
+            <option value="with friends">Friends</option>
+            <option value="with family">Family</option>
+          </select>
+        </div>
+      </div>
+      <div id="plan-location-info" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:10px"></div>
+      <button id="plan-go-btn" onclick="generateRealtimePlan()" style="width:100%;background:var(--carmine);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;margin-bottom:14px">⚡ Generate my plan now</button>
+      <div id="plan-output"></div>
+    </div>
+  </div>
+
+  <!-- NEW BOTTOM NAV -->
+  <div class="bottom-nav" id="bottom-nav">
+    <button class="bn-item active" id="bn-home" onclick="switchView('home')">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div class="bn-label">Home</div>
+    </button>
+    <button class="bn-item" id="bn-shop" onclick="openShop()">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+      <div class="bn-label">Shop</div>
+    </button>
+    <button class="bn-plus" aria-label="Create a post" onclick="openPublish()">+</button>
+    <button class="bn-item" id="bn-messages" onclick="openInbox()" style="position:relative">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="bn-label" style="font-size:7px;letter-spacing:.03em">Private Messages</div>
+      <div class="bn-badge" id="msg-notif" style="display:none"></div>
+    </button>
+    <button class="bn-item" id="bn-profile" onclick="openProfile()">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="bn-label">Profile</div>
+    </button>
+  </div>
+
+  <!-- EXPLORE PANEL -->
+  <div class="panel" id="explore-panel">
+    <div class="p-head">
+      <div class="p-title">Explore</div>
+      <button class="p-close" aria-label="Close" onclick="closePanel('explore-panel')">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto">
+      <!-- Search bar -->
+      <div style="padding:12px 16px;background:var(--cream);border-bottom:1px solid var(--sand)">
+        <div style="display:flex;align-items:center;gap:10px;background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:8px 14px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="explore-search" type="text" placeholder="Search a city…" style="border:none;outline:none;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;flex:1" oninput="filterExplore(this.value)"/>
+        </div>
+      </div>
+      <!-- City grid -->
+      <div style="padding:14px 16px">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Popular cities</div>
+        <div id="explore-cities" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div>
+      </div>
+      <!-- Filtered feed -->
+      <div style="padding:0 16px 14px">
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px" id="explore-feed-title">All posts</div>
+        <div id="explore-feed"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEGAL PANEL -->
+  <div class="panel" id="legal-panel">
+    <div class="p-head">
+      <div class="p-title">Mentions légales & CGU</div>
+      <button class="p-close" aria-label="Close" onclick="closePanel('legal-panel')">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:20px">
+
+      <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--carmine);margin-bottom:4px">Mentions Légales</div>
+      <div style="height:2px;background:var(--carmine);margin-bottom:14px"></div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Éditeur</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Steve CHUZEL-MARMOT — Auto-entrepreneur<br/>
+        SIRET : 800 668 535 00<br/>
+        323 route du Mont Blanc, 73800 Villard d'Héry, Savoie, France<br/>
+        Email : s.chuzel@roamspirit.com
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Hébergement</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        GitHub Pages — GitHub, Inc. — San Francisco, USA<br/>
+        Supabase Inc. — Base de données
+      </div>
+
+      <div style="height:1px;background:var(--sand);margin:16px 0"></div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--carmine);margin-bottom:4px">Conditions Générales d'Utilisation</div>
+      <div style="height:2px;background:var(--carmine);margin-bottom:14px"></div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Objet</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        En accédant à Roam Spirit, vous acceptez les présentes CGU. La plateforme est un réseau social dédié aux voyageurs, accessible via QR code ou roamspirit.fr.
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Contenu utilisateur</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Les publications sont soumises à modération. Sont interdits les contenus illicites, offensants, portant atteinte aux droits de tiers ou incitant à la haine.
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Intelligence Artificielle</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        L'assistant IA (City Guide, Food, Nightlife…) est fourni à titre informatif. Les réponses ne constituent pas des conseils professionnels.
+      </div>
+
+      <div style="height:1px;background:var(--sand);margin:16px 0"></div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--carmine);margin-bottom:4px">Politique de Confidentialité</div>
+      <div style="height:2px;background:var(--carmine);margin-bottom:14px"></div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Données collectées</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Pseudo, photo de profil, contenus publiés, ville sélectionnée. Aucune donnée bancaire ni email obligatoire collectés.
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Vos droits (RGPD)</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Accès, rectification, effacement, portabilité, opposition.<br/>
+        Contact : s.chuzel@roamspirit.com<br/>
+        Réclamation : cnil.fr
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">Partage des données</div>
+      <div style="font-size:11px;color:var(--ink-light);line-height:1.7;margin-bottom:14px">
+        Roam Spirit ne vend jamais vos données personnelles. Les données agrégées et anonymisées peuvent être partagées avec des partenaires à des fins d'études de tendances uniquement.
+      </div>
+
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:20px;font-style:italic">
+        Documents en vigueur au 15 mai 2026<br/>
+        Roam Spirit™ — Steve CHUZEL-MARMOT — SIRET 800 668 535 00
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="panel" id="admin-panel">
+    <div class="p-head">
+      <div class="p-title">Admin — Moderation</div>
+      <button class="p-close" aria-label="Close" onclick="closePanel('admin-panel')">✕</button>
+    </div>
+    <div class="p-body">
+      <div id="admin-login">
+        <div style="text-align:center;padding:20px 0 14px">
+          <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--ink);margin-bottom:6px">Admin Access</div>
+          <div style="font-size:12px;color:var(--muted)">Sign in with the Google account authorized as admin</div>
+        </div>
+        <button class="s-google-btn" onclick="adminSignIn()" style="width:100%;justify-content:center">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.7 2.3 30.2 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.9 6.1C12.3 13.1 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.1z"/><path fill="#FBBC05" d="M10.4 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.1.9-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.2-7.6 2.2-6.3 0-11.7-3.6-13.6-9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
+          Sign in with Google
+        </button>
+        <div id="admin-login-err" style="font-size:12px;color:var(--carmine);text-align:center;margin-top:8px"></div>
+      </div>
+      <div id="admin-content" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Posts awaiting moderation</div>
+          <button onclick="loadAdminPosts()" style="background:none;border:none;font-size:11px;color:var(--terracotta);cursor:pointer;font-family:'DM Sans',sans-serif">↻ Refresh</button>
+        </div>
+        <div id="admin-feed"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANELS -->
+  <div class="panel" id="saved-panel">
+    <div class="p-head"><div class="p-title">Saved tips</div><button class="p-close" aria-label="Close" onclick="closePanel('saved-panel')">✕</button></div>
+    <div class="p-body" id="saved-list"></div>
+  </div>
+
+  <div class="panel" id="album-panel">
+    <div class="p-head"><div class="p-title">Travel Album</div><button class="p-close" aria-label="Close" onclick="closePanel('album-panel')">✕</button></div>
+    <div class="p-body">
+      <div class="upload-zone" onclick="document.getElementById('photo-inp').click()">
+        <div class="upload-icon">📷</div>
+        <div class="upload-text"><strong>Add travel photos</strong><br>Roam Spirit writes your story</div>
+      </div>
+      <input type="file" id="photo-inp" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">
+      <div class="album-grid" id="album-grid"></div>
+      <button class="gen-btn" id="a-gen-btn" onclick="genStory()" style="display:none">✦ Generate my travel story</button>
+      <div id="story-out"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="itin-panel">
+    <div class="p-head"><div class="p-title">My Itinerary</div><button class="p-close" aria-label="Close" onclick="closePanel('itin-panel')">✕</button></div>
+    <div style="padding:12px 14px 0 28px;flex-shrink:0">
+      <div class="itin-row">
+        <select class="itin-sel" id="itin-days"><option value="1">1 day</option><option value="2">2 days</option><option value="3" selected>3 days</option><option value="5">5 days</option><option value="7">1 week</option></select>
+        <select class="itin-sel" id="itin-style"><option value="urban explorer">Urban explorer</option><option value="foodie">Foodie</option><option value="culture & art">Culture & art</option><option value="nightlife">Nightlife</option><option value="slow travel">Slow travel</option></select>
+        <button class="action-btn" id="itin-go" onclick="genItin()">Go ✦</button>
+      </div>
+    </div>
+    <div class="p-body" id="itin-body"><div class="empty-msg">Choose your style and let Roam Spirit plan your trip.</div></div>
+    <!-- AD CARD ITINERARY -->
+    <div style="padding:0 14px 14px 28px;flex-shrink:0">
+      <a class="ad-card" id="ad-itin" href="https://www.getyourguide.com/s/?q=Paris&partner_id=LTGDR0L" target="_blank" rel="noopener sponsored">
+        <div class="ad-label">✦ Partner</div>
+        <div class="ad-title" id="ad-itin-title">Discover experiences in Paris</div>
+        <div class="ad-desc">Tours, activities and hidden gems curated by locals.</div>
+        <span class="ad-cta">Explore →</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="panel" id="playlist-panel">
+    <div class="p-head"><div class="p-title">Playlist</div><button class="p-close" aria-label="Close" onclick="closePanel('playlist-panel')">✕</button></div>
+    <div style="padding:12px 14px 0 28px;flex-shrink:0">
+      <div class="pl-row">
+        <select class="pl-sel" id="pl-mood"><option value="morning exploration">Morning exploration</option><option value="urban wandering">Urban wandering</option><option value="golden hour">Golden hour</option><option value="late night underground">Late night</option><option value="rainy day cafe">Rainy day café</option><option value="rooftop sunset">Rooftop sunset</option></select>
+        <select class="pl-sel" id="pl-genre"><option value="indie & alternative">Indie</option><option value="jazz & soul">Jazz & soul</option><option value="electronic & ambient">Electronic</option><option value="hip-hop & R&B">Hip-hop</option><option value="world music">World music</option></select>
+        <button class="action-btn" id="pl-go" onclick="genPlaylist()">Go ✦</button>
+      </div>
+    </div>
+    <div class="p-body" id="pl-body"><div class="empty-msg">Choose your mood and let Roam Spirit set the tone.</div></div>
+  </div>
+
+  <!-- COMMUNITY PANEL -->
+  <div class="panel" id="community-panel">
+    <div class="p-head">
+      <div class="p-title">Community</div>
+      <button class="p-close" aria-label="Close" onclick="closePanel('community-panel')">✕</button>
+    </div>
+    <div class="p-body">
+      <!-- Share box -->
+      <div class="comm-input-box">
+        <div class="comm-input-title">✦ Share your experience</div>
+        <div class="profile-row">
+          <div class="avatar-upload" id="avatar-preview" onclick="document.getElementById('avatar-file').click()">
+            <div class="avatar-upload-lbl" id="avatar-lbl">+ Photo</div>
+          </div>
+          <input type="file" id="avatar-file" accept="image/*" style="display:none" onchange="handleAvatar(this)"/>
+          <input class="comm-pseudo-inp" id="comm-pseudo" placeholder="Your name or pseudo" maxlength="30" style="flex:1"/>
+        </div>
+        <textarea class="comm-text-inp" id="comm-msg" placeholder="A hidden gem, a neighbourhood, a moment… Share it with the community." maxlength="300"></textarea>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;text-align:right"><span id="comm-count">0</span>/300</div>
+        <button class="comm-submit" onclick="submitPost()">✦ Share with the community</button>
+        <div id="comm-feedback"></div>
+      </div>
+      <!-- Feed -->
+      <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">📍 Experiences from <span id="comm-city-label">Paris</span></div>
+      <div class="comm-feed" id="comm-feed">
+        <div class="comm-empty">Be the first to share an experience for this city.</div>
+      </div>
+      <!-- AD CARDS COMMUNITY -->
+      <div class="ad-divider"></div>
+      <a class="ad-card" id="ad-community" href="https://www.booking.com/searchresults.html?ss=Paris" target="_blank" rel="noopener sponsored">
+        <div class="ad-label">✦ Partner</div>
+        <div class="ad-title" id="ad-comm-title">Find your hotel in Paris</div>
+        <div class="ad-desc">Best prices guaranteed. Free cancellation on most rooms.</div>
+        <span class="ad-cta">Book now →</span>
+      </a>
+      <a class="ad-card" id="ad-gyg" href="https://www.getyourguide.com/s/?q=Paris&partner_id=LTGDR0L" target="_blank" rel="noopener sponsored" style="margin-top:8px">
+        <div class="ad-label">✦ Partner</div>
+        <div class="ad-title" id="ad-gyg-title">Discover experiences in Paris</div>
+        <div class="ad-desc">Tours, activities and hidden gems curated by locals.</div>
+        <span class="ad-cta">Explore →</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- PRIVATE MESSAGES PANEL -->
+  <div class="panel" id="dm-panel">
+    <div class="p-head">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button onclick="closeDMPanel()" style="background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer">←</button>
+        <div>
+          <div class="p-title" id="dm-title">Private Message</div>
+          <div style="font-size:10px;color:var(--muted)" id="dm-subtitle"></div>
+        </div>
+      </div>
+      <button class="p-close" aria-label="Close" onclick="closeDMPanel()">✕</button>
+    </div>
+    <div class="dm-messages" id="dm-messages"></div>
+    <div class="dm-input-row">
+      <input class="dm-input" id="dm-inp" placeholder="Write a message…" maxlength="500" onkeydown="if(event.key==='Enter')sendDM()"/>
+      <button class="dm-send" aria-label="Send message" onclick="sendDM()">→</button>
+    </div>
+  </div>
+
+  <!-- INBOX PANEL -->
+  <div class="panel" id="inbox-panel">
+    <div class="p-head">
+      <div class="p-title">Messages</div>
+      <button class="p-close" aria-label="Close" onclick="closePanel('inbox-panel')">✕</button>
+    </div>
+    <div class="p-body" id="inbox-list">
+      <div class="comm-empty">No messages yet.</div>
+    </div>
+  </div>
+
+  <!-- old nav removed - replaced by bottom-nav -->
+
+  <!-- SHOP PANEL -->
+  <div class="panel" id="shop-panel" style="flex-direction:column">
+    <div class="shop-hero">
+      <button class="p-close" aria-label="Close" onclick="closePanel('shop-panel')" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff">&#x2715;</button>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;color:#FDFAF4;letter-spacing:.25em;margin-bottom:10px">R O A M &nbsp; S P I R I T</div>
+      <div style="font-size:11px;color:#FDFAF4;letter-spacing:.25em;text-transform:uppercase;margin-bottom:14px">PARIS</div>
+      <div style="font-family:'Playfair Display',serif;font-style:italic;font-size:15px;color:#FDFAF4;opacity:.9;margin-bottom:10px">Lose yourself. Find yourself.</div>
+      <div style="font-size:11px;color:#FDFAF4;opacity:.6;letter-spacing:.08em">48&#176;52&#39;N 2&#176;21&#39;E</div>
+    </div>
+    <div class="shop-body">
+      <div class="shop-section-label">The collection</div>
+
+      <div class="shop-card">
+        <div class="shop-card-img" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;height:240px;background:#F5F0E8">
+          <img loading="lazy" src="img/shop-1.jpg" style="width:100%;height:100%;object-fit:contain;background:#F5F0E8"/>
+          <img loading="lazy" src="img/shop-2.jpg" style="width:100%;height:100%;object-fit:contain;background:#F5F0E8"/>
+        </div>
+        <div class="shop-card-body">
+          <div class="shop-card-meta">Cap &middot; Cream canvas</div>
+          <div class="shop-card-name">The Cap</div>
+          <div class="shop-card-desc">Structured cream canvas. Embroidered ROAM SPIRIT patch. Carmine stripe on the brim. Brass buckle.</div>
+          <div class="shop-card-footer">
+            <div><div class="shop-price">Available in August</div><div class="shop-price-note">Price announced soon</div></div>
+            <button class="shop-btn" onclick="shopPreorder('Cap Roam Spirit')">Pre-order</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="shop-card">
+        <div class="shop-card-img" style="height:280px;background:#F5F0E8">
+          <img loading="lazy" src="img/shop-3.jpg" style="width:100%;height:100%;object-fit:contain"/>
+        </div>
+        <div class="shop-card-body">
+          <div class="shop-card-meta">Tote bag &middot; Heavy canvas</div>
+          <div class="shop-card-name">The Tote</div>
+          <div class="shop-card-desc">Heavy cream canvas. Woven ROAM SPIRIT patch. Central carmine stripe. Reinforced handles.</div>
+          <div class="shop-card-footer">
+            <div><div class="shop-price">Available in August</div><div class="shop-price-note">Price announced soon</div></div>
+            <button class="shop-btn" onclick="shopPreorder('Tote Bag Roam Spirit')">Pre-order</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="shop-card">
+        <div class="shop-card-img" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;height:240px;background:#F5F0E8;position:relative">
+          <img loading="lazy" src="img/shop-4.jpg" style="width:100%;height:100%;object-fit:contain;background:#F5F0E8"/>
+          <img loading="lazy" src="img/shop-5.jpg" style="width:100%;height:100%;object-fit:contain;background:#F5F0E8"/>
+          <div class="shop-card-soon">Coming soon</div>
+        </div>
+        <div class="shop-card-body">
+          <div class="shop-card-meta">T-shirt &middot; V-neck</div>
+          <div class="shop-card-name">The Tee &mdash; V-neck</div>
+          <div class="shop-card-desc">Cream V-neck cotton. ROAM SPIRIT logo on chest. Carmine stripe on the back.</div>
+          <div class="shop-card-footer">
+            <div><div class="shop-price">Coming soon</div><div class="shop-price-note">Next collection</div></div>
+            <button class="shop-btn-ghost">Coming soon</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="shop-card">
+        <div class="shop-card-img" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;height:240px;background:#F5F0E8">
+          <img loading="lazy" src="img/shop-6.jpg" style="width:100%;height:100%;object-fit:contain;background:#F5F0E8"/>
+          <img loading="lazy" src="img/shop-7.jpg" style="width:100%;height:100%;object-fit:contain;background:#F5F0E8"/>
+        </div>
+        <div class="shop-card-body">
+          <div class="shop-card-meta">T-shirt &middot; Oversize</div>
+          <div class="shop-card-name">The Tee &mdash; Oversize</div>
+          <div class="shop-card-desc">Cream oversize cotton. ROAM SPIRIT logo on chest. Carmine stripe on the back. Woven patch.</div>
+          <div class="shop-card-footer">
+            <div><div class="shop-price">Available in August</div><div class="shop-price-note">Price announced soon</div></div>
+            <button class="shop-btn" onclick="shopPreorder('Tee Oversize Roam Spirit')">Pre-order</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:8px 0 24px;font-size:10px;color:var(--muted);letter-spacing:.1em;line-height:1.8">
+        Collection 01 &middot; Made in Thailand<br>
+        <span style="color:var(--terracotta)">s.chuzel@roamspirit.com</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var city='Paris',tab='city_guide',histories={},typing=false;
+var favs=JSON.parse(localStorage.getItem('rs_favs')||'[]');
+var saved=JSON.parse(localStorage.getItem('rs_saved')||'[]');
+var photos=[];
+
+var TABS={
+  city_guide:{label:'City Guide',chips:['Must-see spots','Best neighbourhoods','Hidden gems','Iconic views'],emoji:['🗺','🚶','🌅','📸'],sys:'You are the Roam Spirit city guide for {city}. Give insider tips on must-see spots, neighbourhoods, hidden gems. Be specific, poetic, urban. Tagline: "This is your culture." Max 3 short paragraphs.'},
+  style:{label:'Style & Outfits',chips:['Vintage shops','Streetwear spots','Local designers','Best markets'],emoji:['🧢','👟','💡','🛍'],sys:'You are the Roam Spirit style advisor for {city}. Guide through vintage shops, streetwear, local designers. Urban vintage aesthetic. Tagline: "This is your culture." Concise.'},
+  food:{label:'Food & Drinks',chips:['Best cafés','Natural wine bars','Local markets','Street food'],emoji:['☕','🍷','🥖','🍜'],sys:'You are the Roam Spirit food guide for {city}. Recommend hidden cafés, restaurants, wine bars, street food locals love. No tourist traps. Tagline: "This is your culture." Concise.'},
+  nightlife:{label:'Nightlife',chips:['Live music','Cocktail bars','Rooftop bars','Jazz & underground'],emoji:['🎵','🍸','🌆','🎶'],sys:'You are the Roam Spirit nightlife guide for {city}. Recommend bars, clubs, live music, rooftops, underground. Authentic local nightlife. Tagline: "This is your culture." Vivid and concise.'},
+  culture:{label:'Art & Culture',chips:['Galleries & museums','Live shows','Bookshops','Street art'],emoji:['🖼','🎭','📚','🎨'],sys:'You are the Roam Spirit culture guide for {city}. Recommend galleries, museums, street art, bookshops, live shows. Authentic scenes. Tagline: "This is your culture." Inspiring and concise.'}
+};
+
+var COORDS=[
+  {city:'Paris',lat:48.85,lon:2.35},{city:'Barcelona',lat:41.38,lon:2.17},{city:'Lisbon',lat:38.72,lon:-9.14},
+  {city:'London',lat:51.51,lon:-.13},{city:'Amsterdam',lat:52.37,lon:4.90},{city:'Berlin',lat:52.52,lon:13.40},
+  {city:'Rome',lat:41.90,lon:12.50},{city:'Istanbul',lat:41.01,lon:28.96},
+  {city:'Vienna',lat:48.21,lon:16.37},{city:'Prague',lat:50.08,lon:14.44},{city:'Athens',lat:37.98,lon:23.73},{city:'Budapest',lat:47.50,lon:19.04},
+  {city:'Dubai',lat:25.20,lon:55.27},{city:'Abu Dhabi',lat:24.47,lon:54.37},{city:'Doha',lat:25.28,lon:51.53},{city:'Marrakech',lat:31.63,lon:-8.00},
+  {city:'Tokyo',lat:35.68,lon:139.69},{city:'Kyoto',lat:35.01,lon:135.77},{city:'Seoul',lat:37.57,lon:126.98},{city:'Bangkok',lat:13.75,lon:100.50},
+  {city:'Bali',lat:-8.34,lon:115.09},{city:'Hoi An',lat:15.88,lon:108.33},{city:'Hanoi',lat:21.03,lon:105.85},
+  {city:'Singapore',lat:1.35,lon:103.82},{city:'Hong Kong',lat:22.32,lon:114.17},{city:'Jakarta',lat:-6.21,lon:106.85},
+  {city:'New York',lat:40.71,lon:-74.01},{city:'Montréal',lat:45.50,lon:-73.57},{city:'Los Angeles',lat:34.05,lon:-118.24},
+  {city:'Miami',lat:25.77,lon:-80.19},{city:'Buenos Aires',lat:-34.60,lon:-58.38},{city:'Rio de Janeiro',lat:-22.91,lon:-43.17},
+  {city:'Medellín',lat:6.25,lon:-75.56},{city:'Mexico City',lat:19.43,lon:-99.13}
+];
+
+function enterApp(){
+  document.getElementById('splash').classList.add('hide');
+  trackEvent('app_open');
+  renderChips(tab);
+  loadSocialFeed();
+  // Make sure ai-panel is closed on home screen
+  var aiPanel = document.getElementById('ai-panel');
+  if(aiPanel) aiPanel.classList.remove('open');
+  resetChat();
+  detectGPS();
+}
+
+function toggleCity(e){e.stopPropagation();var m=document.getElementById('city-menu');var dotsMenu=document.getElementById('dots-menu');if(dotsMenu)dotsMenu.classList.remove('open');m.classList.toggle('show');}
+function toggleTab(e){e.stopPropagation();var m=document.getElementById('tab-menu'),a=document.getElementById('tab-arr');document.getElementById('city-menu').classList.remove('show');document.getElementById('city-arr').style.transform='';if(m.style.display==='block'){m.style.display='none';a.style.transform='';}else{m.style.display='block';a.style.transform='rotate(180deg)';}}
+document.addEventListener('click',function(){
+  var cm=document.getElementById('city-menu');
+  if(cm) cm.classList.remove('show');
+  var dm=document.getElementById('dots-menu');
+  if(dm) dm.classList.remove('open');
+  var dov=document.getElementById('dots-overlay');
+  if(dov) dov.classList.remove('open');
+});
+
+function selectCity(btn,c){
+  city=c;
+  document.querySelectorAll('.c-opt').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  document.getElementById('city-lbl').textContent=c;
+  document.getElementById('city-menu').classList.remove('show');
+  histories={};
+  resetChat();
+  // Update input placeholder
+  var inp=document.getElementById('inp');
+  if(inp) inp.placeholder='Explore '+c+'…';
+  // Update AI panel city
+  var cityEl=document.getElementById('ai-panel-city');
+  if(cityEl) cityEl.textContent=c;
+  // Update AI guide card city
+  var guideCity=document.getElementById('ai-guide-city');
+  if(guideCity) guideCity.textContent=c;
+  // Update AI panel title
+  var titleEl=document.getElementById('ai-panel-title');
+  if(titleEl && window.TABS && window.TABS[tab]) titleEl.textContent=TABS[tab].label;
+  loadPreview();
+  updateAds(c);
+}
+function selectTab(btn,t){tab=t;document.querySelectorAll('.t-opt').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');document.getElementById('tab-lbl').textContent=btn.textContent.trim();document.getElementById('tab-menu').style.display='none';document.getElementById('tab-arr').style.transform='';renderChips(t);if(histories[t])renderHistory(t);else resetChat();}
+
+function renderChips(t){var d=TABS[t];document.getElementById('chips').innerHTML=d.chips.map(function(c){return'<div class="chip" onclick="sendQuick(\''+c+'\')">'+c+'</div>';}).join('');}
+
+// ——— AI GUIDE CARD ———
+async function quickAskGuide(question){
+  // Open AI panel
+  tab = 'city_guide';
+  document.getElementById('ai-panel').classList.add('open');
+  var bgEl = document.getElementById('ai-panel-bg');
+  if(bgEl) bgEl.style.background = 'linear-gradient(135deg,#8B1A1A,#C9A84C)';
+  var iconEl = document.getElementById('ai-panel-icon');
+  if(iconEl) iconEl.textContent = '🗺';
+  var titleEl = document.getElementById('ai-panel-title');
+  if(titleEl) titleEl.textContent = 'City Guide';
+  var cityEl = document.getElementById('ai-panel-city');
+  if(cityEl) cityEl.textContent = city;
+  resetChat();
+  // Pas de question (tap sur la carte) : le chat s'ouvre, focus sur son champ
+  if(!question || !question.trim()){
+    var chatInp = document.getElementById('inp');
+    if(chatInp) setTimeout(function(){ chatInp.focus(); }, 350);
+    return;
+  }
+  // Auto-send the question (tap sur une chip)
+  if(!histories[tab]) histories[tab] = [];
+  histories[tab].push({role:'user', content:question});
+  addMsg('user', question);
+  typing = true;
+  showTyping();
+  try {
+    var rep = await askAI({system:TABS['city_guide'].sys.replace('{city}',city), messages:histories[tab], max_tokens:1000});
+    hideTyping();
+    histories[tab].push({role:'assistant', content:rep});
+    addMsg('assistant', rep);
+  } catch(e){ hideTyping(); addMsg('assistant','⚠️ '+e.message+' — please try again in a moment.'); }
+  typing = false;
+}
+
+function detectGPS(){if(!navigator.geolocation)return;var btn=document.getElementById('fav-btn');navigator.geolocation.getCurrentPosition(function(p){var n=COORDS[0],m=Infinity;COORDS.forEach(function(c){var d=Math.sqrt(Math.pow(p.coords.latitude-c.lat,2)+Math.pow(p.coords.longitude-c.lon,2));if(d<m){m=d;n=c;}});var opt=Array.from(document.querySelectorAll('.c-opt')).find(function(o){return o.textContent.trim()===n.city;});if(opt)selectCity(opt,n.city);},function(){},{timeout:6000});}
+
+function toggleFav(){var b=document.getElementById('fav-btn'),i=favs.indexOf(city);if(i===-1){favs.push(city);b.textContent='★';b.style.color='#C9A84C';}else{favs.splice(i,1);b.textContent='☆';b.style.color='';}localStorage.setItem('rs_favs',JSON.stringify(favs));renderFavs();}
+function updateFavBtn(){var b=document.getElementById('fav-btn');if(!b)return;if(favs.indexOf(city)!==-1){b.textContent='★';b.style.color='#C9A84C';}else{b.textContent='☆';b.style.color='';}}
+function renderFavs(){var el=document.getElementById('favs');if(!el)return;if(favs.length===0){el.style.display='none';return;}el.style.display='flex';el.innerHTML=favs.map(function(c){return'<div class="fav-chip" onclick="quickCity(\''+c+'\')">★ '+c+' <span onclick="event.stopPropagation();removeFav(\''+c+'\')" style="font-size:10px;color:var(--muted)">✕</span></div>';}).join('');}
+function removeFav(c){favs=favs.filter(function(x){return x!==c;});localStorage.setItem('rs_favs',JSON.stringify(favs));renderFavs();updateFavBtn();}
+function quickCity(c){var o=Array.from(document.querySelectorAll('.c-opt')).find(function(x){return x.textContent.trim()===c;});if(o)selectCity(o,c);}
+
+function openLegal(){
+  var menu = document.getElementById('dots-menu');
+  var overlay = document.getElementById('dots-overlay');
+  if(menu) menu.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+  openPanel('legal-panel');
+}
+
+function openPanel(id){document.querySelectorAll('.panel').forEach(function(el){el.classList.remove('open');});var el=document.getElementById(id);if(el)el.classList.add('open');}
+function closePanel(id){document.getElementById(id).classList.remove('open');if(id==='inbox-panel'||id==='profile-panel'||id==='shop-panel'){setNav('home');}}
+
+function saveTip(text){saved.unshift({text:text,city:city,tab:TABS[tab].label,date:new Date().toLocaleDateString()});localStorage.setItem('rs_saved',JSON.stringify(saved));document.getElementById('saved-nav').textContent='🔖 Saved ('+saved.length+')';}
+function delTip(i){saved.splice(i,1);localStorage.setItem('rs_saved',JSON.stringify(saved));renderSaved();}
+function renderSaved(){var el=document.getElementById('saved-list');if(saved.length===0){el.innerHTML='<div class="empty-msg">No saved tips yet.<br>Tap 🔖 on any response.</div>';return;}document.getElementById('saved-nav').textContent='🔖 Saved ('+saved.length+')';el.innerHTML=saved.map(function(t,i){return'<div class="saved-item"><div class="saved-meta"><span>📍 '+t.city+' — '+t.tab+'</span><span class="del-btn" onclick="delTip('+i+')">✕</span></div><div class="saved-text">'+fmt(t.text)+'</div></div>';}).join('');}
+
+function handlePhotos(e){Array.from(e.target.files).forEach(function(f){var r=new FileReader();r.onload=function(x){photos.push({src:x.target.result,cap:null});renderGrid();};r.readAsDataURL(f);});e.target.value='';}
+function renderGrid(){var g=document.getElementById('album-grid'),b=document.getElementById('a-gen-btn');g.innerHTML=photos.map(function(p,i){return'<div class="a-photo"><img src="'+p.src+'" alt="'+(i+1)+'">'+(p.cap?'<div class="a-cap">'+p.cap+'</div>':'')+'</div>';}).join('');b.style.display=photos.length>0?'block':'none';}
+async function genStory(){if(photos.length===0)return;var btn=document.getElementById('a-gen-btn'),out=document.getElementById('story-out');btn.disabled=true;btn.textContent='✦ Writing…';out.innerHTML='';
+var imgs=photos.slice(0,6).map(function(p){return{type:'image',source:{type:'base64',media_type:'image/jpeg',data:p.src.split(',')[1]}};});
+var prompt='You are the Roam Spirit storyteller for '+city+'. Write a short poetic travel story (3-4 sentences) then a 1-line caption for each photo. Format: STORY: [story] CAPTIONS: [cap1] | [cap2]...';
+try{var rep=await askAI({messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}],max_tokens:800});
+var sm=rep.match(/STORY:\s*([\s\S]+?)(?=CAPTIONS:|$)/),cm=rep.match(/CAPTIONS:\s*([\s\S]+)/);
+if(sm)out.innerHTML='<div class="a-story"><div class="a-city">📍 '+city+' — This is your culture.</div>'+esc(sm[1].trim())+'</div>';
+if(cm)cm[1].trim().split('|').forEach(function(c,i){if(photos[i])photos[i].cap=c.trim();});renderGrid();
+}catch(e){out.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px">Could not generate. Try again.</div>';}
+btn.disabled=false;btn.textContent='✦ Generate my travel story';}
+
+async function genItin(){var days=document.getElementById('itin-days').value,style=document.getElementById('itin-style').value,btn=document.getElementById('itin-go'),body=document.getElementById('itin-body');btn.disabled=true;btn.textContent='…';body.innerHTML='<div class="empty-msg">✦ Planning your '+days+'-day trip to '+esc(city)+'…</div>';
+var p='Create a '+days+'-day '+style+' itinerary for '+city+' in Roam Spirit style. For each day give 3 slots (Morning/Afternoon/Evening) each with name and one sentence description. Return ONLY JSON: {"days":[{"day":1,"title":"...","slots":[{"time":"Morning","name":"...","desc":"..."}]}]}';
+try{var rep=await askAI({messages:[{role:'user',content:p}],max_tokens:1500});
+var it=JSON.parse(rep.replace(/```json|```/g,'').trim());
+body.innerHTML=it.days.map(function(d){return'<div class="itin-day"><div class="itin-day-t"><div class="day-num">'+esc(d.day)+'</div>'+esc(d.title)+'</div>'+d.slots.map(function(s){return'<div class="itin-slot"><div class="slot-time">'+esc(s.time)+'</div><div class="slot-name">'+esc(s.name)+'</div><div class="slot-desc">'+esc(s.desc)+'</div></div>';}).join('')+'</div>';}).join('');
+}catch(e){body.innerHTML='<div class="empty-msg">Could not generate. Try again.</div>';}
+btn.disabled=false;btn.textContent='Go ✦';}
+
+async function genPlaylist(){var mood=document.getElementById('pl-mood').value,genre=document.getElementById('pl-genre').value,btn=document.getElementById('pl-go'),body=document.getElementById('pl-body');btn.disabled=true;btn.textContent='…';body.innerHTML='<div class="empty-msg">✦ Curating your playlist for '+esc(city)+'…</div>';
+var p='Create an 8-track '+mood+' playlist in '+genre+' for '+city+' in Roam Spirit urban vintage style. Return ONLY JSON: {"intro":"2 sentences","tracks":[{"num":1,"title":"...","artist":"...","vibe":"3 words"}]}';
+try{var rep=await askAI({messages:[{role:'user',content:p}],max_tokens:1000});
+var pl=JSON.parse(rep.replace(/```json|```/g,'').trim());
+var q=encodeURIComponent(mood+' '+genre+' '+city);
+body.innerHTML='<div class="pl-intro"><div class="pl-lbl">📍 '+esc(city)+' — '+esc(mood)+'</div><div class="pl-intro-text">'+esc(pl.intro)+'</div></div>'+pl.tracks.map(function(t){return'<div class="track"><div class="track-num">'+esc(t.num)+'</div><div class="track-info"><div class="track-title">'+esc(t.title)+'</div><div class="track-artist">'+esc(t.artist)+'</div><div class="track-vibe">'+esc(t.vibe)+'</div></div></div>';}).join('')+'<button class="spotify-btn" onclick="window.open(\'https://open.spotify.com/search/'+q+'\',\'_blank\')">Open on Spotify ↗</button>';
+}catch(e){body.innerHTML='<div class="empty-msg">Could not generate. Try again.</div>';}
+btn.disabled=false;btn.textContent='Go ✦';}
+
+function goStripe(){alert('Stripe payment coming soon! Full access during beta.');}
+function goPaypal(){alert('PayPal payment coming soon! Full access during beta.');}
+
+function resetChat(){if(!histories[tab])histories[tab]=[];var c=document.getElementById('chat');c.innerHTML='<div class="welcome"><div class="w-title">This is your culture.</div><div class="w-text">Your Roam Spirit <em>'+TABS[tab].label+'</em> guide for <em>'+city+'</em>.<br><br><em>Every city has a soul. Let\'s find it.</em></div></div><div id="anchor"></div>';}
+function renderHistory(t){var c=document.getElementById('chat');c.innerHTML='<div id="anchor"></div>';(histories[t]||[]).forEach(function(m){addMsg(m.role,m.content,false);});}
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function sendQuick(text){document.getElementById('inp').value=text;send();}
+
+function addMsg(role,text,anim){if(anim===undefined)anim=true;var c=document.getElementById('chat'),a=document.getElementById('anchor'),div=document.createElement('div');div.className='msg '+(role==='user'?'user':'bot')+(anim?'':' no-anim');var s=document.createElement('div');s.className='sender';s.textContent=role==='user'?'You':'Roam Spirit';var b=document.createElement('div');b.className='bubble';b.innerHTML=fmt(text);
+if(role==='assistant'||role==='bot'){var sv=document.createElement('div');sv.style.cssText='margin-top:7px;text-align:right;';sv.innerHTML='<span style="font-size:11px;color:var(--muted);cursor:pointer;" data-text="" onclick="saveTip(this.dataset.text)">🔖 Save this tip</span>';sv.querySelector('span').dataset.text=text;b.appendChild(sv);}
+div.appendChild(s);div.appendChild(b);c.insertBefore(div,a);a.scrollIntoView({behavior:'smooth',block:'end'});}
+
+function showTyping(){var c=document.getElementById('chat'),a=document.getElementById('anchor'),div=document.createElement('div');div.className='msg bot';div.id='typing';div.innerHTML='<div class="sender">Roam Spirit</div><div class="typing-b"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';c.insertBefore(div,a);a.scrollIntoView({behavior:'smooth',block:'end'});}
+function hideTyping(){var t=document.getElementById('typing');if(t)t.remove();}
+
+function fmt(text){return text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/^- (.+)$/gm,'<li>$1</li>').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>').replace(/^([^<].+)$/m,'<p>$1</p>');}
+
+async function send(){if(typing)return;trackEvent('ai_chat');var el=document.getElementById('inp'),text=el.value.trim();if(!text)return;el.value='';el.style.height='auto';addMsg('user',text);if(!histories[tab])histories[tab]=[];histories[tab].push({role:'user',content:text});typing=true;showTyping();
+try{var rep=await askAI({system:TABS[tab].sys.replace('{city}',city),messages:histories[tab],max_tokens:1000});
+hideTyping();histories[tab].push({role:'assistant',content:rep});addMsg('assistant',rep);
+}catch(e){hideTyping();addMsg('assistant','⚠️ '+e.message+' — please try again in a moment.');}
+typing=false;}
+
+window.addEventListener('DOMContentLoaded',function(){renderChips(tab);renderFavs();updateFavBtn();});
+
+// ——— AVATAR ———
+var avatarColors = ['#8B1A1A','#C9A84C','#4A90D9','#2E7D32','#7B3F00','#5C4A35'];
+var currentAvatar = localStorage.getItem('rs_avatar') || '';
+
+function getInitials(name){ return String(name||'').trim().split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2)||'?'; }
+
+// Sécurité : échapper tout contenu utilisateur avant injection dans innerHTML
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// Pour passer une chaîne utilisateur en argument dans un onclick inline
+function jsArg(s){ return esc(String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")); }
+
+function getAvatarColor(name){ var i=0;for(var j=0;j<name.length;j++)i+=name.charCodeAt(j);return avatarColors[i%avatarColors.length]; }
+
+function handleAvatar(input){
+  if(!input.files||!input.files[0])return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    // Compress image before storing
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');
+      var MAX=80;
+      var w=img.width,h=img.height;
+      if(w>h){if(w>MAX){h=h*(MAX/w);w=MAX;}}else{if(h>MAX){w=w*(MAX/h);h=MAX;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      currentAvatar=canvas.toDataURL('image/jpeg',0.7);
+      localStorage.setItem('rs_avatar',currentAvatar);
+      var prev=document.getElementById('avatar-preview');
+      prev.innerHTML='<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function makeAvatar(pseudo, avatarUrl, size){
+  size=size||32;
+  if(avatarUrl && (avatarUrl.startsWith('data:image/') || avatarUrl.startsWith('http'))){
+    return '<img src="'+esc(avatarUrl)+'" style="width:'+size+'px;height:'+size+'px;border-radius:50%;object-fit:cover;border:1.5px solid var(--sand);flex-shrink:0" referrerpolicy="no-referrer"/>';
+  }
+  var initials=esc(getInitials(pseudo));
+  var color=getAvatarColor(pseudo);
+  return '<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+color+';display:flex;align-items:center;justify-content:center;font-size:'+(size/2.8|0)+'px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.02em">'+initials+'</div>';
+}
+
+// ——— SUPABASE CONFIG ———
+var SUPA_URL = 'https://qalexzaiyenhwhecppqp.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhbGV4emFpeWVuaHdoZWNwcHFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NTE5NTAsImV4cCI6MjA5NDAyNzk1MH0.eVXn537iB8ZoyP5K13m6st5vrWjreRaFdM6gvOMrW5U';
+
+// ——— AI PROXY (Edge Function — la clé Anthropic reste côté serveur) ———
+// Déployer supabase/functions/roam-ai (fourni dans roam-ai-function.ts)
+var AI_ENDPOINT = SUPA_URL + '/functions/v1/roam-ai';
+async function askAI(opts){
+  // opts: {system, messages, max_tokens}
+  var r = await fetch(AI_ENDPOINT, {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPA_KEY},
+    body: JSON.stringify({
+      system: opts.system || undefined,
+      messages: opts.messages,
+      max_tokens: opts.max_tokens || 1000
+    })
+  });
+  if(!r.ok){
+    var errTxt = 'AI unavailable ('+r.status+')';
+    try { var ej = await r.json(); if(ej && ej.error) errTxt = ej.error; } catch(_e){}
+    throw new Error(errTxt);
+  }
+  var d = await r.json();
+  return d.content && d.content[0] ? d.content[0].text : '';
+}
+
+// Like sécurisé (RPC — voir security.sql)
+function rpcLike(id, delta){
+  fetch(SUPA_URL+'/rest/v1/rpc/like_post',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify({post_id:id,delta:delta})}).catch(function(){});
+}
+
+// Analytics minimaliste et anonyme (table app_events — voir security.sql)
+function trackEvent(name){
+  try {
+    fetch(SUPA_URL+'/rest/v1/app_events',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify({name:name,city:city})}).catch(function(){});
+  } catch(_e){}
+}
+
+// ——— PARTENAIRES (affiliation) ———
+var GYG_PARTNER_ID = 'LTGDR0L';
+
+// ⚠️ STAY22_AID : ton identifiant affilié Stay22 (Booking/Expedia/Hotels.com...).
+var STAY22_AID = 'roamspirit';
+
+// Liens "Allez" générés un par un dans le dashboard Stay22 (Allez Generator).
+// Pour ajouter une ville : génère son lien sur stay22.com (Allez Generator,
+// Provider URL = https://www.booking.com/searchresults.html?ss=NomVille),
+// puis ajoute une ligne ici : 'NomVille': 'https://booking.stay22.com/roamspirit/XXXXX'
+var STAY22_LINKS = {
+  'Paris': 'https://booking.stay22.com/roamspirit/asQ2jzCkmt',
+  'Singapore': 'https://booking.stay22.com/roamspirit/CH-9qzg3jn',
+  'Bangkok': 'https://booking.stay22.com/roamspirit/qJoQfIpans',
+  'Bali': 'https://booking.stay22.com/roamspirit/qY07JLGZkN',
+  'Berlin': 'https://booking.stay22.com/roamspirit/EkGOSEKp8_',
+  'Prague': 'https://booking.stay22.com/roamspirit/XMkkUGQPPE'
+};
+// Ville par défaut si la ville courante n'a pas encore de lien généré
+var STAY22_FALLBACK_CITY = 'Paris';
+
+var PARTNERS = {
+  booking: {
+    brand: 'Booking.com',
+    link: function(c){ return STAY22_LINKS[c] || STAY22_LINKS[STAY22_FALLBACK_CITY]; },
+    title: function(c){ return 'Stay in the heart of '+c; },
+    desc: 'Handpicked hotels and stays. Free cancellation on most rooms.',
+    cta: 'Find your stay →'
+  },
+  gyg: {
+    brand: 'GetYourGuide',
+    link: function(c){ return 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c)+'&partner_id='+GYG_PARTNER_ID; },
+    title: function(c){ return 'Experience '+c+' like a local'; },
+    desc: 'Tours, activities and hidden gems — skip the tourist traps.',
+    cta: 'Explore experiences →'
+  }
+};
+
+// Encart natif pour le feed / explore
+function partnerCardHTML(key, compact){
+  var p = PARTNERS[key];
+  if(!p) return '';
+  return '<div class="feed-partner">'
+    +'<a class="feed-partner-inner" href="'+esc(p.link(city))+'" target="_blank" rel="noopener sponsored" onclick="trackEvent(\'partner_click\')">'
+    +'<div class="feed-partner-label">✦ Partner</div>'
+    +'<div class="feed-partner-title">'+esc(p.title(city))+'</div>'
+    +(compact?'':'<div class="feed-partner-desc">'+esc(p.desc)+'</div>')
+    +'<span class="feed-partner-cta">'+esc(p.cta)+'</span>'
+    +'<div class="feed-partner-brand">with '+esc(p.brand)+'</div>'
+    +'</a></div>';
+}
+
+// ——— SUPABASE AUTH CLIENT ———
+var supabaseClient = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+async function signInWithGoogle() {
+  var { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: 'https://www.roamspirit.fr/' }
+  });
+  if (error) alert('Erreur Google Sign-In : ' + error.message);
+}
+
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  googleUser = null;
+  var uiEl=document.getElementById('google-user-info'); if(uiEl) uiEl.style.display='none';
+}
+
+// ——— AUTH GATE ———
+var googleUser = null;
+
+function requireLogin(action) {
+  if (googleUser) { action(); return; }
+  // Show login prompt overlay
+  var overlay = document.createElement('div');
+  overlay.id = 'login-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(44,31,14,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML = '<div style="background:var(--cream);border-radius:20px;padding:28px;max-width:320px;width:100%;text-align:center;position:relative">'
+    +'<div style="font-family:\'Playfair Display\',serif;font-size:20px;color:var(--ink);margin-bottom:8px">Rejoins Roam Spirit</div>'
+    +'<div style="font-size:13px;color:var(--ink-light);line-height:1.6;margin-bottom:20px">Connecte-toi pour poster, envoyer des messages et interagir avec la communauté.</div>'
+    +'<button onclick="signInWithGoogle();document.getElementById(\'login-overlay\').remove();" style="width:100%;background:#fff;border:1.5px solid var(--sand);border-radius:30px;padding:12px 20px;font-size:14px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:10px">'
+    +'<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.7 2.3 30.2 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.9 6.1C12.3 13.1 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.1z"/><path fill="#FBBC05" d="M10.4 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.1.9-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.2-7.6 2.2-6.3 0-11.7-3.6-13.6-9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>'
+    +'Se connecter avec Google</button>'
+    +'<button onclick="document.getElementById(\'login-overlay\').remove()" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;font-family:\'DM Sans\',sans-serif">Annuler</button>'
+    +'</div>';
+  document.body.appendChild(overlay);
+}
+
+// Check if user is already logged in (after redirect)
+supabaseClient.auth.getSession().then(function(res) {
+  var session = res.data && res.data.session;
+  if (session && session.user) {
+    googleUser = session.user;
+    var name = (session.user.user_metadata && session.user.user_metadata.full_name) || session.user.email;
+    var avatar = session.user.user_metadata && session.user.user_metadata.avatar_url;
+    var uiEl=document.getElementById('google-user-info'); if(uiEl) uiEl.style.display='block';
+    var unEl=document.getElementById('google-user-name'); if(unEl) unEl.textContent='✓ Connecté : '+name;
+    if (!localStorage.getItem('rs_pseudo') && name) {
+      var pseudo = name.split(' ')[0]; pseudo = pseudo.charAt(0).toUpperCase() + pseudo.slice(1);
+      localStorage.setItem('rs_pseudo', pseudo);
+      myPseudo = pseudo;
+      setTimeout(showPushBanner, 2000);
+    }
+    if (avatar && !currentAvatar) {
+      // Fetch Google avatar and convert to base64 to avoid CORS issues
+      fetch(avatar)
+        .then(function(r){ return r.blob(); })
+        .then(function(blob){
+          var reader = new FileReader();
+          reader.onload = function(e){
+            currentAvatar = e.target.result;
+            localStorage.setItem('rs_avatar', currentAvatar);
+            var prev = document.getElementById('avatar-preview');
+            if(prev) prev.innerHTML = '<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+          };
+          reader.readAsDataURL(blob);
+        })
+        .catch(function(){
+          // Fallback: use URL directly
+          currentAvatar = avatar;
+          localStorage.setItem('rs_avatar', avatar);
+        });
+    }
+  }
+});
+
+async function supaFetch(path, opts){
+  var res = await fetch(SUPA_URL+'/rest/v1/'+path, Object.assign({
+    headers:{
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer '+SUPA_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    }
+  }, opts));
+  if(!res.ok){ var e=await res.text(); throw new Error(e); }
+  var txt=await res.text();
+  return txt ? JSON.parse(txt) : [];
+}
+
+// Like supaFetch, but sends the signed-in user's own access token instead of
+// the shared anon key, so Supabase RLS policies can check auth.uid() and
+// know WHO is making the request (needed for anything admin-only).
+async function supaFetchAuth(path, opts){
+  var sessionRes = await supabaseClient.auth.getSession();
+  var session = sessionRes.data && sessionRes.data.session;
+  var token = session ? session.access_token : SUPA_KEY;
+  var res = await fetch(SUPA_URL+'/rest/v1/'+path, Object.assign({
+    headers:{
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer '+token,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    }
+  }, opts));
+  if(!res.ok){ var e=await res.text(); throw new Error(e); }
+  var txt=await res.text();
+  return txt ? JSON.parse(txt) : [];
+}
+
+// ——— COMMUNITY ———
+var likedPosts = JSON.parse(localStorage.getItem('rs_liked_posts')||'[]');
+
+// Seed posts shown when DB is empty
+var seedPosts = [
+  {id:'seed1', pseudo:'Marco', city:'Paris', message:'Café Lomi in Pigalle — nobody talks about it but it\'s the best in the city. Order the Ethiopian filter.', likes:12, created_at:'2026-05-01'},
+  {id:'seed2', pseudo:'Sofia', city:'Barcelona', message:'Gràcia on a Sunday morning. No tourists, just locals and their dogs. The real Barcelona.', likes:8, created_at:'2026-05-03'},
+  {id:'seed3', pseudo:'Yuki', city:'Tokyo', message:'Yanaka — the only Tokyo district that survived the bombings. Alleys, temples, another century.', likes:21, created_at:'2026-05-05'},
+  {id:'seed4', pseudo:'Léa', city:'Paris', message:'Aligre market, Saturday 8am. Before the crowds, before the noise. Just the colors and the smells.', likes:15, created_at:'2026-05-07'},
+];
+
+function openCommunity(){
+  ['saved-panel','album-panel','itin-panel','playlist-panel','prem-panel','community-panel','ai-panel','profile-panel','inbox-panel','dm-panel'].forEach(function(p){
+    var el=document.getElementById(p); if(el)el.classList.remove('open');
+  });
+  document.getElementById('community-panel').classList.add('open');
+  document.getElementById('comm-city-label').textContent=city;
+  var savedPseudo = localStorage.getItem('rs_pseudo') || myPseudo;
+  if(savedPseudo){
+    var pseudoInp = document.getElementById('comm-pseudo');
+    if(pseudoInp && !pseudoInp.value) pseudoInp.value = savedPseudo;
+  }
+  var pseudoInp = document.getElementById('comm-pseudo');
+  if(pseudoInp) pseudoInp.oninput = function(){
+    localStorage.setItem('rs_pseudo', this.value);
+    myPseudo = this.value;
+  };
+  loadFeed();
+}
+
+async function loadFeed(){
+  var feed=document.getElementById('comm-feed');
+  feed.innerHTML='<div class="comm-empty" style="font-style:normal">Loading...</div>';
+  try {
+    var posts = await supaFetch('community_posts?select=*&approved=eq.true&city=eq.'+encodeURIComponent(city)+'&order=created_at.desc');
+    if(posts.length === 0){
+      // Show seed posts for this city or generic ones
+      var citySeeds = seedPosts.filter(function(p){return p.city===city;});
+      var display = citySeeds.length > 0 ? citySeeds : seedPosts.slice(0,2);
+      renderPosts(display, true);
+    } else {
+      renderPosts(posts, false);
+    }
+  } catch(e){
+    // Fallback to seed posts if Supabase fails
+    renderPosts(seedPosts.filter(function(p){return p.city===city;}).concat(seedPosts).slice(0,3), true);
+  }
+}
+
+function renderPosts(posts, isSeed){
+  var feed=document.getElementById('comm-feed');
+  if(posts.length===0){
+    feed.innerHTML='<div class="comm-empty">Be the first to share an experience for '+city+'.</div>';
+    return;
+  }
+  feed.innerHTML = (isSeed ? '<div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:10px;font-style:italic">✦ From the community</div>' : '') +
+  posts.map(function(p){
+    var liked = likedPosts.indexOf(String(p.id)) > -1;
+    var date = p.created_at ? new Date(p.created_at).toLocaleDateString() : '';
+    var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 36);
+    return '<div class="comm-post">'
+      +'<div class="comm-post-header" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
+      +avatar
+      +'<div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="comm-pseudo">'+esc(p.pseudo)+'</span><span class="comm-date">'+date+'</span></div>'
+      +'<div class="comm-city-tag">📍 '+esc(p.city||city)+'</div></div>'
+      +'</div>'
+      +'<div class="comm-text">'+esc(p.message)+'</div>'
+      +'<div style="display:flex;align-items:center;gap:5px;margin-top:8px">'
+      +'<button class="like-btn" onclick="likePost(\''+jsArg(p.id)+'\',' + (p.likes||0) + ','+liked+')">'+(liked?'❤️':'🤍')+'</button>'
+      +'<span class="like-count" id="lc-'+esc(p.id)+'">'+(p.likes||0)+'</span>'
+      +'<button onclick="openDM(\''+jsArg(p.pseudo)+'\')" style="margin-left:auto;background:none;border:1px solid var(--sand);border-radius:12px;padding:4px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:\'DM Sans\',sans-serif">Private message</button>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+async function likePost(id, currentLikes, alreadyLiked){
+  if(String(id).startsWith('seed')) return; // no likes on seeds
+  if(alreadyLiked){
+    likedPosts.splice(likedPosts.indexOf(String(id)),1);
+    localStorage.setItem('rs_liked_posts',JSON.stringify(likedPosts));
+  } else {
+    likedPosts.push(String(id));
+    localStorage.setItem('rs_liked_posts',JSON.stringify(likedPosts));
+    try {
+      await supaFetch('community_posts?id=eq.'+id, {
+        method:'PATCH',
+        body: JSON.stringify({likes: currentLikes+1})
+      });
+    } catch(e){ }
+  }
+  loadFeed();
+}
+
+async function submitPost(){
+  var pseudo=document.getElementById('comm-pseudo').value.trim();
+  var msg=document.getElementById('comm-msg').value.trim();
+  var fb=document.getElementById('comm-feedback');
+  if(!pseudo){fb.innerHTML='<div class="comm-pending">Enter a name or pseudo.</div>';return;}
+  if(msg.length<10){fb.innerHTML='<div class="comm-pending">Write at least 10 characters.</div>';return;}
+  requireLogin(async function(){
+  fb.innerHTML='<div class="comm-pending">Sending...</div>';
+  try {
+    var payload = {pseudo:pseudo, city:city, message:msg, approved:false, likes:0};
+    // Only add avatar if it's small enough
+    if(currentAvatar && currentAvatar.length < 50000) payload.avatar_url = currentAvatar;
+    var res = await fetch(SUPA_URL+'/rest/v1/community_posts', {
+      method:'POST',
+      headers:{
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer '+SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    });
+    var txt = await res.text();
+    if(!res.ok) throw new Error('Status '+res.status+': '+txt);
+    document.getElementById('comm-pseudo').value='';
+    document.getElementById('comm-msg').value='';
+    document.getElementById('comm-count').textContent='0';
+    fb.innerHTML='<div class="comm-pending">✓ Shared! Visible after moderation.</div>';
+    setTimeout(function(){fb.innerHTML='';},3000);
+  } catch(e){
+    fb.innerHTML='<div class="comm-pending">Error: '+e.message+'</div>';
+  }
+  }); // end requireLogin
+}
+
+// ——— SOCIAL NETWORK ———
+var currentView = 'home';
+var pubPhoto = '';
+var exploreFilter = '';
+
+function setNav(view){
+  ['home','shop','messages','profile'].forEach(function(v){
+    var btn = document.getElementById('bn-'+v);
+    if(btn) btn.classList.toggle('active', v===view);
+  });
+}
+
+function switchView(view){
+  currentView = view;
+  setNav(view);
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
+  var home = document.getElementById('home-scroll');
+  var stories = document.getElementById('stories-bar');
+  if(view === 'home'){
+    if(home) home.style.display='block';
+    if(stories) stories.style.display='block';
+    loadSocialFeed();
+  }
+}
+
+function loadExplore(){
+  renderExploreCities();
+  renderExploreFeed('');
+}
+
+function renderExploreCities(){
+  var cities = {};
+  feedPosts.forEach(function(p){ cities[p.city] = (cities[p.city]||0)+1; });
+  var sorted = Object.keys(cities).sort(function(a,b){return cities[b]-cities[a];});
+  var container = document.getElementById('explore-cities');
+  if(!container) return;
+  container.innerHTML = sorted.map(function(c){
+    return '<button class="explore-city-chip'+(exploreFilter===c?' active':'')+'" onclick="filterExplore(\''+c+'\')">📍 '+c+' <span style="font-size:10px;opacity:.6">('+cities[c]+')</span></button>';
+  }).join('') + '<button class="explore-city-chip'+(exploreFilter===''?' active':'')+'" onclick="filterExplore(\'\')">🌍 All</button>';
+}
+
+function filterExplore(val){
+  exploreFilter = val;
+  var searchInp = document.getElementById('explore-search');
+  if(searchInp && val) searchInp.value = val;
+  renderExploreCities();
+  renderExploreFeed(val);
+}
+
+function renderExploreFeed(filter){
+  var posts = filter
+    ? feedPosts.filter(function(p){ return p.city.toLowerCase().indexOf(filter.toLowerCase()) > -1 || p.message.toLowerCase().indexOf(filter.toLowerCase()) > -1; })
+    : feedPosts;
+  var title = document.getElementById('explore-feed-title');
+  var feed = document.getElementById('explore-feed');
+  if(title) title.textContent = filter ? 'Posts in ' + filter : 'All posts';
+  if(!feed) return;
+  if(posts.length === 0){
+    feed.innerHTML = '<div class="feed-empty"><div class="feed-empty-icon">🔍</div><div class="feed-empty-text">No posts found here yet.</div></div>';
+    return;
+  }
+  feed.innerHTML = posts.map(function(p, idx){
+    var adHtml = idx === 4 ? partnerCardHTML('gyg', true) : '';
+    var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 32);
+    var liked = likedPosts.indexOf(String(p.id)) > -1;
+    return adHtml + '<div class="explore-post">'
+      +'<div class="explore-post-header">'
+      +avatar
+      +'<div><div class="explore-post-name">'+esc(p.pseudo)+'</div><div class="explore-post-city">📍 '+esc(p.city)+'</div></div>'
+      +'</div>'
+      +(p.photo_url?'<img class="explore-post-img" src="'+esc(p.photo_url)+'" loading="lazy"/>':'')
+      +'<div class="explore-post-text">'+esc(p.message)+'</div>'
+      +'<div class="explore-post-actions">'
+      +'<button class="feed-action-btn" data-like-btn="'+esc(p.id)+'" onclick="feedLike(\''+jsArg(p.id)+'\')">'+heartIcon(liked)+'</button>'
+      +'<span class="explore-post-likes" data-like-cnt="'+esc(p.id)+'">'+(p.likes||0)+' likes</span>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function toggleDotsMenu(e){
+  if(e) e.stopPropagation();
+  var menu = document.getElementById('dots-menu');
+  var overlay = document.getElementById('dots-overlay');
+  var isOpen = menu.classList.contains('open');
+  if(isOpen){
+    menu.classList.remove('open');
+    if(overlay) overlay.classList.remove('open');
+  } else {
+    menu.classList.add('open');
+    if(overlay) overlay.classList.add('open');
+  }
+}
+
+var TAB_META = {
+  city_guide: {icon:'🗺', tagline:'Every city has a soul. Let\'s find it.', color:'linear-gradient(135deg,#1B5FA8,#0D3B6E)'},
+  style:       {icon:'👗', tagline:'Dress like a local. Own the city.', color:'linear-gradient(135deg,#E91E8C,#9C1B6B)'},
+  food:        {icon:'🍽', tagline:'Eat where the locals eat.', color:'linear-gradient(135deg,#E8A020,#B5600A)'},
+  nightlife:   {icon:'🌙', tagline:'The night belongs to you.', color:'linear-gradient(135deg,#6B3FA0,#3A1E6E)'},
+  culture:     {icon:'🎨', tagline:'Art lives in the streets.', color:'linear-gradient(135deg,#1A9E6A,#0D5C3A)'},
+};
+
+function switchTab(t){
+  tab = t;
+  var menu = document.getElementById('dots-menu');
+  var overlay = document.getElementById('dots-overlay');
+  if(menu) menu.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+  histories = {};
+  resetChat();
+  renderChips(t);
+  var meta = TAB_META[t] || TAB_META.city_guide;
+  var iconEl = document.getElementById('ai-panel-icon');
+  var titleEl = document.getElementById('ai-panel-title');
+  var cityEl = document.getElementById('ai-panel-city');
+  var taglineEl = document.getElementById('ai-panel-tagline');
+  var bgEl = document.getElementById('ai-panel-bg');
+  if(iconEl) iconEl.textContent = meta.icon;
+  if(titleEl) titleEl.textContent = TABS[t] ? TABS[t].label : t;
+  if(cityEl) cityEl.textContent = city;
+  if(taglineEl) taglineEl.textContent = meta.tagline;
+  if(bgEl) bgEl.style.background = meta.color;
+  document.getElementById('ai-panel').classList.add('open');
+}
+
+function openPanelFromMenu(id){
+  var menu = document.getElementById('dots-menu');
+  if(menu) menu.classList.remove('open');
+  openPanel(id);
+}
+
+// Close dots menu when clicking outside
+document.addEventListener('click', function(){
+  var menu = document.getElementById('dots-menu');
+  if(menu) menu.classList.remove('open');
+});
+
+// ——— SOCIAL FEED ———
+var feedPosts = [];
+var seedFeedPosts = [
+  {id:'f1', pseudo:'Marco', city:'Paris', message:'Café Lomi in Pigalle — nobody talks about it but it\'s the best in the city. Order the Ethiopian filter.', likes:12, avatar_url:'', created_at:'2026-05-01T10:00:00Z'},
+  {id:'f2', pseudo:'Sofia', city:'Barcelona', message:'Gràcia on a Sunday morning. No tourists, just locals and their dogs. The real Barcelona.', likes:8, avatar_url:'', created_at:'2026-05-03T14:00:00Z'},
+  {id:'f3', pseudo:'Yuki', city:'Tokyo', message:'Yanaka — the only Tokyo district that survived the bombings. Alleys, temples, another century.', likes:21, avatar_url:'', created_at:'2026-05-05T09:00:00Z'},
+  {id:'f4', pseudo:'Léa', city:'Paris', message:'Aligre market, Saturday 8am. Before the crowds, before the noise. Just the colors and the smells.', likes:15, avatar_url:'', created_at:'2026-05-07T08:00:00Z'},
+];
+
+function feedSkeletons(n){
+  var s = '';
+  for(var i=0;i<(n||3);i++){
+    s += '<div class="skel-post">'
+      +'<div class="skel-header"><div class="skel skel-avatar"></div>'
+      +'<div style="flex:1"><div class="skel skel-line" style="width:40%;margin-bottom:6px"></div><div class="skel skel-line" style="width:25%;height:9px"></div></div></div>'
+      +'<div class="skel skel-media"></div>'
+      +'<div class="skel skel-line" style="width:60%;margin-bottom:6px"></div>'
+      +'<div class="skel skel-line" style="width:35%"></div>'
+      +'</div>';
+  }
+  return s;
+}
+
+async function loadSocialFeed(){
+  var feed = document.getElementById('social-feed');
+  if(!feed) return;
+  // Skeletons uniquement au premier chargement (pas de flash sur refresh)
+  if(!feed.querySelector('.feed-post'))feed.innerHTML = feedSkeletons(3);
+  try {
+    var posts = await supaFetch('community_posts?select=*&approved=eq.true&order=created_at.desc&limit=20');
+    feedPosts = posts.length > 0 ? posts : seedFeedPosts;
+  } catch(e){
+    feedPosts = seedFeedPosts;
+  }
+  renderFeedPosts();
+  renderStories();
+}
+
+function renderFeedPosts(){
+  var feed = document.getElementById('social-feed');
+  if(!feed) return;
+  if(feedPosts.length === 0){
+    feed.innerHTML = '<div class="feed-empty"><div class="feed-empty-icon">🌍</div><div class="feed-empty-text">Be the first to share<br>an experience in '+esc(city)+'.</div><button class="feed-empty-btn" onclick="openPublish()">✦ Share your story</button></div>';
+    return;
+  }
+  var adCount = 0;
+  feed.innerHTML = feedPosts.map(function(p, idx){
+    // Encart partenaire après le 3e post, puis tous les 6 (rotation Booking/GYG)
+    var adHtml = '';
+    if(idx > 0 && (idx === 3 || (idx > 3 && (idx - 3) % 6 === 0))){
+      adHtml = partnerCardHTML(adCount % 2 === 0 ? 'gyg' : 'booking');
+      adCount++;
+    }
+    var liked = likedPosts.indexOf(String(p.id)) > -1;
+    var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 34);
+    var timeAgo = getTimeAgo(p.created_at);
+    var pid = jsArg(p.id);
+    var mediaHtml = p.photo_url
+      ? '<div class="feed-post-img-wrap" ondblclick="burstHeart(event);feedLike(\''+pid+'\')"><img class="feed-post-img" src="'+esc(p.photo_url)+'" loading="lazy"/></div>'
+      : '<div class="feed-post-quote" ondblclick="burstHeart(event);feedLike(\''+pid+'\')"><div class="feed-post-quote-text">'+esc(p.message)+'</div></div>';
+    return adHtml + '<div class="feed-post">'
+      +'<div class="feed-post-header">'
+      +'<div class="feed-post-avatar-ring">'+avatar+'</div>'
+      +'<div class="feed-post-info">'
+      +'<span class="feed-post-name">'+esc(p.pseudo)+'</span>'
+      +'<span class="feed-post-dot">·</span>'
+      +'<span class="feed-post-city">📍 '+esc(p.city)+'</span>'
+      +'</div>'
+      +'<span class="feed-post-time-inline">'+timeAgo+'</span>'
+      +'</div>'
+      +mediaHtml
+      +'<div class="feed-post-actions">'
+      +'<button class="feed-action-btn" data-like-btn="'+esc(p.id)+'" onclick="feedLike(\''+pid+'\')">'+heartIcon(liked)+'</button>'
+      +'<button class="feed-action-btn" onclick="openDM(\''+jsArg(p.pseudo)+'\')">'+msgIcon()+'</button>'
+      +'</div>'
+      +'<div class="feed-post-likes" data-like-cnt="'+esc(p.id)+'">'+(p.likes||0)+' likes</div>'
+      +(p.photo_url ? '<div class="feed-post-caption"><span class="feed-post-caption-name">'+esc(p.pseudo)+'</span><span class="feed-post-caption-text">'+esc(p.message)+'</span></div>' : '')
+      +'</div>';
+  }).join('');
+}
+
+function heartIcon(liked){
+  return liked
+    ? '<svg viewBox="0 0 24 24" fill="var(--carmine)" stroke="var(--carmine)" stroke-width="1.5"><path d="M12 21s-7.5-4.7-10.2-9.1C.2 9.1 1 5.5 4.2 4.2 6.6 3.2 9 4 12 7c3-3 5.4-3.8 7.8-2.8 3.2 1.3 4 4.9 2.4 7.7C19.5 16.3 12 21 12 21z"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-light)" stroke-width="1.7"><path d="M12 21s-7.5-4.7-10.2-9.1C.2 9.1 1 5.5 4.2 4.2 6.6 3.2 9 4 12 7c3-3 5.4-3.8 7.8-2.8 3.2 1.3 4 4.9 2.4 7.7C19.5 16.3 12 21 12 21z"/></svg>';
+}
+function msgIcon(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-light)" stroke-width="1.7"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>';
+}
+function burstHeart(evt){
+  var wrap = evt.currentTarget;
+  var b = document.createElement('div');
+  b.className = 'heart-burst';
+  b.textContent = '❤️';
+  wrap.appendChild(b);
+  requestAnimationFrame(function(){ b.classList.add('go'); });
+  setTimeout(function(){ b.remove(); }, 700);
+}
+
+function getTimeAgo(dateStr){
+  if(!dateStr) return '';
+  var diff = Date.now() - new Date(dateStr).getTime();
+  var mins = Math.floor(diff/60000);
+  if(mins < 60) return mins+'m ago';
+  var hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  return Math.floor(hrs/24)+'d ago';
+}
+
+function feedLike(id){
+  id = String(id);
+  var post = feedPosts.find(function(p){ return String(p.id) === id; });
+  if(!post) return;
+  var wasLiked = likedPosts.indexOf(id) > -1;
+  var isReal = !id.startsWith('f') && !id.startsWith('seed');
+  if(wasLiked){
+    likedPosts.splice(likedPosts.indexOf(id),1);
+    post.likes = Math.max(0,(post.likes||0)-1);
+    if(isReal) rpcLike(id,-1);
+  } else {
+    likedPosts.push(id);
+    post.likes = (post.likes||0)+1;
+    if(navigator.vibrate) navigator.vibrate(12);
+    if(isReal) rpcLike(id,1);
+  }
+  localStorage.setItem('rs_liked_posts',JSON.stringify(likedPosts));
+  // In-place DOM update — no reload, no scroll jump
+  var nowLiked = !wasLiked;
+  document.querySelectorAll('[data-like-btn="'+CSS.escape(id)+'"]').forEach(function(b){ b.innerHTML = heartIcon(nowLiked); });
+  document.querySelectorAll('[data-like-cnt="'+CSS.escape(id)+'"]').forEach(function(c){ c.textContent = (post.likes||0)+' likes'; });
+}
+
+function renderStories(){
+  var scroll = document.getElementById('stories-scroll');
+  if(!scroll) return;
+  var uniqueUsers = [];
+  var seen = {};
+  feedPosts.forEach(function(p){
+    if(!seen[p.pseudo.toLowerCase()]){seen[p.pseudo.toLowerCase()]=true;uniqueUsers.push(p);}
+  });
+  var addBtn = '<div class="story-item" onclick="openPublish()"><div class="story-add">+</div><div class="story-name">Your story</div></div>';
+  scroll.innerHTML = addBtn + uniqueUsers.slice(0,8).map(function(p){
+    var av = makeAvatar(p.pseudo, p.avatar_url||'', 50);
+    var initials = esc(getInitials(p.pseudo));
+    var color = getAvatarColor(p.pseudo);
+    return '<div class="story-item" onclick="openDM(\''+jsArg(p.pseudo)+'\')">'
+      +'<div class="story-ring">'
+      +'<div class="story-avatar" style="background:'+color+'">'+initials+'</div>'
+      +'</div>'
+      +'<div class="story-name">'+esc(p.pseudo)+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+// ——— PUBLISH ———
+var pubPhotoData = '';
+var pubAvatarData = '';
+
+function openPublish(){
+  requireLogin(function(){
+    document.getElementById('pub-overlay').classList.add('open');
+    document.getElementById('publish-panel').classList.add('open');
+    // Pre-fill pseudo if saved
+    var pseudo = localStorage.getItem('rs_pseudo') || myPseudo;
+    if(pseudo) document.getElementById('pub-pseudo').value = pseudo;
+    if(currentAvatar){
+      var prev = document.getElementById('pub-avatar-preview');
+      if(prev) prev.innerHTML='<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+    }
+  });
+}
+
+function closePublish(){
+  document.getElementById('pub-overlay').classList.remove('open');
+  document.getElementById('publish-panel').classList.remove('open');
+}
+
+function handlePubAvatar(input){
+  if(!input.files||!input.files[0])return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');
+      var MAX=80;var w=img.width,h=img.height;
+      if(w>h){if(w>MAX){h=h*(MAX/w);w=MAX;}}else{if(h>MAX){w=w*(MAX/h);h=MAX;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      currentAvatar=canvas.toDataURL('image/jpeg',0.7);
+      pubAvatarData=currentAvatar;
+      localStorage.setItem('rs_avatar',currentAvatar);
+      var prev=document.getElementById('pub-avatar-preview');
+      prev.innerHTML='<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function handlePubPhoto(input){
+  if(!input.files||!input.files[0])return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');
+      var MAX=800;var w=img.width,h=img.height;
+      if(w>MAX){h=h*(MAX/w);w=MAX;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      pubPhotoData=canvas.toDataURL('image/jpeg',0.8);
+      var zone=document.getElementById('pub-photo-zone');
+      zone.innerHTML='<img src="'+pubPhotoData+'" style="width:100%;height:100%;object-fit:cover"/>';
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+async function submitPubPost(){trackEvent('post_created');
+  var pseudo=document.getElementById('pub-pseudo').value.trim();
+  var msg=document.getElementById('pub-msg').value.trim();
+  var fb=document.getElementById('pub-feedback');
+  if(!pseudo){fb.textContent='Enter a name or pseudo.';return;}
+  if(msg.length<10){fb.textContent='Write at least 10 characters.';return;}
+  fb.textContent='Sharing...';
+  myPseudo=pseudo;localStorage.setItem('rs_pseudo',pseudo);
+  try {
+    var payload={pseudo:pseudo,city:city,message:msg,approved:false,likes:0};
+    if(currentAvatar&&currentAvatar.length<50000)payload.avatar_url=currentAvatar;
+    if(pubPhotoData&&pubPhotoData.length<500000)payload.photo_url=pubPhotoData;
+    var res=await fetch(SUPA_URL+'/rest/v1/community_posts',{
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error(await res.text());
+    fb.textContent='✓ Shared! Visible after moderation.';
+    document.getElementById('pub-msg').value='';
+    pubPhotoData='';
+    document.getElementById('pub-photo-zone').innerHTML='<div style="font-size:32px">📸</div><div class="pub-photo-label">Add a photo (optional)</div>';
+    setTimeout(function(){closePublish();fb.textContent='';},2000);
+  } catch(e){fb.textContent='Error: '+e.message;}
+}
+
+// ——— PROFILE ———
+function openProfile(){
+  setNav('profile');
+  // Get Google user info if connected
+  var googleName = googleUser && ((googleUser.user_metadata && googleUser.user_metadata.full_name) || googleUser.email) || '';
+  var googleAvatar = googleUser && googleUser.user_metadata && googleUser.user_metadata.avatar_url || '';
+  var googleEmail = googleUser && googleUser.email || '';
+
+  var pseudo = myPseudo || localStorage.getItem('rs_pseudo') || googleName.split(' ')[0] || '';
+  var avatarToShow = googleAvatar || currentAvatar || '';
+
+  var bigAvatar = document.getElementById('profile-avatar-big');
+  var nameBig = document.getElementById('profile-name-big');
+  var editPseudo = document.getElementById('profile-edit-pseudo');
+
+  if(bigAvatar){
+    if(googleAvatar){
+      bigAvatar.innerHTML = '<img src="'+googleAvatar+'" style="width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--sand)"/>';
+    } else {
+      bigAvatar.innerHTML = makeAvatar(pseudo||'?', currentAvatar||'', 58);
+    }
+  }
+  if(nameBig) nameBig.textContent = pseudo || googleName || 'Anonymous';
+  if(editPseudo) editPseudo.value = pseudo;
+
+  // Show Google badge & email if connected
+  var googleBadge = document.getElementById('profile-google-badge');
+  if(!googleBadge){
+    googleBadge = document.createElement('div');
+    googleBadge.id = 'profile-google-badge';
+    googleBadge.style.cssText = 'padding:0 16px 12px;display:flex;flex-direction:column;gap:6px';
+    var nameSection = document.querySelector('#profile-panel .profile-stats');
+    if(nameSection) nameSection.before(googleBadge);
+  }
+  if(googleUser){
+    googleBadge.innerHTML = '<div style="display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:10px 14px">'
+      +'<svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.7 2.3 30.2 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.9 6.1C12.3 13.1 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.1z"/><path fill="#FBBC05" d="M10.4 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.1.9-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.2-7.6 2.2-6.3 0-11.7-3.6-13.6-9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>'
+      +'<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--ink)">'+googleName+'</div><div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+googleEmail+'</div></div>'
+      +'<button onclick="signOut();closePanel(\'profile-panel\')" style="background:none;border:1px solid var(--sand);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:\'DM Sans\',sans-serif;white-space:nowrap">Sign out</button>'
+      +'</div>';
+  } else {
+    googleBadge.innerHTML = '<button onclick="signInWithGoogle()" style="width:100%;background:#fff;border:1.5px solid var(--sand);border-radius:12px;padding:10px;font-size:13px;font-family:\'DM Sans\',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">'
+      +'<svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.7 2.3 30.2 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.9 6.1C12.3 13.1 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.1z"/><path fill="#FBBC05" d="M10.4 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.1.9-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.2-7.6 2.2-6.3 0-11.7-3.6-13.6-9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>'
+      +'Se connecter avec Google</button>';
+  }
+  // Count user posts
+  var myPosts = feedPosts.filter(function(p){return p.pseudo===pseudo;});
+  var postsCount = document.getElementById('profile-posts-count');
+  var likesCount = document.getElementById('profile-likes-count');
+  if(postsCount) postsCount.textContent = myPosts.length;
+  if(likesCount) likesCount.textContent = myPosts.reduce(function(s,p){return s+(p.likes||0);},0);
+  // Show posts grid
+  var grid = document.getElementById('profile-posts-grid');
+  if(grid){
+    if(myPosts.length===0){
+      grid.innerHTML='<div class="comm-empty" style="grid-column:1/-1">No posts yet.</div>';
+    } else {
+      grid.innerHTML=myPosts.map(function(p){
+        return '<div class="profile-post-thumb">'
+          +(p.photo_url?'<img src="'+esc(p.photo_url)+'"/>'
+          :'<div class="profile-post-thumb-placeholder">'+esc(getInitials(p.pseudo))+'</div>')
+          +'</div>';
+      }).join('');
+    }
+  }
+  openPanel('profile-panel');
+}
+
+function saveProfile(){
+  var pseudo = document.getElementById('profile-edit-pseudo').value.trim();
+  if(!pseudo) return;
+  myPseudo = pseudo;
+  localStorage.setItem('rs_pseudo', pseudo);
+  var nameBig = document.getElementById('profile-name-big');
+  if(nameBig) nameBig.textContent = pseudo;
+  var fb = document.createElement('div');
+  fb.style.cssText='font-size:12px;color:var(--muted);margin-top:6px';
+  fb.textContent='✓ Saved!';
+  document.getElementById('profile-edit-pseudo').after(fb);
+  setTimeout(function(){fb.remove();},2000);
+}
+
+function handleProfilePhoto(input){
+  if(!input.files||!input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.createElement('canvas');
+      var MAX = 120;
+      var w = img.width, h = img.height;
+      if(w > h){ if(w > MAX){ h = h*(MAX/w); w = MAX; } }
+      else { if(h > MAX){ w = w*(MAX/h); h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      currentAvatar = canvas.toDataURL('image/jpeg', 0.8);
+      localStorage.setItem('rs_avatar', currentAvatar);
+      // Update profile avatar display
+      var bigAvatar = document.getElementById('profile-avatar-big');
+      if(bigAvatar){
+        bigAvatar.innerHTML = '<img src="'+currentAvatar+'" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid #fff"/>'
+          +'<div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--carmine);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;border:2px solid #fff">✎</div>';
+      }
+      // Update pub avatar preview too
+      var pubPrev = document.getElementById('pub-avatar-preview');
+      if(pubPrev) pubPrev.innerHTML = '<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// ——— PUB MSG COUNTER ———
+document.addEventListener('DOMContentLoaded', function(){
+  var pm = document.getElementById('pub-msg');
+  if(pm) pm.addEventListener('input',function(){
+    var c=document.getElementById('pub-count');
+    if(c)c.textContent=this.value.length;
+  });
+});
+
+// ——— SHOP ———
+function openShop() {trackEvent('shop_view');
+  var menu = document.getElementById('dots-menu');
+  var overlay = document.getElementById('dots-overlay');
+  if (menu) menu.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
+  setNav('shop');
+  openPanel('shop-panel');
+}
+
+function shopPreorder(productName) {
+  var subject = encodeURIComponent('Pre-order Roam Spirit - ' + productName);
+  var body = encodeURIComponent('Hello,\nI would like to pre-order: ' + productName + '\nName: \nEmail: \nThank you!');
+  window.location.href = 'mailto:s.chuzel@roamspirit.com?subject=' + subject + '&body=' + body;
+}
+
+var VAPID_PUB = 'BB-QYtM-srB2NDvFV-iP7b53AS7KpMvEGaudmnIZelnnVFqUyTAnYFUDtMKuXowCpd3_rf1ouo-nCWLztku-7ZQ';
+
+function b64ToUint8(base64String) {
+  var padding = '='.repeat((4 - base64String.length % 4) % 4);
+  var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  var raw = window.atob(base64);
+  var arr = new Uint8Array(raw.length);
+  for (var i = 0; i < raw.length; i++) { arr[i] = raw.charCodeAt(i); }
+  return arr;
+}
+
+function showPushBanner() {
+  if (!window.Notification) return;
+  if (Notification.permission !== 'default') return;
+  if (document.getElementById('push-banner')) return;
+  var banner = document.createElement('div');
+  banner.id = 'push-banner';
+  banner.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#8B1A1A;color:#FDFAF4;padding:12px 20px;border-radius:14px;font-size:13px;z-index:9999;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.2);max-width:320px;width:90%';
+  var txt = document.createElement('span');
+  txt.textContent = 'Enable message notifications?';
+  var yes = document.createElement('button');
+  yes.textContent = 'Enable';
+  yes.style.cssText = 'background:#FDFAF4;color:#8B1A1A;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap';
+  yes.onclick = function() { document.getElementById('push-banner').remove(); registerPush(); };
+  var no = document.createElement('button');
+  no.textContent = 'x';
+  no.style.cssText = 'background:transparent;border:none;color:#FDFAF4;font-size:16px;cursor:pointer;padding:0 4px';
+  no.onclick = function() { document.getElementById('push-banner').remove(); };
+  banner.appendChild(txt);
+  banner.appendChild(yes);
+  banner.appendChild(no);
+  document.body.appendChild(banner);
+}
+
+function registerPush() {
+  if (!navigator.serviceWorker || !window.PushManager) return;
+  Notification.requestPermission(function(permission) {
+    if (permission !== 'granted') return;
+    navigator.serviceWorker.ready.then(function(reg) {
+      reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: b64ToUint8(VAPID_PUB)
+      }).then(function(sub) {
+        var key = sub.getKey('p256dh');
+        var auth = sub.getKey('auth');
+        var p256dh = btoa(String.fromCharCode.apply(null, new Uint8Array(key)));
+        var authStr = btoa(String.fromCharCode.apply(null, new Uint8Array(auth)));
+        supaFetch('push_subscriptions', {
+          method: 'POST',
+          body: JSON.stringify({ user_pseudo: myPseudo, endpoint: sub.endpoint, p256dh: p256dh, auth: authStr })
+        });
+      }).catch(function(e) { });
+    });
+  });
+}
+
+function sendPush(to_pseudo, from_pseudo, content) {
+  fetch(SUPA_URL + '/functions/v1/send-push-notification', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPA_KEY },
+    body: JSON.stringify({ to_pseudo: to_pseudo, from_pseudo: from_pseudo, content: content })
+  }).catch(function(e) { });
+}
+
+// ——— REALTIME PLAN ———
+var userLat = null, userLon = null;
+
+function initPlanPanel(){
+  var info = document.getElementById('plan-location-info');
+  if(navigator.geolocation){
+    info.textContent = '📍 Getting your location...';
+    navigator.geolocation.getCurrentPosition(function(pos){
+      userLat = pos.coords.latitude;
+      userLon = pos.coords.longitude;
+      info.textContent = '📍 Location found — ready to plan!';
+      info.style.color = 'var(--sage)';
+    }, function(){
+      info.textContent = '📍 Position non disponible — plan basé sur ' + city;
+      info.style.color = 'var(--muted)';
+    });
+  } else {
+    info.textContent = '📍 Plan basé sur ' + city;
+  }
+}
+
+async function generateRealtimePlan(){
+  var duration = document.getElementById('plan-duration').value;
+  var budget = document.getElementById('plan-budget').value;
+  var vibe = document.getElementById('plan-vibe').value;
+  var withWho = document.getElementById('plan-with').value;
+  var btn = document.getElementById('plan-go-btn');
+  var output = document.getElementById('plan-output');
+
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  var dayStr = now.toLocaleDateString('en-US', {weekday:'long'});
+
+  btn.disabled = true;
+  btn.textContent = '⚡ Generating...';
+  output.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-style:italic">Crafting your personalized plan...</div>';
+
+  var locationInfo = userLat ? 'GPS position available (lat:'+userLat.toFixed(2)+', lon:'+userLon.toFixed(2)+')' : 'City: '+city;
+  var prompt = 'You are the ultimate local guide for '+city+'. It is '+timeStr+' ('+dayStr+'). '+locationInfo+'. '
+    +'Create a hyper-precise local plan for '+duration+' hour(s), '+withWho+', vibe: '+vibe+', budget: '+budget+'. '
+    +'Give 3-5 steps with: place name, precise address, why it is perfect right now, suggested duration. '
+    +'Be specific and local, avoid tourist traps. Format: numbered steps with emojis. '
+    +'End with a secret local tip.';
+
+  try {
+    var text = await askAI({messages:[{role:'user', content:prompt}], max_tokens:1200});
+    window._lastPlanText = text;
+    output.innerHTML = '<div style="background:var(--cream);border:1px solid var(--sand);border-radius:14px;padding:16px;font-size:14px;line-height:1.7;color:var(--ink);position:relative">'
+      +'<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--carmine);border-radius:3px 0 0 3px"></div>'
+      +'<div style="padding-left:10px">'+fmt(text)+'</div>'
+      +'<button onclick="savePlanText()" style="margin-top:12px;width:100%;background:none;border:1px solid var(--sand);border-radius:10px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer">🔖 Save this plan</button>'
+      +'</div>';
+  } catch(e){
+    output.innerHTML = '<div style="color:var(--carmine);text-align:center;padding:20px">Error: '+e.message+'</div>';
+  }
+  btn.disabled = false;
+  btn.textContent = '⚡ New plan';
+}
+
+function savePlanText(){
+  var text = window._lastPlanText || '';
+  if(!text) return;
+  var saved = JSON.parse(localStorage.getItem('rs_saved')||'[]');
+  saved.unshift({text:'⚡ Plan '+city+' : '+text, city:city, date:new Date().toISOString()});
+  localStorage.setItem('rs_saved', JSON.stringify(saved));
+  var btn = document.querySelector('#plan-output button');
+  if(btn){ btn.textContent='✓ Plan sauvegardé !'; btn.style.color='var(--sage)'; }
+}
+
+function sharePlan(btn){
+  var text = btn.dataset.text;
+  var saved = JSON.parse(localStorage.getItem('rs_saved')||'[]');
+  saved.unshift({text:'⚡ Plan '+city+' : '+text, city:city, date:new Date().toISOString()});
+  localStorage.setItem('rs_saved', JSON.stringify(saved));
+  btn.textContent = '✓ Plan sauvegardé !';
+  btn.style.color = 'var(--sage)';
+}
+
+// ——— ADMIN ACCESS ———
+// SECURITY NOTE: this client-side check is only a UX convenience.
+// The real gate is Supabase Row Level Security on `community_posts` and the
+// `admins` table (see migration.sql) — anyone hitting the REST API directly
+// still gets rejected server-side unless their auth.uid() is in `admins`.
+var adminUnlocked = false;
+
+async function openAdmin(){
+  document.getElementById('admin-panel').classList.add('open');
+  await refreshAdminAccess();
+}
+
+function adminSignIn(){
+  // reuses the same Google OAuth flow as the rest of the app
+  signInWithGoogle();
+}
+
+async function refreshAdminAccess(){
+  var loginEl = document.getElementById('admin-login');
+  var contentEl = document.getElementById('admin-content');
+  var errEl = document.getElementById('admin-login-err');
+  errEl.textContent = '';
+  var sessionRes = await supabaseClient.auth.getSession();
+  var session = sessionRes.data && sessionRes.data.session;
+  if(!session){
+    adminUnlocked = false;
+    loginEl.style.display = 'block';
+    contentEl.style.display = 'none';
+    return;
+  }
+  try {
+    // Reading the admins table only ever returns YOUR OWN row (enforced by
+    // RLS policy "read own admin row"), so this can't be used to enumerate
+    // other admins.
+    var rows = await supaFetchAuth('admins?select=user_id&user_id=eq.' + session.user.id);
+    if(rows.length > 0){
+      adminUnlocked = true;
+      loginEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      loadAdminPosts();
+    } else {
+      adminUnlocked = false;
+      loginEl.style.display = 'block';
+      contentEl.style.display = 'none';
+      errEl.textContent = 'This Google account is not authorized as admin.';
+    }
+  } catch(e){
+    adminUnlocked = false;
+    loginEl.style.display = 'block';
+    contentEl.style.display = 'none';
+    errEl.textContent = 'Could not verify admin access.';
+  }
+}
+
+async function loadAdminPosts(){
+  var feed = document.getElementById('admin-feed');
+  feed.innerHTML = '<div class="admin-empty">Loading...</div>';
+  try {
+    var posts = await supaFetchAuth('community_posts?select=*&approved=eq.false&order=created_at.desc');
+    if(posts.length === 0){
+      feed.innerHTML = '<div class="admin-empty">✓ No posts awaiting moderation.</div>';
+      return;
+    }
+    feed.innerHTML = posts.map(function(p){
+      var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 32);
+      var date = p.created_at ? new Date(p.created_at).toLocaleDateString() : '';
+      return '<div class="admin-post" id="ap-'+esc(p.id)+'">'
+        +'<div class="admin-post-meta">'+avatar
+        +'<div><div style="font-size:11px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:.05em">'+esc(p.pseudo)+'</div>'
+        +'<div style="font-size:10px;color:var(--muted)">📍 '+esc(p.city)+' · '+date+'</div></div>'
+        +'</div>'
+        +'<div class="admin-post-text">'+esc(p.message)+'</div>'
+        +'<div class="admin-actions">'
+        +'<button class="admin-approve" onclick="approvePost('+p.id+')">✓ Approve</button>'
+        +'<button class="admin-reject" onclick="rejectPost('+p.id+')">✕ Delete</button>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+  } catch(e){
+    feed.innerHTML = '<div class="admin-empty">Error loading posts.</div>';
+  }
+}
+
+async function approvePost(id){
+  try {
+    await supaFetchAuth('community_posts?id=eq.'+id, {
+      method:'PATCH',
+      body: JSON.stringify({approved: true})
+    });
+    document.getElementById('ap-'+id).remove();
+    var feed = document.getElementById('admin-feed');
+    if(!feed.querySelector('.admin-post')) feed.innerHTML='<div class="admin-empty">✓ No posts awaiting moderation.</div>';
+  } catch(e){ alert('Error approving post — check that this account is in the admins table'); }
+}
+
+async function rejectPost(id){
+  if(!confirm('Delete this post?')) return;
+  try {
+    await supaFetchAuth('community_posts?id=eq.'+id, { method:'DELETE' });
+    document.getElementById('ap-'+id).remove();
+    var feed = document.getElementById('admin-feed');
+    if(!feed.querySelector('.admin-post')) feed.innerHTML='<div class="admin-empty">✓ No posts awaiting moderation.</div>';
+  } catch(e){ alert('Error deleting post — check that this account is in the admins table'); }
+}
+
+
+// ——— PRIVATE MESSAGES ———
+var currentDMPseudo = '';
+var myPseudo = localStorage.getItem('rs_pseudo') || '';
+var dmPolling = null;
+
+// ——— PSEUDO SHEET (remplace les prompt() natifs) ———
+var pseudoCallback = null;
+function askPseudo(cb){
+  if(myPseudo){ cb(); return; }
+  pseudoCallback = cb;
+  var inp = document.getElementById('pseudo-inp');
+  if(inp) inp.value = localStorage.getItem('rs_pseudo') || '';
+  document.getElementById('pseudo-overlay').classList.add('open');
+  document.getElementById('pseudo-sheet').classList.add('open');
+  setTimeout(function(){ if(inp) inp.focus(); }, 350);
+}
+function closePseudoSheet(){
+  document.getElementById('pseudo-overlay').classList.remove('open');
+  document.getElementById('pseudo-sheet').classList.remove('open');
+  pseudoCallback = null;
+  // Si rien n'était ouvert derrière, resynchroniser la nav
+  if(!document.querySelector('.panel.open')) setNav(currentView==='explore'?'explore':'home');
+}
+function confirmPseudo(){
+  var inp = document.getElementById('pseudo-inp');
+  var p = inp ? inp.value.trim() : '';
+  if(!p) { if(inp) inp.focus(); return; }
+  myPseudo = p;
+  localStorage.setItem('rs_pseudo', myPseudo);
+  var cb = pseudoCallback;
+  closePseudoSheet();
+  if(cb) cb();
+}
+
+function openDM(toPseudo){
+  askPseudo(function(){ reallyOpenDM(toPseudo); });
+}
+function reallyOpenDM(toPseudo){
+  currentDMPseudo = toPseudo;
+  // Close other panels
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
+  document.getElementById('dm-panel').classList.add('open');
+  document.getElementById('dm-title').textContent = toPseudo;
+  document.getElementById('dm-subtitle').textContent = 'Private conversation';
+  document.getElementById('dm-messages').innerHTML = '<div class="comm-empty">Loading…</div>';
+  loadDMs();
+  // Poll every 5 seconds
+  clearInterval(dmPolling);
+  dmPolling = setInterval(loadDMs, 5000);
+}
+
+function closeDMPanel(){
+  clearInterval(dmPolling);
+  document.getElementById('dm-panel').classList.remove('open');
+}
+
+async function loadDMs(){
+  if(!myPseudo || !currentDMPseudo) return;
+  try {
+    var msgs = await supaFetch(
+      'private_messages?or=(and(from_pseudo.eq.'+encodeURIComponent(myPseudo)+',to_pseudo.eq.'+encodeURIComponent(currentDMPseudo)+'),and(from_pseudo.eq.'+encodeURIComponent(currentDMPseudo)+',to_pseudo.eq.'+encodeURIComponent(myPseudo)+'))&order=created_at.asc'
+    );
+    var container = document.getElementById('dm-messages');
+    if(msgs.length === 0){
+      container.innerHTML = '<div class="comm-empty" style="font-style:italic">Start the conversation…</div>';
+      return;
+    }
+    container.innerHTML = msgs.map(function(m){
+      var isSent = m.from_pseudo === myPseudo;
+      var time = new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      return '<div class="dm-msg '+(isSent?'sent':'received')+'">'
+        +esc(m.content)
+        +'<div class="dm-msg-time">'+time+'</div>'
+        +'</div>';
+    }).join('');
+    // Scroll to bottom
+    container.scrollTop = container.scrollHeight;
+    // Mark as read
+    supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&from_pseudo=eq.'+encodeURIComponent(currentDMPseudo)+'&read=eq.false',{
+      method:'PATCH', body:JSON.stringify({read:true})
+    }).catch(function(){});
+  } catch(e){ }
+}
+
+async function sendDM(){
+  var inp = document.getElementById('dm-inp');
+  var content = inp.value.trim();
+  if(!content || !currentDMPseudo) return;
+  requireLogin(async function(){
+  if(!myPseudo) return;
+  inp.value = '';
+  try {
+    await supaFetch('private_messages', {
+      method: 'POST',
+      body: JSON.stringify({
+        from_pseudo: myPseudo,
+        to_pseudo: currentDMPseudo,
+        content: content,
+        read: false
+      })
+    });
+    loadDMs();
+    sendPush(currentDMPseudo, myPseudo, content);
+  } catch(e){ }
+  }); // end requireLogin
+}
+
+async function openInbox(){
+  setNav('messages');
+  askPseudo(function(){
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
+    document.getElementById('inbox-panel').classList.add('open');
+    loadInbox();
+  });
+}
+
+async function loadInbox(){
+  var list = document.getElementById('inbox-list');
+  list.innerHTML = '<div class="comm-empty">Loading…</div>';
+  try {
+    var msgs = await supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&order=created_at.desc');
+    if(msgs.length === 0){
+      list.innerHTML = '<div class="comm-empty">No messages yet.</div>';
+      return;
+    }
+    // Group by sender
+    var convs = {};
+    msgs.forEach(function(m){
+      if(!convs[m.from_pseudo]) convs[m.from_pseudo] = {last:m, unread:0};
+      if(!m.read) convs[m.from_pseudo].unread++;
+    });
+    list.innerHTML = Object.keys(convs).map(function(pseudo){
+      var c = convs[pseudo];
+      var avatar = makeAvatar(pseudo, '', 36);
+      return '<div class="inbox-item'+(c.unread?' inbox-unread':'')+'" onclick="openDM(\''+jsArg(pseudo)+'\')">'
+        +avatar
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:12px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:.04em">'+esc(pseudo)+'</div>'
+        +'<div class="inbox-preview">'+esc(c.last.content)+'</div>'
+        +'</div>'
+        +(c.unread ? '<div class="inbox-badge">'+c.unread+'</div>' : '')
+        +'</div>';
+    }).join('');
+    // Show notification dot if unread
+    var totalUnread = Object.values(convs).reduce(function(s,c){return s+c.unread;},0);
+    var notif = document.getElementById('msg-notif');
+    if(notif) notif.style.display = totalUnread > 0 ? 'flex' : 'none';
+  } catch(e){ list.innerHTML = '<div class="comm-empty">Error loading messages.</div>'; }
+}
+
+// Check for new messages every 30s
+setInterval(async function(){
+  if(!myPseudo) return;
+  try {
+    var msgs = await supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&read=eq.false&select=id');
+    var notif = document.getElementById('msg-notif');
+    if(notif) notif.style.display = msgs.length > 0 ? 'flex' : 'none';
+  } catch(e){}
+}, 30000);
+
+// ——— ADS ———
+function updateAds(c){
+  var commTitle = document.getElementById('ad-comm-title');
+  var itinTitle = document.getElementById('ad-itin-title');
+  var gygTitle  = document.getElementById('ad-gyg-title');
+  var commLink  = document.getElementById('ad-community');
+  var itinLink  = document.getElementById('ad-itin');
+  var gygLink   = document.getElementById('ad-gyg');
+  if(commTitle) commTitle.textContent = PARTNERS.booking.title(c);
+  if(itinTitle) itinTitle.textContent = PARTNERS.gyg.title(c);
+  if(gygTitle)  gygTitle.textContent  = PARTNERS.gyg.title(c);
+  if(commLink){ commLink.href = PARTNERS.booking.link(c); commLink.onclick = function(){trackEvent('partner_click');}; }
+  if(itinLink){ itinLink.href = PARTNERS.gyg.link(c); itinLink.onclick = function(){trackEvent('partner_click');}; }
+  if(gygLink){  gygLink.href  = PARTNERS.gyg.link(c); gygLink.onclick = function(){trackEvent('partner_click');}; }
+}
+
+// ——— ADMIN SECRET ACCESS (triple tap logo) ———
+var adminTaps=0,adminTimer=null;
+function adminTap(){
+  adminTaps++;
+  clearTimeout(adminTimer);
+  adminTimer=setTimeout(function(){adminTaps=0;},600);
+  if(adminTaps>=3){adminTaps=0;openAdmin();}
+}
+
+// attach char counter after DOM ready
+window.addEventListener('DOMContentLoaded',function(){
+  var ta=document.getElementById('comm-msg');
+  if(ta)ta.addEventListener('input',function(){document.getElementById('comm-count').textContent=this.value.length;});
+  if(currentAvatar){
+    var prev=document.getElementById('avatar-preview');
+    if(prev) prev.innerHTML='<img src="'+currentAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+  }
+  myPseudo = localStorage.getItem('rs_pseudo') || '';
+  var pseudoInp = document.getElementById('comm-pseudo');
+  if(pseudoInp && myPseudo) pseudoInp.value = myPseudo;
+  loadPreview();
+  updateAds('Paris');
+  loadSocialFeed();
+});
+
+async function loadPreview(){
+  var feed=document.getElementById('comm-preview-feed');
+  if(!feed) return;
+  try {
+    var posts = await supaFetch('community_posts?select=*&approved=eq.true&order=created_at.desc&limit=2');
+    var display = posts.length > 0 ? posts : seedPosts.slice(0,2);
+    feed.innerHTML = display.map(function(p){
+      var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 28);
+      return '<div class="comm-preview-post" onclick="openCommunity()">'
+        +'<div class="comm-preview-meta" style="display:flex;align-items:center;gap:8px">'
+        +avatar
+        +'<span class="comm-preview-pseudo">'+esc(p.pseudo)+'</span>'
+        +'<span class="comm-preview-city" style="margin-left:auto">📍 '+esc(p.city||city)+'</span>'
+        +'</div>'
+        +'<div class="comm-preview-text">'+esc(p.message||p.text)+'</div>'
+        +'<div class="comm-preview-likes">❤️ '+(p.likes||0)+'</div>'
+        +'</div>';
+    }).join('');
+  } catch(e){
+    feed.innerHTML = seedPosts.slice(0,2).map(function(p){
+      return '<div class="comm-preview-post" onclick="openCommunity()">'
+        +'<div class="comm-preview-meta"><span class="comm-preview-pseudo">'+p.pseudo+'</span><span class="comm-preview-city">📍 '+p.city+'</span></div>'
+        +'<div class="comm-preview-text">'+p.message+'</div>'
+        +'<div class="comm-preview-likes">❤️ '+p.likes+'</div>'
+        +'</div>';
+    }).join('');
+  }
+}
+// ——— HEADER COMPACT AU SCROLL + PULL-TO-REFRESH ———
+(function(){
+  var scroller = document.getElementById('home-scroll');
+  var wrap = document.querySelector('.wrap');
+  if(!scroller || !wrap) return;
+
+  // Header compact
+  var ticking = false;
+  scroller.addEventListener('scroll', function(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){
+      wrap.classList.toggle('scrolled', scroller.scrollTop > 30);
+      ticking = false;
+    });
+  }, {passive:true});
+
+  // Pull-to-refresh
+  var ptr = document.createElement('div');
+  ptr.className = 'ptr-indicator';
+  ptr.innerHTML = '<span>↻</span>';
+  scroller.appendChild(ptr);
+  var startY = 0, pulling = false, dist = 0, THRESHOLD = 70;
+
+  scroller.addEventListener('touchstart', function(e){
+    if(scroller.scrollTop <= 0){ startY = e.touches[0].clientY; pulling = true; dist = 0; }
+  }, {passive:true});
+
+  scroller.addEventListener('touchmove', function(e){
+    if(!pulling) return;
+    dist = e.touches[0].clientY - startY;
+    if(dist > 0 && scroller.scrollTop <= 0){
+      var d = Math.min(dist * .45, 90);
+      ptr.classList.add('pulling');
+      ptr.style.transform = 'translateX(-50%) translateY(' + (d - 40) + 'px) rotate(' + (d * 3) + 'deg)';
+    } else {
+      ptr.classList.remove('pulling');
+      ptr.style.transform = '';
+    }
+  }, {passive:true});
+
+  scroller.addEventListener('touchend', function(){
+    if(!pulling) return;
+    pulling = false;
+    ptr.style.transform = '';
+    if(dist >= THRESHOLD){
+      ptr.classList.remove('pulling');
+      ptr.classList.add('spinning');
+      if(navigator.vibrate) navigator.vibrate(8);
+      Promise.resolve(loadSocialFeed()).finally(function(){
+        setTimeout(function(){ ptr.classList.remove('spinning'); }, 400);
+      });
+    } else {
+      ptr.classList.remove('pulling');
+    }
+    dist = 0;
+  }, {passive:true});
+})();
+
+// ——— SERVICE WORKER ———
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js')
+      .then(function(reg){ })
+      .catch(function(err){ });
+  });
+}
+</script>
+</body>
+</html>
