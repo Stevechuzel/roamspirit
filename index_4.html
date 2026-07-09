@@ -844,9 +844,9 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
       <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div class="bn-label">Home</div>
     </button>
-    <button class="bn-item" id="bn-explore" onclick="switchView('explore')">
-      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-      <div class="bn-label">Explore</div>
+    <button class="bn-item" id="bn-shop" onclick="openShop()">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+      <div class="bn-label">Shop</div>
     </button>
     <button class="bn-plus" aria-label="Create a post" onclick="openPublish()">+</button>
     <button class="bn-item" id="bn-messages" onclick="openInbox()" style="position:relative">
@@ -1331,7 +1331,7 @@ function openLegal(){
 }
 
 function openPanel(id){document.querySelectorAll('.panel').forEach(function(el){el.classList.remove('open');});var el=document.getElementById(id);if(el)el.classList.add('open');}
-function closePanel(id){document.getElementById(id).classList.remove('open');if(id==='inbox-panel'||id==='profile-panel'){setNav(currentView==='explore'?'explore':'home');}}
+function closePanel(id){document.getElementById(id).classList.remove('open');if(id==='inbox-panel'||id==='profile-panel'||id==='shop-panel'){setNav('home');}}
 
 function saveTip(text){saved.unshift({text:text,city:city,tab:TABS[tab].label,date:new Date().toLocaleDateString()});localStorage.setItem('rs_saved',JSON.stringify(saved));document.getElementById('saved-nav').textContent='🔖 Saved ('+saved.length+')';}
 function delTip(i){saved.splice(i,1);localStorage.setItem('rs_saved',JSON.stringify(saved));renderSaved();}
@@ -1774,7 +1774,7 @@ var pubPhoto = '';
 var exploreFilter = '';
 
 function setNav(view){
-  ['home','explore','messages','profile'].forEach(function(v){
+  ['home','shop','messages','profile'].forEach(function(v){
     var btn = document.getElementById('bn-'+v);
     if(btn) btn.classList.toggle('active', v===view);
   });
@@ -1790,11 +1790,6 @@ function switchView(view){
     if(home) home.style.display='block';
     if(stories) stories.style.display='block';
     loadSocialFeed();
-  } else if(view === 'explore'){
-    if(home) home.style.display='none';
-    if(stories) stories.style.display='none';
-    document.getElementById('explore-panel').classList.add('open');
-    loadExplore();
   }
 }
 
@@ -2282,6 +2277,8 @@ function openShop() {trackEvent('shop_view');
   var overlay = document.getElementById('dots-overlay');
   if (menu) menu.classList.remove('open');
   if (overlay) overlay.classList.remove('open');
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
+  setNav('shop');
   openPanel('shop-panel');
 }
 
