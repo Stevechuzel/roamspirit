@@ -1490,6 +1490,16 @@ function trackEvent(name){
 // ——— PARTENAIRES (affiliation) ———
 var GYG_PARTNER_ID = 'LTGDR0L';
 
+// Liens Travelpayouts (générés dans "Links" → un lien fixe, pas de variation par ville)
+var TP_LINKS = {
+  airalo: 'https://airalo.tpk.ro/GPyL74fI',
+  rentacar: 'https://getrentacar.tpk.ro/eTq3iLut',
+  transfer: 'https://gettransfer.tpk.ro/HgqNWz3Z',
+  kiwitaxi: 'https://kiwitaxi.tpk.ro/NtmfHeVI',
+  kkday: 'https://kkday.tpk.ro/ky64rXgZ',
+  airhelp: 'https://airhelp.tpk.ro/cZ2CHbXP'
+};
+
 // ⚠️ STAY22_AID : ton identifiant affilié Stay22 (Booking/Expedia/Hotels.com...).
 var STAY22_AID = 'roamspirit';
 
@@ -1522,6 +1532,20 @@ var PARTNERS = {
     title: function(c){ return 'Experience '+c+' like a local'; },
     desc: 'Tours, activities and hidden gems — skip the tourist traps.',
     cta: 'Explore experiences →'
+  },
+  airalo: {
+    brand: 'Airalo',
+    link: function(c){ return TP_LINKS.airalo; },
+    title: function(c){ return 'Stay connected in '+c; },
+    desc: 'Instant eSIM data — skip the airport SIM card line entirely.',
+    cta: 'Get your eSIM →'
+  },
+  rentacar: {
+    brand: 'RentaCar',
+    link: function(c){ return TP_LINKS.rentacar; },
+    title: function(c){ return 'Rent a car around '+c; },
+    desc: 'Compare local rental deals — freedom to explore beyond downtown.',
+    cta: 'Compare rentals →'
   }
 };
 
@@ -1964,7 +1988,8 @@ function renderFeedPosts(){
     // Encart partenaire après le 3e post, puis tous les 6 (rotation Booking/GYG)
     var adHtml = '';
     if(idx > 0 && (idx === 3 || (idx > 3 && (idx - 3) % 6 === 0))){
-      adHtml = partnerCardHTML(adCount % 2 === 0 ? 'gyg' : 'booking');
+      var rotation = ['gyg', 'booking', 'airalo', 'rentacar'];
+      adHtml = partnerCardHTML(rotation[adCount % rotation.length]);
       adCount++;
     }
     var liked = likedPosts.indexOf(String(p.id)) > -1;
