@@ -252,14 +252,14 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 .story-add{width:54px;height:54px;border-radius:50%;background:var(--cream);border:2px dashed var(--sand);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--carmine);cursor:pointer;flex-shrink:0}
 
 /* SOCIAL FEED */
-.home-scroll{flex:1;overflow-y:auto;background:var(--white);-webkit-overflow-scrolling:touch;scroll-snap-type:y proximity;position:relative}
+.home-scroll{flex:1;overflow-y:auto;background:var(--white);-webkit-overflow-scrolling:touch;position:relative}
 .feed{background:var(--white)}
 .ptr-indicator{position:absolute;top:8px;left:50%;transform:translateX(-50%) translateY(-40px);width:32px;height:32px;border-radius:50%;background:var(--white);border:1px solid var(--sand);box-shadow:0 2px 10px rgba(30,26,20,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--carmine);z-index:20;transition:transform .2s ease, opacity .2s ease;opacity:0;pointer-events:none}
 .ptr-indicator.pulling{opacity:1}
 .ptr-indicator.spinning{opacity:1;transform:translateX(-50%) translateY(8px)}
 .ptr-indicator.spinning span{display:inline-block;animation:ptrSpin .8s linear infinite}
 @keyframes ptrSpin{to{transform:rotate(360deg)}}
-.feed-post{scroll-snap-align:start;min-height:calc(100vh - 120px);min-height:calc(100dvh - 120px);border-bottom:1px solid var(--sand);display:flex;flex-direction:column;position:relative;background:var(--white);opacity:0;animation:feedIn .45s ease forwards}
+.feed-post{min-height:calc(100vh - 120px);min-height:calc(100dvh - 120px);border-bottom:1px solid var(--sand);display:flex;flex-direction:column;position:relative;background:var(--white);opacity:0;animation:feedIn .45s ease forwards}
 @keyframes feedIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .feed-post-header{display:flex;align-items:center;gap:10px;padding:13px 16px 9px}
 .feed-post-avatar-ring{border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--carmine),var(--gold));flex-shrink:0;display:flex}
@@ -417,6 +417,18 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 .ad-desc{font-size:11px;color:var(--muted);line-height:1.5;padding-left:8px;margin-bottom:8px}
 .ad-cta{display:inline-block;margin-left:8px;background:var(--carmine);color:#fff;border:none;border-radius:10px;padding:6px 14px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;text-decoration:none}
 .ad-divider{height:1px;background:var(--sand);margin:14px 0}
+
+/* PARTNER CARD — version feed (native) */
+.feed-partner{border-bottom:1px solid var(--sand);background:var(--white);padding:18px 16px;opacity:0;animation:feedIn .45s ease forwards}
+.feed-partner-inner{display:block;background:linear-gradient(135deg,#FDF9F0 0%,#F7EEDC 100%);border:1px solid var(--gold);border-radius:16px;padding:16px;text-decoration:none;position:relative;overflow:hidden;transition:transform .15s ease}
+.feed-partner-inner:active{transform:scale(.985)}
+.feed-partner-inner::after{content:'✦';position:absolute;right:-8px;bottom:-18px;font-size:80px;color:var(--gold);opacity:.1;pointer-events:none}
+.feed-partner-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.feed-partner-label::after{content:'';flex:1;height:1px;background:var(--gold);opacity:.3}
+.feed-partner-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--ink);margin-bottom:5px;line-height:1.3}
+.feed-partner-desc{font-size:12px;color:var(--ink-light);line-height:1.55;margin-bottom:12px}
+.feed-partner-cta{display:inline-flex;align-items:center;gap:6px;background:var(--carmine);color:#fff;border-radius:11px;padding:9px 16px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:.03em}
+.feed-partner-brand{font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:.05em}
 
 /* ADMIN */
 .admin-post{background:var(--white);border:1px solid var(--sand);border-radius:14px;padding:14px;margin-bottom:10px;position:relative;overflow:hidden}
@@ -1005,7 +1017,7 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
     <div class="p-body" id="itin-body"><div class="empty-msg">Choose your style and let Roam Spirit plan your trip.</div></div>
     <!-- AD CARD ITINERARY -->
     <div style="padding:0 14px 14px 28px;flex-shrink:0">
-      <a class="ad-card" id="ad-itin" href="https://www.getyourguide.com/s/?q=Paris&partner_id=LTGDR0L" target="_blank" rel="noopener">
+      <a class="ad-card" id="ad-itin" href="https://www.getyourguide.com/s/?q=Paris&partner_id=LTGDR0L" target="_blank" rel="noopener sponsored">
         <div class="ad-label">✦ Partner</div>
         <div class="ad-title" id="ad-itin-title">Discover experiences in Paris</div>
         <div class="ad-desc">Tours, activities and hidden gems curated by locals.</div>
@@ -1055,13 +1067,13 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
       </div>
       <!-- AD CARDS COMMUNITY -->
       <div class="ad-divider"></div>
-      <a class="ad-card" id="ad-community" href="https://www.booking.com" target="_blank" rel="noopener">
+      <a class="ad-card" id="ad-community" href="https://www.booking.com/searchresults.html?ss=Paris" target="_blank" rel="noopener sponsored">
         <div class="ad-label">✦ Partner</div>
         <div class="ad-title" id="ad-comm-title">Find your hotel in Paris</div>
         <div class="ad-desc">Best prices guaranteed. Free cancellation on most rooms.</div>
         <span class="ad-cta">Book now →</span>
       </a>
-      <a class="ad-card" id="ad-gyg" href="https://www.getyourguide.com/s/?q=Paris&partner_id=LTGDR0L" target="_blank" rel="noopener" style="margin-top:8px">
+      <a class="ad-card" id="ad-gyg" href="https://www.getyourguide.com/s/?q=Paris&partner_id=LTGDR0L" target="_blank" rel="noopener sponsored" style="margin-top:8px">
         <div class="ad-label">✦ Partner</div>
         <div class="ad-title" id="ad-gyg-title">Discover experiences in Paris</div>
         <div class="ad-desc">Tours, activities and hidden gems curated by locals.</div>
@@ -1464,6 +1476,58 @@ function trackEvent(name){
   } catch(_e){}
 }
 
+// ——— PARTENAIRES (affiliation) ———
+var GYG_PARTNER_ID = 'LTGDR0L';
+
+// ⚠️ STAY22_AID : ton identifiant affilié Stay22 (Booking/Expedia/Hotels.com...).
+var STAY22_AID = 'roamspirit';
+
+// Liens "Allez" générés un par un dans le dashboard Stay22 (Allez Generator).
+// Pour ajouter une ville : génère son lien sur stay22.com (Allez Generator,
+// Provider URL = https://www.booking.com/searchresults.html?ss=NomVille),
+// puis ajoute une ligne ici : 'NomVille': 'https://booking.stay22.com/roamspirit/XXXXX'
+var STAY22_LINKS = {
+  'Paris': 'https://booking.stay22.com/roamspirit/asQ2jzCkmt',
+  'Singapore': 'https://booking.stay22.com/roamspirit/CH-9qzg3jn',
+  'Bangkok': 'https://booking.stay22.com/roamspirit/qJoQfIpans',
+  'Bali': 'https://booking.stay22.com/roamspirit/qY07JLGZkN',
+  'Berlin': 'https://booking.stay22.com/roamspirit/EkGOSEKp8_',
+  'Prague': 'https://booking.stay22.com/roamspirit/XMkkUGQPPE'
+};
+// Ville par défaut si la ville courante n'a pas encore de lien généré
+var STAY22_FALLBACK_CITY = 'Paris';
+
+var PARTNERS = {
+  booking: {
+    brand: 'Booking.com',
+    link: function(c){ return STAY22_LINKS[c] || STAY22_LINKS[STAY22_FALLBACK_CITY]; },
+    title: function(c){ return 'Stay in the heart of '+c; },
+    desc: 'Handpicked hotels and stays. Free cancellation on most rooms.',
+    cta: 'Find your stay →'
+  },
+  gyg: {
+    brand: 'GetYourGuide',
+    link: function(c){ return 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c)+'&partner_id='+GYG_PARTNER_ID; },
+    title: function(c){ return 'Experience '+c+' like a local'; },
+    desc: 'Tours, activities and hidden gems — skip the tourist traps.',
+    cta: 'Explore experiences →'
+  }
+};
+
+// Encart natif pour le feed / explore
+function partnerCardHTML(key, compact){
+  var p = PARTNERS[key];
+  if(!p) return '';
+  return '<div class="feed-partner">'
+    +'<a class="feed-partner-inner" href="'+esc(p.link(city))+'" target="_blank" rel="noopener sponsored" onclick="trackEvent(\'partner_click\')">'
+    +'<div class="feed-partner-label">✦ Partner</div>'
+    +'<div class="feed-partner-title">'+esc(p.title(city))+'</div>'
+    +(compact?'':'<div class="feed-partner-desc">'+esc(p.desc)+'</div>')
+    +'<span class="feed-partner-cta">'+esc(p.cta)+'</span>'
+    +'<div class="feed-partner-brand">with '+esc(p.brand)+'</div>'
+    +'</a></div>';
+}
+
 // ——— SUPABASE AUTH CLIENT ———
 var supabaseClient = supabase.createClient(SUPA_URL, SUPA_KEY);
 
@@ -1768,10 +1832,11 @@ function renderExploreFeed(filter){
     feed.innerHTML = '<div class="feed-empty"><div class="feed-empty-icon">🔍</div><div class="feed-empty-text">No posts found here yet.</div></div>';
     return;
   }
-  feed.innerHTML = posts.map(function(p){
+  feed.innerHTML = posts.map(function(p, idx){
+    var adHtml = idx === 4 ? partnerCardHTML('gyg', true) : '';
     var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 32);
     var liked = likedPosts.indexOf(String(p.id)) > -1;
-    return '<div class="explore-post">'
+    return adHtml + '<div class="explore-post">'
       +'<div class="explore-post-header">'
       +avatar
       +'<div><div class="explore-post-name">'+esc(p.pseudo)+'</div><div class="explore-post-city">📍 '+esc(p.city)+'</div></div>'
@@ -1888,7 +1953,14 @@ function renderFeedPosts(){
     feed.innerHTML = '<div class="feed-empty"><div class="feed-empty-icon">🌍</div><div class="feed-empty-text">Be the first to share<br>an experience in '+esc(city)+'.</div><button class="feed-empty-btn" onclick="openPublish()">✦ Share your story</button></div>';
     return;
   }
-  feed.innerHTML = feedPosts.map(function(p){
+  var adCount = 0;
+  feed.innerHTML = feedPosts.map(function(p, idx){
+    // Encart partenaire après le 3e post, puis tous les 6 (rotation Booking/GYG)
+    var adHtml = '';
+    if(idx > 0 && (idx === 3 || (idx > 3 && (idx - 3) % 6 === 0))){
+      adHtml = partnerCardHTML(adCount % 2 === 0 ? 'gyg' : 'booking');
+      adCount++;
+    }
     var liked = likedPosts.indexOf(String(p.id)) > -1;
     var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 34);
     var timeAgo = getTimeAgo(p.created_at);
@@ -1896,7 +1968,7 @@ function renderFeedPosts(){
     var mediaHtml = p.photo_url
       ? '<div class="feed-post-img-wrap" ondblclick="burstHeart(event);feedLike(\''+pid+'\')"><img class="feed-post-img" src="'+esc(p.photo_url)+'" loading="lazy"/></div>'
       : '<div class="feed-post-quote" ondblclick="burstHeart(event);feedLike(\''+pid+'\')"><div class="feed-post-quote-text">'+esc(p.message)+'</div></div>';
-    return '<div class="feed-post">'
+    return adHtml + '<div class="feed-post">'
       +'<div class="feed-post-header">'
       +'<div class="feed-post-avatar-ring">'+avatar+'</div>'
       +'<div class="feed-post-info">'
@@ -2633,12 +2705,12 @@ function updateAds(c){
   var commLink  = document.getElementById('ad-community');
   var itinLink  = document.getElementById('ad-itin');
   var gygLink   = document.getElementById('ad-gyg');
-  if(commTitle) commTitle.textContent = 'Find your hotel in '+c;
-  if(itinTitle) itinTitle.textContent = 'Discover experiences in '+c;
-  if(gygTitle)  gygTitle.textContent  = 'Discover experiences in '+c;
-  if(commLink) commLink.href = 'https://www.booking.com/search.html?ss='+encodeURIComponent(c);
-  if(itinLink) itinLink.href = 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c)+'&partner_id=LTGDR0L';
-  if(gygLink)  gygLink.href  = 'https://www.getyourguide.com/s/?q='+encodeURIComponent(c)+'&partner_id=LTGDR0L';
+  if(commTitle) commTitle.textContent = PARTNERS.booking.title(c);
+  if(itinTitle) itinTitle.textContent = PARTNERS.gyg.title(c);
+  if(gygTitle)  gygTitle.textContent  = PARTNERS.gyg.title(c);
+  if(commLink){ commLink.href = PARTNERS.booking.link(c); commLink.onclick = function(){trackEvent('partner_click');}; }
+  if(itinLink){ itinLink.href = PARTNERS.gyg.link(c); itinLink.onclick = function(){trackEvent('partner_click');}; }
+  if(gygLink){  gygLink.href  = PARTNERS.gyg.link(c); gygLink.onclick = function(){trackEvent('partner_click');}; }
 }
 
 // ——— ADMIN SECRET ACCESS (triple tap logo) ———
