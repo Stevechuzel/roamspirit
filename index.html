@@ -521,6 +521,14 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 .ai-guide-card{position:relative;margin:8px 12px 6px 12px;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(139,26,26,.2);flex-shrink:0;cursor:pointer;transition:transform .15s ease}
 .ai-guide-card:active{transform:scale(.985)}
 .ai-guide-arrow{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* BANDE PARTENAIRE (fine, sous la carte AI Guide) */
+.pbar{display:flex;align-items:center;gap:8px;margin:0 12px 8px;padding:9px 13px;background:var(--white);border:1px solid var(--sand);border-left:3px solid var(--gold);border-radius:11px;text-decoration:none;flex-shrink:0;transition:transform .15s ease}
+.pbar:active{transform:scale(.985)}
+.pbar-icon{font-size:14px;flex-shrink:0}
+.pbar-text{flex:1;font-size:12.5px;color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.pbar-brand{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0}
+.pbar-arrow{color:var(--carmine);font-size:14px;flex-shrink:0}
 .ai-guide-bg{position:absolute;inset:0;background:linear-gradient(135deg,#8B1A1A 0%,#C17A45 60%,#C9A84C 100%);z-index:0}
 .ai-guide-content{position:relative;z-index:1;padding:16px 14px 12px}
 .ai-guide-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
@@ -750,6 +758,14 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
       </div>
     </div>
   </div>
+
+  <!-- BANDE PARTENAIRE (fine, toujours visible) -->
+  <a class="pbar" id="partner-bar" href="#" target="_blank" rel="noopener sponsored" onclick="trackEvent('partner_click')">
+    <span class="pbar-icon" id="pbar-icon">🏨</span>
+    <span class="pbar-text" id="pbar-text">Stay in Paris</span>
+    <span class="pbar-brand" id="pbar-brand">Booking</span>
+    <span class="pbar-arrow">→</span>
+  </a>
 
   <!-- FEED WRAPPER -->
   <div class="home-scroll" id="home-scroll">
@@ -2111,7 +2127,7 @@ function renderFeedPosts(){
   feed.innerHTML = feedPosts.map(function(p, idx){
     // Encart partenaire après le 3e post, puis tous les 6 (rotation Booking/GYG)
     var adHtml = '';
-    if(idx > 0 && idx % 2 === 1){
+    if(idx > 0 && idx % 4 === 3){
       var rotation = ['gyg', 'booking', 'airalo', 'rentacar'];
       adHtml = partnerCardHTML(rotation[adCount % rotation.length]);
       adCount++;
@@ -3271,6 +3287,28 @@ setInterval(async function(){
 }, 30000);
 
 // ——— ADS ———
+// Rotation de la bande partenaire fixe (change à chaque changement de ville)
+var PBAR_ROTATION = [
+  { key:'booking',  icon:'🏨', label: function(c){ return 'Stay in '+c; } },
+  { key:'gyg',      icon:'🎟', label: function(c){ return 'Things to do in '+c; } },
+  { key:'airalo',   icon:'📱', label: function(c){ return 'Data eSIM for '+c; } },
+  { key:'rentacar', icon:'🚗', label: function(c){ return 'Rent a car in '+c; } }
+];
+var pbarIndex = 0;
+
+function updatePartnerBar(c){
+  var bar = document.getElementById('partner-bar');
+  if(!bar) return;
+  var item = PBAR_ROTATION[pbarIndex % PBAR_ROTATION.length];
+  var p = PARTNERS[item.key];
+  if(!p) return;
+  bar.href = p.link(c);
+  document.getElementById('pbar-icon').textContent = item.icon;
+  document.getElementById('pbar-text').textContent = item.label(c);
+  document.getElementById('pbar-brand').textContent = p.brand;
+  pbarIndex++; // partenaire suivant au prochain changement de ville
+}
+
 function updateAds(c){
   var commTitle = document.getElementById('ad-comm-title');
   var itinTitle = document.getElementById('ad-itin-title');
@@ -3284,6 +3322,7 @@ function updateAds(c){
   if(commLink){ commLink.href = PARTNERS.booking.link(c); commLink.onclick = function(){trackEvent('partner_click');}; }
   if(itinLink){ itinLink.href = PARTNERS.gyg.link(c); itinLink.onclick = function(){trackEvent('partner_click');}; }
   if(gygLink){  gygLink.href  = PARTNERS.gyg.link(c); gygLink.onclick = function(){trackEvent('partner_click');}; }
+  updatePartnerBar(c);
 }
 
 // ——— ADMIN SECRET ACCESS (triple tap logo) ———
