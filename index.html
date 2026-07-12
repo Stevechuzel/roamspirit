@@ -1709,6 +1709,7 @@ supabaseClient.auth.getSession().then(function(res) {
       myPseudo = pseudo;
       setTimeout(showPushBanner, 2000);
     }
+    syncProfile();
     if (avatar && !currentAvatar) {
       // Fetch Google avatar and convert to base64 to avoid CORS issues
       fetch(avatar)
@@ -2950,9 +2951,15 @@ function confirmPseudo(){
 }
 
 function openDM(toPseudo){
-  askPseudo(function(){ reallyOpenDM(toPseudo); });
+  // Les messages privés exigent désormais un compte Google (sécurité)
+  requireLogin(function(){
+    askPseudo(function(){
+      syncProfile();
+      reallyOpenDM(toPseudo);
+    });
+  });
 }
-function reallyOpenDM(toPseudo){
+async function reallyOpenDM(toPseudo){
   currentDMPseudo = toPseudo;
   // Close other panels
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
@@ -2960,6 +2967,12 @@ function reallyOpenDM(toPseudo){
   document.getElementById('dm-title').textContent = toPseudo;
   document.getElementById('dm-subtitle').textContent = 'Private conversation';
   document.getElementById('dm-messages').innerHTML = '<div class="comm-empty">Loading…</div>';
+  currentDMUserId = await userIdForPseudo(toPseudo);
+  if(!currentDMUserId){
+    document.getElementById('dm-messages').innerHTML = '<div class="comm-empty" style="font-style:italic;padding:30px 20px">This traveler hasn\'t joined with a Google account yet — you can\'t message them.</div>';
+    clearInterval(dmPolling);
+    return;
+  }
   loadDMs();
   // Poll every 5 seconds
   clearInterval(dmPolling);
@@ -2971,30 +2984,61 @@ function closeDMPanel(){
   document.getElementById('dm-panel').classList.remove('open');
 }
 
-async function loadDMs(){
-  if(!myPseudo || !currentDMPseudo) return;
+// ——— PROFIL (lie le pseudo au compte Google — voir security.sql) ———
+async function syncProfile(){
+  if(!googleUser || !myPseudo) return;
   try {
-    var msgs = await supaFetch(
-      'private_messages?or=(and(from_pseudo.eq.'+encodeURIComponent(myPseudo)+',to_pseudo.eq.'+encodeURIComponent(currentDMPseudo)+'),and(from_pseudo.eq.'+encodeURIComponent(currentDMPseudo)+',to_pseudo.eq.'+encodeURIComponent(myPseudo)+'))&order=created_at.asc'
+    await supaFetchAuth('profiles', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({
+        user_id: googleUser.id,
+        pseudo: myPseudo,
+        avatar_url: (currentAvatar && currentAvatar.length < 50000) ? currentAvatar : null
+      })
+    });
+  } catch(e){ /* pseudo déjà pris par un autre compte, ou hors ligne */ }
+}
+
+// Retrouve l'identifiant Google d'un pseudo (nécessaire pour ouvrir une conversation)
+async function userIdForPseudo(pseudo){
+  try {
+    var res = await supaFetchAuth('rpc/user_id_for_pseudo', {
+      method: 'POST',
+      body: JSON.stringify({ p: pseudo })
+    });
+    return (typeof res === 'string') ? res : (res && res.length ? res : null);
+  } catch(e){ return null; }
+}
+
+var currentDMUserId = null;
+
+async function loadDMs(){
+  if(!googleUser || !currentDMUserId) return;
+  try {
+    var me = googleUser.id;
+    var them = currentDMUserId;
+    var msgs = await supaFetchAuth(
+      'private_messages?or=(and(from_user.eq.'+me+',to_user.eq.'+them+'),and(from_user.eq.'+them+',to_user.eq.'+me+'))&order=created_at.asc'
     );
     var container = document.getElementById('dm-messages');
+    if(!container) return;
     if(msgs.length === 0){
       container.innerHTML = '<div class="comm-empty" style="font-style:italic">Start the conversation…</div>';
       return;
     }
     container.innerHTML = msgs.map(function(m){
-      var isSent = m.from_pseudo === myPseudo;
+      var isSent = m.from_user === me;
       var time = new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
       return '<div class="dm-msg '+(isSent?'sent':'received')+'">'
         +esc(m.content)
         +'<div class="dm-msg-time">'+time+'</div>'
         +'</div>';
     }).join('');
-    // Scroll to bottom
     container.scrollTop = container.scrollHeight;
-    // Mark as read
-    supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&from_pseudo=eq.'+encodeURIComponent(currentDMPseudo)+'&read=eq.false',{
-      method:'PATCH', body:JSON.stringify({read:true})
+    // Marquer comme lus (seuls ceux qui me sont adressés, garanti par la policy)
+    supaFetchAuth('private_messages?to_user=eq.'+me+'&from_user=eq.'+them+'&read=eq.false', {
+      method:'PATCH', body: JSON.stringify({read:true})
     }).catch(function(){});
   } catch(e){ }
 }
@@ -3002,40 +3046,49 @@ async function loadDMs(){
 async function sendDM(){
   var inp = document.getElementById('dm-inp');
   var content = inp.value.trim();
-  if(!content || !currentDMPseudo) return;
+  if(!content || !currentDMUserId) return;
   requireLogin(async function(){
-  if(!myPseudo) return;
-  inp.value = '';
-  try {
-    await supaFetch('private_messages', {
-      method: 'POST',
-      body: JSON.stringify({
-        from_pseudo: myPseudo,
-        to_pseudo: currentDMPseudo,
-        content: content,
-        read: false
-      })
-    });
-    loadDMs();
-    sendPush(currentDMPseudo, myPseudo, content);
-  } catch(e){ }
-  }); // end requireLogin
+    if(!googleUser) return;
+    inp.value = '';
+    try {
+      await supaFetchAuth('private_messages', {
+        method: 'POST',
+        body: JSON.stringify({
+          from_user: googleUser.id,
+          to_user: currentDMUserId,
+          from_pseudo: myPseudo,          // conservé pour l'affichage
+          to_pseudo: currentDMPseudo,
+          content: content,
+          read: false
+        })
+      });
+      loadDMs();
+      sendPush(currentDMPseudo, myPseudo, content);
+    } catch(e){ }
+  });
 }
 
 async function openInbox(){
   setNav('messages');
-  askPseudo(function(){
-    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
-    document.getElementById('inbox-panel').classList.add('open');
-    loadInbox();
+  requireLogin(function(){
+    askPseudo(function(){
+      syncProfile();
+      document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');});
+      document.getElementById('inbox-panel').classList.add('open');
+      loadInbox();
+    });
   });
 }
 
 async function loadInbox(){
   var list = document.getElementById('inbox-list');
   list.innerHTML = '<div class="comm-empty">Loading…</div>';
+  if(!googleUser){
+    list.innerHTML = '<div class="comm-empty">Sign in with Google to see your messages.</div>';
+    return;
+  }
   try {
-    var msgs = await supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&order=created_at.desc');
+    var msgs = await supaFetchAuth('private_messages?to_user=eq.'+googleUser.id+'&order=created_at.desc');
     if(msgs.length === 0){
       list.innerHTML = '<div class="comm-empty">No messages yet.</div>';
       return;
@@ -3043,8 +3096,9 @@ async function loadInbox(){
     // Group by sender
     var convs = {};
     msgs.forEach(function(m){
-      if(!convs[m.from_pseudo]) convs[m.from_pseudo] = {last:m, unread:0};
-      if(!m.read) convs[m.from_pseudo].unread++;
+      var who = m.from_pseudo || 'Traveler';
+      if(!convs[who]) convs[who] = {last:m, unread:0};
+      if(!m.read) convs[who].unread++;
     });
     list.innerHTML = Object.keys(convs).map(function(pseudo){
       var c = convs[pseudo];
@@ -3067,9 +3121,9 @@ async function loadInbox(){
 
 // Check for new messages every 30s
 setInterval(async function(){
-  if(!myPseudo) return;
+  if(!googleUser) return;
   try {
-    var msgs = await supaFetch('private_messages?to_pseudo=eq.'+encodeURIComponent(myPseudo)+'&read=eq.false&select=id');
+    var msgs = await supaFetchAuth('private_messages?to_user=eq.'+googleUser.id+'&read=eq.false&select=id');
     var notif = document.getElementById('msg-notif');
     if(notif) notif.style.display = msgs.length > 0 ? 'flex' : 'none';
   } catch(e){}
