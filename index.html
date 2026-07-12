@@ -1751,17 +1751,17 @@ async function supaFetch(path, opts){
 // the shared anon key, so Supabase RLS policies can check auth.uid() and
 // know WHO is making the request (needed for anything admin-only).
 async function supaFetchAuth(path, opts){
+  opts = opts || {};
   var sessionRes = await supabaseClient.auth.getSession();
   var session = sessionRes.data && sessionRes.data.session;
   var token = session ? session.access_token : SUPA_KEY;
-  var res = await fetch(SUPA_URL+'/rest/v1/'+path, Object.assign({
-    headers:{
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer '+token,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
-    }
-  }, opts));
+  var headers = Object.assign({
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer '+token,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  }, opts.headers || {});
+  var res = await fetch(SUPA_URL+'/rest/v1/'+path, Object.assign({}, opts, { headers: headers }));
   if(!res.ok){ var e=await res.text(); throw new Error(e); }
   var txt=await res.text();
   return txt ? JSON.parse(txt) : [];
@@ -2986,7 +2986,18 @@ function closeDMPanel(){
 
 // ——— PROFIL (lie le pseudo au compte Google — voir security.sql) ———
 async function syncProfile(){
-  if(!googleUser || !myPseudo) return;
+  if(!googleUser) return;
+  // Si le pseudo n'est pas encore défini, le déduire du compte Google
+  if(!myPseudo){
+    var meta = googleUser.user_metadata || {};
+    var name = meta.full_name || meta.name || googleUser.email || '';
+    if(name){
+      var p = name.split('@')[0].split(' ')[0];
+      myPseudo = p.charAt(0).toUpperCase() + p.slice(1);
+      localStorage.setItem('rs_pseudo', myPseudo);
+    }
+  }
+  if(!myPseudo) return;
   try {
     await supaFetchAuth('profiles', {
       method: 'POST',
@@ -2997,7 +3008,9 @@ async function syncProfile(){
         avatar_url: (currentAvatar && currentAvatar.length < 50000) ? currentAvatar : null
       })
     });
-  } catch(e){ /* pseudo déjà pris par un autre compte, ou hors ligne */ }
+  } catch(e){
+    console.error('syncProfile failed:', e.message);
+  }
 }
 
 // Retrouve l'identifiant Google d'un pseudo (nécessaire pour ouvrir une conversation)
