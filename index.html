@@ -99,7 +99,10 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .msg.user{align-items:flex-end}
 .msg.bot{align-items:flex-start}
-.bubble{max-width:84%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.6}
+.bubble{max-width:84%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.65}
+.bubble p{margin:0 0 10px 0}
+.bubble p:last-child{margin-bottom:0}
+.bubble strong{color:var(--carmine);font-weight:700}
 .msg.user .bubble{background:var(--carmine);color:#fff;border-radius:16px 16px 4px 16px}
 .msg.bot .bubble{background:var(--cream);color:var(--ink);border:1px solid var(--sand);border-radius:16px 16px 16px 4px;position:relative}
 .msg.bot .bubble::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--carmine);border-radius:2px 0 0 2px;opacity:.7}
@@ -251,6 +254,30 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 .story-name{font-size:10px;color:var(--ink-light);font-family:'DM Sans',sans-serif;max-width:54px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .story-add{width:54px;height:54px;border-radius:50%;background:var(--cream);border:2px dashed var(--sand);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--carmine);cursor:pointer;flex-shrink:0}
 
+/* STORY VIEWER (plein écran) */
+.sv{position:fixed;inset:0;z-index:900;background:#000;display:flex;flex-direction:column;opacity:0;visibility:hidden;transition:opacity .25s ease, visibility 0s linear .25s}
+.sv.open{opacity:1;visibility:visible;transition:opacity .25s ease}
+.sv-bars{display:flex;gap:4px;padding:10px 12px 6px;flex-shrink:0}
+.sv-bar{flex:1;height:2.5px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden}
+.sv-bar-fill{height:100%;width:0;background:#fff;border-radius:2px}
+.sv-bar.done .sv-bar-fill{width:100%}
+.sv-bar.active .sv-bar-fill{animation:svProgress 6s linear forwards}
+@keyframes svProgress{from{width:0}to{width:100%}}
+.sv-head{display:flex;align-items:center;gap:10px;padding:4px 14px 10px;flex-shrink:0}
+.sv-name{font-size:13px;font-weight:600;color:#fff;letter-spacing:.02em}
+.sv-city{font-size:11px;color:rgba(255,255,255,.7)}
+.sv-time{font-size:10px;color:rgba(255,255,255,.55);margin-left:auto}
+.sv-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+.sv-body{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.sv-img{width:100%;height:100%;object-fit:contain}
+.sv-caption{position:absolute;bottom:0;left:0;right:0;padding:40px 20px 24px;background:linear-gradient(to top,rgba(0,0,0,.75),transparent);color:#fff;font-family:'Playfair Display',serif;font-style:italic;font-size:16px;line-height:1.5;text-align:center}
+.sv-nav{position:absolute;top:0;bottom:0;width:33%;z-index:2;cursor:pointer}
+.sv-nav.prev{left:0}
+.sv-nav.next{right:0}
+.sv-report{position:absolute;bottom:14px;right:14px;z-index:3;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);font-size:10px;padding:5px 10px;border-radius:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.story-ring.mine{background:linear-gradient(135deg,var(--gold),var(--carmine))}
+.story-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+
 /* SOCIAL FEED */
 .home-scroll{flex:1;overflow-y:auto;background:var(--white);-webkit-overflow-scrolling:touch;position:relative}
 .feed{background:var(--white)}
@@ -270,7 +297,17 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 .feed-post-time-inline{font-size:10px;color:var(--muted);white-space:nowrap;flex-shrink:0}
 .feed-post-img-wrap{position:relative;flex:1;min-height:200px;display:flex}
 .feed-post-img{width:100%;flex:1;object-fit:cover;min-height:200px;max-height:60vh;background:var(--sand);cursor:pointer}
-.feed-post-quote{width:100%;flex:1;min-height:200px;background:linear-gradient(135deg,#8B1A1A 0%,#C17A45 55%,#C9A84C 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:30px 34px;cursor:pointer}
+.feed-post-quote{width:100%;flex:1;min-height:200px;background:linear-gradient(135deg,#9B3A3A 0%,#B8875A 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:30px 34px;cursor:pointer}
+
+/* CARROUSEL PHOTOS */
+.fpc-wrap{position:relative;flex:1;min-height:200px;max-height:60vh;overflow:hidden}
+.fpc-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;height:100%;scrollbar-width:none}
+.fpc-track::-webkit-scrollbar{display:none}
+.fpc-track img{width:100%;flex:0 0 100%;scroll-snap-align:start;object-fit:cover;height:100%;min-height:200px;max-height:60vh}
+.fpc-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:3;pointer-events:none}
+.fpc-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);transition:background .2s,transform .2s}
+.fpc-dot.active{background:#fff;transform:scale(1.25)}
+.fpc-count{position:absolute;top:10px;right:12px;background:rgba(0,0,0,.45);color:#fff;font-size:10px;padding:3px 8px;border-radius:10px;z-index:3;pointer-events:none}
 .feed-post-quote::before{content:'"';position:absolute;top:-38px;left:12px;font-family:'Playfair Display',serif;font-size:220px;color:rgba(255,255,255,.12);line-height:1;pointer-events:none}
 .feed-post-quote-text{position:relative;z-index:1;font-family:'Playfair Display',serif;font-style:italic;font-size:19px;line-height:1.5;color:#fff;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.15)}
 .heart-burst{position:absolute;top:50%;left:50%;font-size:70px;transform:translate(-50%,-50%) scale(0);pointer-events:none;z-index:5;filter:drop-shadow(0 4px 14px rgba(0,0,0,.25))}
@@ -321,9 +358,13 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 .pub-handle{width:36px;height:4px;background:var(--sand);border-radius:2px;margin:12px auto 16px}
 .pub-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--ink);padding:0 20px 14px;border-bottom:1px solid var(--sand)}
 .pub-body{padding:14px 20px}
-.pub-photo-zone{width:100%;aspect-ratio:16/9;background:var(--cream);border:2px dashed var(--sand);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin-bottom:14px;overflow:hidden;position:relative}
-.pub-photo-zone img{width:100%;height:100%;object-fit:cover}
-.pub-photo-label{font-size:13px;color:var(--muted);margin-top:8px}
+.pub-photo-label{font-size:9px;color:var(--muted);margin-top:2px}
+.pub-photos-row{display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.pub-photo-add{flex:0 0 84px;height:84px;background:var(--cream);border:2px dashed var(--sand);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:2px}
+.pub-photo-thumb{position:relative;flex:0 0 84px;height:84px;border-radius:12px;overflow:hidden;flex-shrink:0}
+.pub-photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pub-photo-thumb-remove{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:none;line-height:1}
+.pub-photo-count{position:absolute;bottom:3px;left:5px;font-size:9px;color:#fff;background:rgba(0,0,0,.5);padding:1px 5px;border-radius:6px}
 .pub-inp{width:100%;border:1px solid var(--sand);border-radius:12px;padding:11px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);outline:none;resize:none;height:80px;margin-bottom:10px}
 .pub-inp:focus{border-color:var(--carmine)}
 .pub-submit{width:100%;background:var(--carmine);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;letter-spacing:.05em}
@@ -420,7 +461,7 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 
 /* PARTNER CARD — version feed (native) */
 .feed-partner{border-bottom:1px solid var(--sand);background:var(--white);padding:18px 16px;opacity:0;animation:feedIn .45s ease forwards}
-.feed-partner-inner{display:block;background:linear-gradient(135deg,#FDF9F0 0%,#F7EEDC 100%);border:1px solid var(--gold);border-radius:16px;padding:16px;text-decoration:none;position:relative;overflow:hidden;transition:transform .15s ease}
+.feed-partner-inner{display:block;background:var(--white);border:1px solid var(--sand);border-top:3px solid var(--gold);border-radius:14px;padding:16px;text-decoration:none;position:relative;overflow:hidden;transition:transform .15s ease}
 .feed-partner-inner:active{transform:scale(.985)}
 .feed-partner-inner::after{content:'✦';position:absolute;right:-8px;bottom:-18px;font-size:80px;color:var(--gold);opacity:.1;pointer-events:none}
 .feed-partner-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px}
@@ -669,7 +710,7 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
   <!-- STORIES BAR -->
   <div class="stories-bar" id="stories-bar">
     <div class="stories-scroll" id="stories-scroll">
-      <div class="story-item" onclick="openPublish()">
+      <div class="story-item" onclick="openStoryCreate()">
         <div class="story-add">+</div>
         <div class="story-name">Your story</div>
       </div>
@@ -743,15 +784,58 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
         <input type="file" id="pub-avatar-file" accept="image/*" style="display:none" onchange="handlePubAvatar(this)"/>
         <input class="comm-pseudo-inp" id="pub-pseudo" placeholder="Your name or pseudo" maxlength="30" style="flex:1"/>
       </div>
-      <div class="pub-photo-zone" id="pub-photo-zone" onclick="document.getElementById('pub-photo-file').click()">
-        <div style="font-size:32px">📸</div>
-        <div class="pub-photo-label">Add a photo (optional)</div>
+      <div class="pub-photos-row" id="pub-photos-row">
+        <div class="pub-photo-add" id="pub-photo-add" onclick="document.getElementById('pub-photo-file').click()">
+          <div style="font-size:24px">📸</div>
+          <div class="pub-photo-label">Add photos</div>
+        </div>
       </div>
-      <input type="file" id="pub-photo-file" accept="image/*" style="display:none" onchange="handlePubPhoto(this)"/>
+      <input type="file" id="pub-photo-file" accept="image/*" multiple style="display:none" onchange="handlePubPhoto(this)"/>
       <textarea class="pub-inp" id="pub-msg" placeholder="A hidden gem, a neighbourhood, a moment…" maxlength="300" style="margin-top:10px"></textarea>
       <div style="font-size:10px;color:var(--muted);text-align:right;margin-bottom:8px"><span id="pub-count">0</span>/300</div>
       <button class="pub-submit" onclick="submitPubPost()">✦ Share with the community</button>
       <div id="pub-feedback" style="margin-top:8px;font-size:12px;color:var(--muted);text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- STORY VIEWER -->
+  <div class="sv" id="story-viewer">
+    <div class="sv-bars" id="sv-bars"></div>
+    <div class="sv-head">
+      <div id="sv-avatar"></div>
+      <div>
+        <div class="sv-name" id="sv-name"></div>
+        <div class="sv-city" id="sv-city"></div>
+      </div>
+      <span class="sv-time" id="sv-time"></span>
+      <button class="sv-close" aria-label="Close" onclick="closeStoryViewer()">✕</button>
+    </div>
+    <div class="sv-body">
+      <div class="sv-nav prev" onclick="prevStory()"></div>
+      <div class="sv-nav next" onclick="nextStory()"></div>
+      <img class="sv-img" id="sv-img" alt=""/>
+      <div class="sv-caption" id="sv-caption"></div>
+      <button class="sv-report" onclick="reportStory()">⚑ Report</button>
+    </div>
+  </div>
+
+  <!-- STORY CREATE SHEET -->
+  <div class="pub-overlay" id="story-overlay" onclick="closeStoryCreate()"></div>
+  <div class="publish-panel" id="story-sheet" style="z-index:610">
+    <div class="pub-handle"></div>
+    <div class="pub-title">✦ Add to your story</div>
+    <div class="pub-body">
+      <div class="pub-photos-row">
+        <div class="pub-photo-add" id="story-photo-add" onclick="document.getElementById('story-photo-file').click()">
+          <div style="font-size:24px">📸</div>
+          <div class="pub-photo-label">Add photo</div>
+        </div>
+      </div>
+      <input type="file" id="story-photo-file" accept="image/*" style="display:none" onchange="handleStoryPhoto(this)"/>
+      <input class="dm-input" id="story-caption" placeholder="Say something (optional)…" maxlength="80" style="width:100%;border-radius:12px;margin-bottom:10px"/>
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:10px">Disappears after 24 hours</div>
+      <button class="pub-submit" onclick="submitStory()">✦ Share story</button>
+      <div id="story-feedback" style="margin-top:8px;font-size:12px;color:var(--muted);text-align:center"></div>
     </div>
   </div>
 
@@ -1217,11 +1301,11 @@ var saved=JSON.parse(localStorage.getItem('rs_saved')||'[]');
 var photos=[];
 
 var TABS={
-  city_guide:{label:'City Guide',chips:['Must-see spots','Best neighbourhoods','Hidden gems','Iconic views'],emoji:['🗺','🚶','🌅','📸'],sys:'You are the Roam Spirit city guide for {city}. Give insider tips on must-see spots, neighbourhoods, hidden gems. Be specific, poetic, urban. Tagline: "This is your culture." Max 3 short paragraphs.'},
-  style:{label:'Style & Outfits',chips:['Vintage shops','Streetwear spots','Local designers','Best markets'],emoji:['🧢','👟','💡','🛍'],sys:'You are the Roam Spirit style advisor for {city}. Guide through vintage shops, streetwear, local designers. Urban vintage aesthetic. Tagline: "This is your culture." Concise.'},
-  food:{label:'Food & Drinks',chips:['Best cafés','Natural wine bars','Local markets','Street food'],emoji:['☕','🍷','🥖','🍜'],sys:'You are the Roam Spirit food guide for {city}. Recommend hidden cafés, restaurants, wine bars, street food locals love. No tourist traps. Tagline: "This is your culture." Concise.'},
-  nightlife:{label:'Nightlife',chips:['Live music','Cocktail bars','Rooftop bars','Jazz & underground'],emoji:['🎵','🍸','🌆','🎶'],sys:'You are the Roam Spirit nightlife guide for {city}. Recommend bars, clubs, live music, rooftops, underground. Authentic local nightlife. Tagline: "This is your culture." Vivid and concise.'},
-  culture:{label:'Art & Culture',chips:['Galleries & museums','Live shows','Bookshops','Street art'],emoji:['🖼','🎭','📚','🎨'],sys:'You are the Roam Spirit culture guide for {city}. Recommend galleries, museums, street art, bookshops, live shows. Authentic scenes. Tagline: "This is your culture." Inspiring and concise.'}
+  city_guide:{label:'City Guide',chips:['Must-see spots','Best neighbourhoods','Hidden gems','Iconic views'],emoji:['🗺','🚶','🌅','📸'],sys:'You are the Roam Spirit city guide for {city}. One short punchy intro sentence, then 3-4 specific places. Format each as: **Place Name** — one short vivid sentence (max 15 words). One place per line, blank line between each. No markdown headers, no long paragraphs. Be specific and local, skip tourist traps.'},
+  style:{label:'Style & Outfits',chips:['Vintage shops','Streetwear spots','Local designers','Best markets'],emoji:['🧢','👟','💡','🛍'],sys:'You are the Roam Spirit style advisor for {city}. One short intro sentence, then 3-4 specific shops/spots. Format each as: **Place Name** — one short sentence (max 15 words). One per line, blank line between. No markdown headers, no long paragraphs. Urban vintage aesthetic.'},
+  food:{label:'Food & Drinks',chips:['Best cafés','Natural wine bars','Local markets','Street food'],emoji:['☕','🍷','🥖','🍜'],sys:'You are the Roam Spirit food guide for {city}. One short intro sentence, then 3-4 specific spots. Format each as: **Place Name** — one short sentence (max 15 words). One per line, blank line between. No markdown headers, no long paragraphs. No tourist traps.'},
+  nightlife:{label:'Nightlife',chips:['Live music','Cocktail bars','Rooftop bars','Jazz & underground'],emoji:['🎵','🍸','🌆','🎶'],sys:'You are the Roam Spirit nightlife guide for {city}. One short intro sentence, then 3-4 specific spots. Format each as: **Place Name** — one short sentence (max 15 words). One per line, blank line between. No markdown headers, no long paragraphs. Authentic local nightlife.'},
+  culture:{label:'Art & Culture',chips:['Galleries & museums','Live shows','Bookshops','Street art'],emoji:['🖼','🎭','📚','🎨'],sys:'You are the Roam Spirit culture guide for {city}. One short intro sentence, then 3-4 specific spots. Format each as: **Place Name** — one short sentence (max 15 words). One per line, blank line between. No markdown headers, no long paragraphs. Authentic scenes.'}
 };
 
 var COORDS=[
@@ -1393,7 +1477,16 @@ div.appendChild(s);div.appendChild(b);c.insertBefore(div,a);a.scrollIntoView({be
 function showTyping(){var c=document.getElementById('chat'),a=document.getElementById('anchor'),div=document.createElement('div');div.className='msg bot';div.id='typing';div.innerHTML='<div class="sender">Roam Spirit</div><div class="typing-b"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';c.insertBefore(div,a);a.scrollIntoView({behavior:'smooth',block:'end'});}
 function hideTyping(){var t=document.getElementById('typing');if(t)t.remove();}
 
-function fmt(text){return text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/^- (.+)$/gm,'<li>$1</li>').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>').replace(/^([^<].+)$/m,'<p>$1</p>');}
+function fmt(text){
+  text = text.replace(/^#{1,6}\s*(.+)$/gm, '$1'); // retire les titres Markdown parasites (#, ##...)
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    .replace(/^([^<].+)$/m, '<p>$1</p>');
+}
 
 async function send(){if(typing)return;trackEvent('ai_chat');var el=document.getElementById('inp'),text=el.value.trim();if(!text)return;el.value='';el.style.height='auto';addMsg('user',text);if(!histories[tab])histories[tab]=[];histories[tab].push({role:'user',content:text});typing=true;showTyping();
 try{var rep=await askAI({system:TABS[tab].sys.replace('{city}',city),messages:histories[tab],max_tokens:1000});
@@ -1872,7 +1965,14 @@ function renderExploreFeed(filter){
       +avatar
       +'<div><div class="explore-post-name">'+esc(p.pseudo)+'</div><div class="explore-post-city">📍 '+esc(p.city)+'</div></div>'
       +'</div>'
-      +(p.photo_url?'<img class="explore-post-img" src="'+esc(p.photo_url)+'" loading="lazy"/>':'')
+      +(function(){
+        var photos = parsePhotoUrls(p);
+        if(!photos.length) return '';
+        return '<div style="position:relative">'
+          +'<img class="explore-post-img" src="'+esc(photos[0])+'" loading="lazy"/>'
+          +(photos.length>1 ? '<span class="fpc-count" style="top:8px;right:8px">1/'+photos.length+'</span>' : '')
+          +'</div>';
+      })()
       +'<div class="explore-post-text">'+esc(p.message)+'</div>'
       +'<div class="explore-post-actions">'
       +'<button class="feed-action-btn" data-like-btn="'+esc(p.id)+'" onclick="feedLike(\''+jsArg(p.id)+'\')">'+heartIcon(liked)+'</button>'
@@ -1974,7 +2074,7 @@ async function loadSocialFeed(){
     feedPosts = seedFeedPosts;
   }
   renderFeedPosts();
-  renderStories();
+  loadStories();
 }
 
 function renderFeedPosts(){
@@ -1997,9 +2097,21 @@ function renderFeedPosts(){
     var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 34);
     var timeAgo = getTimeAgo(p.created_at);
     var pid = jsArg(p.id);
-    var mediaHtml = p.photo_url
-      ? '<div class="feed-post-img-wrap" ondblclick="burstHeart(event);feedLike(\''+pid+'\')"><img class="feed-post-img" src="'+esc(p.photo_url)+'" loading="lazy"/></div>'
-      : '<div class="feed-post-quote" ondblclick="burstHeart(event);feedLike(\''+pid+'\')"><div class="feed-post-quote-text">'+esc(p.message)+'</div></div>';
+    var photos = parsePhotoUrls(p);
+    var mediaHtml;
+    if(photos.length > 1){
+      mediaHtml = '<div class="fpc-wrap" ondblclick="burstHeart(event);feedLike(\''+pid+'\')">'
+        +'<div class="fpc-track" data-carousel="'+esc(p.id)+'">'
+        +photos.map(function(src){ return '<img src="'+esc(src)+'" loading="lazy"/>'; }).join('')
+        +'</div>'
+        +'<div class="fpc-count">1/'+photos.length+'</div>'
+        +'<div class="fpc-dots">'+photos.map(function(_,i){ return '<span class="fpc-dot'+(i===0?' active':'')+'"></span>'; }).join('')+'</div>'
+        +'</div>';
+    } else if(photos.length === 1){
+      mediaHtml = '<div class="feed-post-img-wrap" ondblclick="burstHeart(event);feedLike(\''+pid+'\')"><img class="feed-post-img" src="'+esc(photos[0])+'" loading="lazy"/></div>';
+    } else {
+      mediaHtml = '<div class="feed-post-quote" ondblclick="burstHeart(event);feedLike(\''+pid+'\')"><div class="feed-post-quote-text">'+esc(p.message)+'</div></div>';
+    }
     return adHtml + '<div class="feed-post">'
       +'<div class="feed-post-header">'
       +'<div class="feed-post-avatar-ring">'+avatar+'</div>'
@@ -2016,9 +2128,40 @@ function renderFeedPosts(){
       +'<button class="feed-action-btn" onclick="openDM(\''+jsArg(p.pseudo)+'\')">'+msgIcon()+'</button>'
       +'</div>'
       +'<div class="feed-post-likes" data-like-cnt="'+esc(p.id)+'">'+(p.likes||0)+' likes</div>'
-      +(p.photo_url ? '<div class="feed-post-caption"><span class="feed-post-caption-name">'+esc(p.pseudo)+'</span><span class="feed-post-caption-text">'+esc(p.message)+'</span></div>' : '')
+      +(photos.length ? '<div class="feed-post-caption"><span class="feed-post-caption-name">'+esc(p.pseudo)+'</span><span class="feed-post-caption-text">'+esc(p.message)+'</span></div>' : '')
       +'</div>';
   }).join('');
+  bindCarouselDots();
+}
+
+// Récupère le tableau de photos d'un post (nouveau champ photo_urls, ou compat ancien photo_url seul)
+function parsePhotoUrls(p){
+  if(p.photo_urls){
+    try {
+      var arr = typeof p.photo_urls === 'string' ? JSON.parse(p.photo_urls) : p.photo_urls;
+      if(Array.isArray(arr) && arr.length) return arr;
+    } catch(e){}
+  }
+  return p.photo_url ? [p.photo_url] : [];
+}
+
+// Met à jour les points de pagination pendant le swipe (écoute en phase de capture
+// car l'événement scroll ne remonte pas naturellement)
+var _carouselBound = false;
+function bindCarouselDots(){
+  if(_carouselBound) return;
+  _carouselBound = true;
+  document.addEventListener('scroll', function(e){
+    var track = e.target;
+    if(!track.classList || !track.classList.contains('fpc-track')) return;
+    var wrap = track.closest('.fpc-wrap');
+    if(!wrap) return;
+    var idx = Math.round(track.scrollLeft / track.clientWidth);
+    var dots = wrap.querySelectorAll('.fpc-dot');
+    dots.forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+    var count = wrap.querySelector('.fpc-count');
+    if(count) count.textContent = (idx+1)+'/'+dots.length;
+  }, true);
 }
 
 function heartIcon(liked){
@@ -2072,30 +2215,171 @@ function feedLike(id){
   document.querySelectorAll('[data-like-cnt="'+CSS.escape(id)+'"]').forEach(function(c){ c.textContent = (post.likes||0)+' likes'; });
 }
 
+// ——— STORIES 24h ———
+var stories = [];          // stories actives chargées depuis Supabase
+var svQueue = [];          // file d'affichage dans la visionneuse
+var svIndex = 0;
+var svTimer = null;
+var storyPhotoData = '';
+var STORY_DURATION = 6000; // doit correspondre à l'animation CSS svProgress
+
+async function loadStories(){
+  try {
+    stories = await supaFetch('stories?select=*&order=created_at.asc');
+  } catch(e){ stories = []; }
+  renderStories();
+}
+
+function openStoryCreate(){
+  requireLogin(function(){
+    askPseudo(function(){
+      storyPhotoData = '';
+      var row = document.querySelector('#story-sheet .pub-photos-row');
+      if(row) row.innerHTML = '<div class="pub-photo-add" onclick="document.getElementById(\'story-photo-file\').click()"><div style="font-size:24px">📸</div><div class="pub-photo-label">Add photo</div></div>';
+      document.getElementById('story-caption').value = '';
+      document.getElementById('story-feedback').textContent = '';
+      document.getElementById('story-overlay').classList.add('open');
+      document.getElementById('story-sheet').classList.add('open');
+    });
+  });
+}
+function closeStoryCreate(){
+  document.getElementById('story-overlay').classList.remove('open');
+  document.getElementById('story-sheet').classList.remove('open');
+}
+
+function handleStoryPhoto(input){
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.createElement('canvas');
+      var MAX = 1000; var w = img.width, h = img.height;
+      if(w > MAX){ h = h * (MAX / w); w = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      storyPhotoData = canvas.toDataURL('image/jpeg', 0.8);
+      var row = document.querySelector('#story-sheet .pub-photos-row');
+      if(row) row.innerHTML = '<div class="pub-photo-thumb" style="flex:0 0 110px;height:110px"><img src="'+storyPhotoData+'"/></div>';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+  input.value = '';
+}
+
+async function submitStory(){
+  var fb = document.getElementById('story-feedback');
+  if(!storyPhotoData){ fb.textContent = 'Add a photo first.'; return; }
+  if(storyPhotoData.length > 500000){ fb.textContent = 'Photo too large — try another.'; return; }
+  fb.textContent = 'Sharing…';
+  var caption = document.getElementById('story-caption').value.trim();
+  try {
+    var payload = { pseudo: myPseudo, city: city, photo_url: storyPhotoData };
+    if(caption) payload.caption = caption;
+    if(currentAvatar && currentAvatar.length < 50000) payload.avatar_url = currentAvatar;
+    var res = await fetch(SUPA_URL+'/rest/v1/stories', {
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error(await res.text());
+    trackEvent('story_created');
+    fb.textContent = '✓ Story shared!';
+    storyPhotoData = '';
+    setTimeout(function(){ closeStoryCreate(); loadStories(); }, 1200);
+  } catch(e){ fb.textContent = 'Error: '+e.message; }
+}
+
+// —— Visionneuse ——
+function openStoryViewer(pseudo){
+  svQueue = stories.filter(function(s){ return s.pseudo === pseudo; });
+  if(!svQueue.length) return;
+  svIndex = 0;
+  document.getElementById('story-viewer').classList.add('open');
+  renderStoryBars();
+  showStory(0);
+}
+
+function renderStoryBars(){
+  var bars = document.getElementById('sv-bars');
+  bars.innerHTML = svQueue.map(function(){ return '<div class="sv-bar"><div class="sv-bar-fill"></div></div>'; }).join('');
+}
+
+function showStory(i){
+  if(i < 0 || i >= svQueue.length){ closeStoryViewer(); return; }
+  svIndex = i;
+  var s = svQueue[i];
+  document.getElementById('sv-img').src = s.photo_url;
+  document.getElementById('sv-name').textContent = s.pseudo;
+  document.getElementById('sv-city').textContent = s.city ? '📍 '+s.city : '';
+  document.getElementById('sv-time').textContent = getTimeAgo(s.created_at);
+  document.getElementById('sv-avatar').innerHTML = makeAvatar(s.pseudo, s.avatar_url||'', 34);
+  var cap = document.getElementById('sv-caption');
+  cap.textContent = s.caption || '';
+  cap.style.display = s.caption ? 'block' : 'none';
+  // Barres de progression
+  var bars = document.querySelectorAll('#sv-bars .sv-bar');
+  bars.forEach(function(b, idx){
+    b.classList.remove('active','done');
+    if(idx < i) b.classList.add('done');
+  });
+  if(bars[i]){
+    void bars[i].offsetWidth; // force le redémarrage de l'animation CSS
+    bars[i].classList.add('active');
+  }
+  clearTimeout(svTimer);
+  svTimer = setTimeout(function(){ nextStory(); }, STORY_DURATION);
+}
+
+function nextStory(){ showStory(svIndex + 1); }
+function prevStory(){ showStory(svIndex - 1); }
+
+function closeStoryViewer(){
+  clearTimeout(svTimer);
+  document.getElementById('story-viewer').classList.remove('open');
+  document.getElementById('sv-img').src = '';
+}
+
+function reportStory(){
+  var s = svQueue[svIndex];
+  if(!s) return;
+  fetch(SUPA_URL+'/rest/v1/rpc/report_story', {
+    method:'POST',
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
+    body: JSON.stringify({ story_id: s.id })
+  }).catch(function(){});
+  alert('Thanks — this story has been reported.');
+  nextStory();
+}
+
 function renderStories(){
   var scroll = document.getElementById('stories-scroll');
   if(!scroll) return;
-  var uniqueUsers = [];
-  var seen = {};
-  feedPosts.forEach(function(p){
-    if(!seen[p.pseudo.toLowerCase()]){seen[p.pseudo.toLowerCase()]=true;uniqueUsers.push(p);}
+  // Regroupe les stories par auteur
+  var byUser = {}; var order = [];
+  stories.forEach(function(s){
+    if(!byUser[s.pseudo]){ byUser[s.pseudo] = []; order.push(s.pseudo); }
+    byUser[s.pseudo].push(s);
   });
-  var addBtn = '<div class="story-item" onclick="openPublish()"><div class="story-add">+</div><div class="story-name">Your story</div></div>';
-  scroll.innerHTML = addBtn + uniqueUsers.slice(0,8).map(function(p){
-    var av = makeAvatar(p.pseudo, p.avatar_url||'', 50);
-    var initials = esc(getInitials(p.pseudo));
-    var color = getAvatarColor(p.pseudo);
-    return '<div class="story-item" onclick="openDM(\''+jsArg(p.pseudo)+'\')">'
-      +'<div class="story-ring">'
-      +'<div class="story-avatar" style="background:'+color+'">'+initials+'</div>'
-      +'</div>'
-      +'<div class="story-name">'+esc(p.pseudo)+'</div>'
+  var addBtn = '<div class="story-item" onclick="openStoryCreate()"><div class="story-add">+</div><div class="story-name">Your story</div></div>';
+  scroll.innerHTML = addBtn + order.slice(0,10).map(function(pseudo){
+    var s = byUser[pseudo][0];
+    var isMine = myPseudo && pseudo === myPseudo;
+    var inner = s.avatar_url
+      ? '<div class="story-avatar"><img src="'+esc(s.avatar_url)+'"/></div>'
+      : '<div class="story-avatar" style="background:'+getAvatarColor(pseudo)+'">'+esc(getInitials(pseudo))+'</div>';
+    return '<div class="story-item" onclick="openStoryViewer(\''+jsArg(pseudo)+'\')">'
+      +'<div class="story-ring'+(isMine?' mine':'')+'">'+inner+'</div>'
+      +'<div class="story-name">'+esc(pseudo)+'</div>'
       +'</div>';
   }).join('');
 }
 
 // ——— PUBLISH ———
-var pubPhotoData = '';
+var pubPhotos = []; // tableau de dataURL compressées, max 5
+var PUB_MAX_PHOTOS = 5;
 var pubAvatarData = '';
 
 function openPublish(){
@@ -2140,23 +2424,46 @@ function handlePubAvatar(input){
 }
 
 function handlePubPhoto(input){
-  if(!input.files||!input.files[0])return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var img=new Image();
-    img.onload=function(){
-      var canvas=document.createElement('canvas');
-      var MAX=800;var w=img.width,h=img.height;
-      if(w>MAX){h=h*(MAX/w);w=MAX;}
-      canvas.width=w;canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      pubPhotoData=canvas.toDataURL('image/jpeg',0.8);
-      var zone=document.getElementById('pub-photo-zone');
-      zone.innerHTML='<img src="'+pubPhotoData+'" style="width:100%;height:100%;object-fit:cover"/>';
+  if(!input.files || !input.files.length) return;
+  var files = Array.prototype.slice.call(input.files, 0, PUB_MAX_PHOTOS - pubPhotos.length);
+  files.forEach(function(file){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var canvas = document.createElement('canvas');
+        var MAX = 1000; var w = img.width, h = img.height;
+        if(w > MAX){ h = h * (MAX / w); w = MAX; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        pubPhotos.push(canvas.toDataURL('image/jpeg', 0.8));
+        renderPubPhotos();
+      };
+      img.src = e.target.result;
     };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(input.files[0]);
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function removePubPhoto(idx){
+  pubPhotos.splice(idx, 1);
+  renderPubPhotos();
+}
+
+function renderPubPhotos(){
+  var row = document.getElementById('pub-photos-row');
+  if(!row) return;
+  var thumbs = pubPhotos.map(function(src, i){
+    return '<div class="pub-photo-thumb"><img src="'+src+'"/>'
+      +'<button type="button" class="pub-photo-thumb-remove" onclick="removePubPhoto('+i+')">✕</button>'
+      +(pubPhotos.length>1 ? '<span class="pub-photo-count">'+(i+1)+'/'+pubPhotos.length+'</span>' : '')
+      +'</div>';
+  }).join('');
+  var addTile = pubPhotos.length < PUB_MAX_PHOTOS
+    ? '<div class="pub-photo-add" id="pub-photo-add" onclick="document.getElementById(\'pub-photo-file\').click()"><div style="font-size:24px">📸</div><div class="pub-photo-label">'+(pubPhotos.length?'Add more':'Add photos')+'</div></div>'
+    : '';
+  row.innerHTML = thumbs + addTile;
 }
 
 async function submitPubPost(){trackEvent('post_created');
@@ -2170,7 +2477,14 @@ async function submitPubPost(){trackEvent('post_created');
   try {
     var payload={pseudo:pseudo,city:city,message:msg,approved:false,likes:0};
     if(currentAvatar&&currentAvatar.length<50000)payload.avatar_url=currentAvatar;
-    if(pubPhotoData&&pubPhotoData.length<500000)payload.photo_url=pubPhotoData;
+    if(pubPhotos.length){
+      // Garde-fou taille : on ne garde que les photos qui passent sous la limite
+      var validPhotos = pubPhotos.filter(function(p){ return p.length < 500000; });
+      if(validPhotos.length){
+        payload.photo_url = validPhotos[0]; // compat avec l'ancien champ / anciens posts
+        if(validPhotos.length > 1) payload.photo_urls = JSON.stringify(validPhotos);
+      }
+    }
     var res=await fetch(SUPA_URL+'/rest/v1/community_posts',{
       method:'POST',
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
@@ -2179,8 +2493,8 @@ async function submitPubPost(){trackEvent('post_created');
     if(!res.ok) throw new Error(await res.text());
     fb.textContent='✓ Shared! Visible after moderation.';
     document.getElementById('pub-msg').value='';
-    pubPhotoData='';
-    document.getElementById('pub-photo-zone').innerHTML='<div style="font-size:32px">📸</div><div class="pub-photo-label">Add a photo (optional)</div>';
+    pubPhotos=[];
+    renderPubPhotos();
     setTimeout(function(){closePublish();fb.textContent='';},2000);
   } catch(e){fb.textContent='Error: '+e.message;}
 }
@@ -2522,30 +2836,60 @@ async function refreshAdminAccess(){
 async function loadAdminPosts(){
   var feed = document.getElementById('admin-feed');
   feed.innerHTML = '<div class="admin-empty">Loading...</div>';
+  var html = '';
+  // 1) Stories signalées (priorité : contenu déjà en ligne)
+  try {
+    var reported = await supaFetchAuth('stories?select=*&reports=gte.1&order=reports.desc');
+    if(reported.length){
+      html += '<div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--carmine);margin:4px 0 10px">⚑ Reported stories</div>';
+      html += reported.map(function(s){
+        var avatar = makeAvatar(s.pseudo, s.avatar_url||'', 32);
+        return '<div class="admin-post" id="as-'+esc(s.id)+'">'
+          +'<div class="admin-post-meta">'+avatar
+          +'<div><div style="font-size:11px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:.05em">'+esc(s.pseudo)+'</div>'
+          +'<div style="font-size:10px;color:var(--carmine)">⚑ '+s.reports+' report(s) · 📍 '+esc(s.city||'')+'</div></div>'
+          +'</div>'
+          +'<img src="'+esc(s.photo_url)+'" style="width:100%;border-radius:10px;margin:8px 0;max-height:200px;object-fit:cover"/>'
+          +(s.caption?'<div class="admin-post-text">'+esc(s.caption)+'</div>':'')
+          +'<div class="admin-actions">'
+          +'<button class="admin-reject" onclick="deleteStory('+s.id+')">✕ Delete story</button>'
+          +'</div>'
+          +'</div>';
+      }).join('');
+    }
+  } catch(e){}
+  // 2) Posts en attente de modération
   try {
     var posts = await supaFetchAuth('community_posts?select=*&approved=eq.false&order=created_at.desc');
-    if(posts.length === 0){
-      feed.innerHTML = '<div class="admin-empty">✓ No posts awaiting moderation.</div>';
-      return;
+    if(posts.length){
+      html += '<div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 10px">Posts awaiting moderation</div>';
+      html += posts.map(function(p){
+        var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 32);
+        var date = p.created_at ? new Date(p.created_at).toLocaleDateString() : '';
+        return '<div class="admin-post" id="ap-'+esc(p.id)+'">'
+          +'<div class="admin-post-meta">'+avatar
+          +'<div><div style="font-size:11px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:.05em">'+esc(p.pseudo)+'</div>'
+          +'<div style="font-size:10px;color:var(--muted)">📍 '+esc(p.city)+' · '+date+'</div></div>'
+          +'</div>'
+          +'<div class="admin-post-text">'+esc(p.message)+'</div>'
+          +'<div class="admin-actions">'
+          +'<button class="admin-approve" onclick="approvePost('+p.id+')">✓ Approve</button>'
+          +'<button class="admin-reject" onclick="rejectPost('+p.id+')">✕ Delete</button>'
+          +'</div>'
+          +'</div>';
+      }).join('');
     }
-    feed.innerHTML = posts.map(function(p){
-      var avatar = makeAvatar(p.pseudo, p.avatar_url||'', 32);
-      var date = p.created_at ? new Date(p.created_at).toLocaleDateString() : '';
-      return '<div class="admin-post" id="ap-'+esc(p.id)+'">'
-        +'<div class="admin-post-meta">'+avatar
-        +'<div><div style="font-size:11px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:.05em">'+esc(p.pseudo)+'</div>'
-        +'<div style="font-size:10px;color:var(--muted)">📍 '+esc(p.city)+' · '+date+'</div></div>'
-        +'</div>'
-        +'<div class="admin-post-text">'+esc(p.message)+'</div>'
-        +'<div class="admin-actions">'
-        +'<button class="admin-approve" onclick="approvePost('+p.id+')">✓ Approve</button>'
-        +'<button class="admin-reject" onclick="rejectPost('+p.id+')">✕ Delete</button>'
-        +'</div>'
-        +'</div>';
-    }).join('');
-  } catch(e){
-    feed.innerHTML = '<div class="admin-empty">Error loading posts.</div>';
-  }
+  } catch(e){}
+  feed.innerHTML = html || '<div class="admin-empty">✓ Nothing awaiting moderation.</div>';
+}
+
+async function deleteStory(id){
+  try {
+    await supaFetchAuth('stories?id=eq.'+id, { method:'DELETE' });
+    var el = document.getElementById('as-'+id);
+    if(el) el.remove();
+    loadStories();
+  } catch(e){ alert('Error: '+e.message); }
 }
 
 async function approvePost(id){
