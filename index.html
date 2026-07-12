@@ -274,7 +274,20 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
 .sv-nav{position:absolute;top:0;bottom:0;width:33%;z-index:2;cursor:pointer}
 .sv-nav.prev{left:0}
 .sv-nav.next{right:0}
-.sv-report{position:absolute;bottom:14px;right:14px;z-index:3;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);font-size:10px;padding:5px 10px;border-radius:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.sv-report{position:absolute;top:12px;right:12px;z-index:3;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);font-size:10px;padding:4px 9px;border-radius:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* STORY — barre d'actions (like + réponse) */
+.sv-actions{display:flex;align-items:center;gap:10px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));flex-shrink:0;background:#000;z-index:5}
+.sv-reply{flex:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:22px;padding:10px 16px;font-size:13px;color:#fff;outline:none;font-family:'DM Sans',sans-serif;min-width:0}
+.sv-reply::placeholder{color:rgba(255,255,255,.5)}
+.sv-like{background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;flex-shrink:0;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.sv-like:active{transform:scale(1.25)}
+.sv-like svg{width:26px;height:26px}
+.sv-like-count{font-size:11px;color:rgba(255,255,255,.75);min-width:14px}
+.sv-send{width:36px;height:36px;border-radius:50%;background:var(--carmine);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0;transition:transform .15s ease}
+.sv-send:active{transform:scale(.88)}
+.sv-toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:12px;padding:8px 16px;border-radius:20px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:6;white-space:nowrap}
+.sv-toast.show{opacity:1}
 .story-ring.mine{background:linear-gradient(135deg,var(--gold),var(--carmine))}
 .story-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 
@@ -816,6 +829,15 @@ html,body{height:100%;width:100%;max-width:100%;background:var(--white);font-fam
       <img class="sv-img" id="sv-img" alt=""/>
       <div class="sv-caption" id="sv-caption"></div>
       <button class="sv-report" onclick="reportStory()">⚑ Report</button>
+      <div class="sv-toast" id="sv-toast"></div>
+    </div>
+    <div class="sv-actions">
+      <input class="sv-reply" id="sv-reply" placeholder="Reply to this story…" maxlength="200"
+             onfocus="pauseStory()" onblur="resumeStory()"
+             onkeydown="if(event.key==='Enter')sendStoryReply()"/>
+      <button class="sv-send" aria-label="Send reply" onclick="sendStoryReply()">→</button>
+      <button class="sv-like" id="sv-like-btn" aria-label="Like story" onclick="likeStory()"></button>
+      <span class="sv-like-count" id="sv-like-count">0</span>
     </div>
   </div>
 
@@ -2280,6 +2302,7 @@ async function submitStory(){
     var payload = { pseudo: myPseudo, city: city, photo_url: storyPhotoData };
     if(caption) payload.caption = caption;
     if(currentAvatar && currentAvatar.length < 50000) payload.avatar_url = currentAvatar;
+    if(googleUser) payload.user_id = googleUser.id; // permet de recevoir des réponses
     var res = await fetch(SUPA_URL+'/rest/v1/stories', {
       method:'POST',
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
@@ -2331,16 +2354,121 @@ function showStory(i){
     bars[i].classList.add('active');
   }
   clearTimeout(svTimer);
+  updateStoryLikeUI();
+  var reply = document.getElementById('sv-reply');
+  if(reply) reply.value = '';
+  svPaused = false;
   svTimer = setTimeout(function(){ nextStory(); }, STORY_DURATION);
 }
 
 function nextStory(){ showStory(svIndex + 1); }
 function prevStory(){ showStory(svIndex - 1); }
 
+// Pause l'avance auto pendant qu'on écrit une réponse
+var svPaused = false;
+function pauseStory(){
+  svPaused = true;
+  clearTimeout(svTimer);
+  var bar = document.querySelector('#sv-bars .sv-bar.active .sv-bar-fill');
+  if(bar){
+    var w = getComputedStyle(bar).width;
+    bar.style.animation = 'none';
+    bar.style.width = w;
+  }
+}
+function resumeStory(){
+  if(!svPaused) return;
+  svPaused = false;
+  var inp = document.getElementById('sv-reply');
+  if(inp && inp.value.trim()) return; // reste en pause tant qu'il y a du texte
+  showStory(svIndex); // relance proprement la story courante
+}
+
+function svToast(msg){
+  var t = document.getElementById('sv-toast');
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 1800);
+}
+
+// —— Like d'une story ——
+var likedStories = JSON.parse(localStorage.getItem('rs_liked_stories') || '[]');
+
+function updateStoryLikeUI(){
+  var s = svQueue[svIndex];
+  if(!s) return;
+  var liked = likedStories.indexOf(String(s.id)) > -1;
+  var btn = document.getElementById('sv-like-btn');
+  var cnt = document.getElementById('sv-like-count');
+  if(btn) btn.innerHTML = liked
+    ? '<svg viewBox="0 0 24 24" fill="#C9A84C" stroke="#C9A84C" stroke-width="1.5"><path d="M12 21s-7.5-4.7-10.2-9.1C.2 9.1 1 5.5 4.2 4.2 6.6 3.2 9 4 12 7c3-3 5.4-3.8 7.8-2.8 3.2 1.3 4 4.9 2.4 7.7C19.5 16.3 12 21 12 21z"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M12 21s-7.5-4.7-10.2-9.1C.2 9.1 1 5.5 4.2 4.2 6.6 3.2 9 4 12 7c3-3 5.4-3.8 7.8-2.8 3.2 1.3 4 4.9 2.4 7.7C19.5 16.3 12 21 12 21z"/></svg>';
+  if(cnt) cnt.textContent = s.likes || 0;
+}
+
+function likeStory(){
+  var s = svQueue[svIndex];
+  if(!s) return;
+  var id = String(s.id);
+  var wasLiked = likedStories.indexOf(id) > -1;
+  if(wasLiked){
+    likedStories.splice(likedStories.indexOf(id), 1);
+    s.likes = Math.max(0, (s.likes||0) - 1);
+  } else {
+    likedStories.push(id);
+    s.likes = (s.likes||0) + 1;
+    if(navigator.vibrate) navigator.vibrate(12);
+  }
+  localStorage.setItem('rs_liked_stories', JSON.stringify(likedStories));
+  updateStoryLikeUI();
+  fetch(SUPA_URL+'/rest/v1/rpc/like_story', {
+    method:'POST',
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
+    body: JSON.stringify({ story_id: s.id, delta: wasLiked ? -1 : 1 })
+  }).catch(function(){});
+}
+
+// —— Répondre à une story (en message privé) ——
+async function sendStoryReply(){
+  var s = svQueue[svIndex];
+  var inp = document.getElementById('sv-reply');
+  if(!s || !inp) return;
+  var content = inp.value.trim();
+  if(!content) return;
+  if(s.pseudo === myPseudo){ svToast("That's your own story"); return; }
+  requireLogin(async function(){
+    await syncProfile();
+    if(!googleUser) return;
+    var toId = s.user_id || await userIdForPseudo(s.pseudo);
+    if(!toId){ svToast("This traveler can't receive messages"); return; }
+    inp.value = '';
+    try {
+      await supaFetchAuth('private_messages', {
+        method:'POST',
+        body: JSON.stringify({
+          from_user: googleUser.id,
+          to_user: toId,
+          from_pseudo: myPseudo,
+          to_pseudo: s.pseudo,
+          content: '↩︎ '+content,   // marque visuellement que c'est une réponse à une story
+          read: false
+        })
+      });
+      svToast('✓ Reply sent to '+s.pseudo);
+      sendPush(s.pseudo, myPseudo, content);
+      resumeStory();
+    } catch(e){ svToast('Could not send'); }
+  });
+}
+
 function closeStoryViewer(){
   clearTimeout(svTimer);
+  svPaused = false;
   document.getElementById('story-viewer').classList.remove('open');
   document.getElementById('sv-img').src = '';
+  var reply = document.getElementById('sv-reply');
+  if(reply) reply.value = '';
 }
 
 function reportStory(){
